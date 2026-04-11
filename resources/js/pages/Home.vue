@@ -66,32 +66,64 @@
         </div>
       </div>
 
-      <!-- Right Visual -->
-      <div class="w-1/2 relative bg-sumi pattern-asanoha">
-        <!-- Decorative elements -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="w-80 h-80 border border-washi/10 rounded-full animate-float"></div>
-          <div class="absolute w-96 h-96 border border-washi/5 rounded-full animate-float" style="animation-delay: 1s"></div>
-        </div>
+      <!-- Right Visual - Carousel -->
+      <div class="w-1/2 relative bg-sumi pattern-wave flex items-center justify-center group">
+        <!-- Carousel Container -->
+        <div class="relative w-full h-full flex items-center justify-center px-8">
+          <!-- Carousel Slides -->
+          <div class="relative w-full h-full max-w-md max-h-96 lg:max-h-96">
+            <div
+              v-for="(slide, idx) in heroCarousel"
+              :key="slide.id"
+              class="carousel-slide absolute inset-0 rounded-3xl overflow-hidden img-reveal transition-all duration-1000 ease-in-out"
+              :class="idx === currentCarouselIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'"
+            >
+              <!-- Placeholder Image -->
+              <div class="absolute inset-0 bg-linear-to-br from-kuro to-usuzemi flex items-center justify-center">
+                <div class="text-center">
+                  <i class="bi bi-image text-5xl text-washi/30 mb-2"></i>
+                  <p class="text-washi/50 text-sm">{{ slide.title }}</p>
+                </div>
+              </div>
 
-        <!-- Main visual placeholder -->
-        <div class="absolute inset-12 rounded-3xl bg-linear-to-br from-kuro to-usuzemi overflow-hidden img-reveal animate-kenburns">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <i class="bi bi-image text-6xl text-washi/20"></i>
-          </div>
-          <!-- Overlay text -->
-          <div class="absolute bottom-8 left-8 right-8">
-            <div class="bg-washi/10 backdrop-blur-md rounded-2xl p-6 border border-washi/10">
-              <p class="text-washi/60 text-xs tracking-widest mb-2">FEATURED</p>
-              <p class="text-washi text-xl font-bold">Nike Air Max 97</p>
-              <p class="text-washi/60 text-sm">Silver Bullet - Limited Edition</p>
+              <!-- Gradient Overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-kuro/80 via-transparent to-transparent"></div>
+
+              <!-- Info Card -->
+              <div class="absolute bottom-8 left-8 right-8 z-10">
+                <div class="bg-washi/10 backdrop-blur-md rounded-2xl p-4 border border-washi/20">
+                  <p class="text-washi/60 text-xs tracking-widest mb-1">{{ slide.brand }}</p>
+                  <p class="text-washi font-bold text-lg line-clamp-2">{{ slide.product }}</p>
+                  <p class="text-washi/70 text-xs mt-1">{{ slide.price }}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Corner accent -->
-        <div class="absolute top-8 right-8 text-washi/40 text-xs tracking-widest">
-          <span class="vertical-text">日本</span>
+          <!-- Navigation Buttons -->
+          <button
+            @click="prevCarousel"
+            class="absolute left-4 z-20 w-10 h-10 rounded-full bg-washi/10 backdrop-blur-md flex items-center justify-center text-washi hover:bg-washi/20 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button
+            @click="nextCarousel"
+            class="absolute right-4 z-20 w-10 h-10 rounded-full bg-washi/10 backdrop-blur-md flex items-center justify-center text-washi hover:bg-washi/20 transition-all opacity-0 group-hover:opacity-100"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+
+          <!-- Dot Indicators -->
+          <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2 z-20">
+            <button
+              v-for="(slide, idx) in heroCarousel"
+              :key="`dot-${slide.id}`"
+              @click="currentCarouselIndex = idx"
+              class="transition-all"
+              :class="idx === currentCarouselIndex ? 'w-8 h-2 bg-washi rounded-full' : 'w-2 h-2 bg-washi/30 rounded-full hover:bg-washi/50'"
+            ></button>
+          </div>
         </div>
       </div>
     </section>
@@ -556,6 +588,7 @@ import type { FloatingContact, FloatingOrder } from '@/types/floating-ui'
 // State Management
 const produktFilter = ref('all')
 const tiktokPreset = ref('street')
+const currentCarouselIndex = ref(0)
 
 // Contact Data
 const contacts = ref<FloatingContact[]>([
@@ -594,6 +627,24 @@ const products = ref([
 const filteredProducts = computed(() => {
   return products.value.filter(p => produktFilter.value === 'all' || p.brand === produktFilter.value)
 })
+
+// Hero Carousel
+const heroCarousel = ref([
+  { id: 1, product: 'Nike Air Max 97 Silver', brand: 'NIKE', price: 'Rp 1.850.000', title: 'Air Max 97' },
+  { id: 2, product: 'Adidas Samba OG White', brand: 'ADIDAS', price: 'Rp 1.290.000', title: 'Samba OG' },
+  { id: 3, product: 'Jordan 1 Retro High Bred', brand: 'JORDAN', price: 'Rp 2.100.000', title: 'Jordan 1' },
+  { id: 4, product: 'New Balance 574 Navy', brand: 'NEW BALANCE', price: 'Rp 980.000', title: 'NB 574' },
+  { id: 5, product: 'Ventela Classic White', brand: 'LOKAL', price: 'Rp 420.000', title: 'Ventela Classic' },
+])
+
+// Carousel Navigation
+const nextCarousel = () => {
+  currentCarouselIndex.value = (currentCarouselIndex.value + 1) % heroCarousel.value.length
+}
+
+const prevCarousel = () => {
+  currentCarouselIndex.value = (currentCarouselIndex.value - 1 + heroCarousel.value.length) % heroCarousel.value.length
+}
 
 // TikTok Videos
 const tiktokVideos = ref([
@@ -650,14 +701,19 @@ const updatePoTimers = () => {
 }
 
 let timerInterval: ReturnType<typeof setInterval> | undefined
+let carouselInterval: ReturnType<typeof setInterval> | undefined
 
 onMounted(() => {
   timerInterval = setInterval(updatePoTimers, 1000)
+  carouselInterval = setInterval(nextCarousel, 5000)
 })
 
 onUnmounted(() => {
   if (timerInterval !== undefined) {
     clearInterval(timerInterval)
+  }
+  if (carouselInterval !== undefined) {
+    clearInterval(carouselInterval)
   }
 })
 </script>
@@ -793,6 +849,33 @@ html {
   100% {
     transform: scale(1) translateX(0);
   }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.95);
+  }
+}
+
+/* Carousel Styles */
+.carousel-slide {
+  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .animate-float {
