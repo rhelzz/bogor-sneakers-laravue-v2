@@ -5,7 +5,7 @@
     <FloatingOrderPanel :orders="orders" cta-href="#po-tracker" cta-text="Lihat Semua Order" />
 
     <!-- HERO SECTION -->
-    <section id="hero" class="min-h-screen flex pattern-seigaiha relative overflow-hidden">
+    <section id="hero" class="min-h-screen flex pattern-wave relative overflow-hidden">
       <!-- Left Content -->
       <div class="w-1/2 flex flex-col justify-center px-16 lg:px-24 relative z-10">
         <!-- Japanese vertical accent -->
@@ -127,7 +127,7 @@
     </div>
 
     <!-- PO TRACKER SECTION -->
-    <section id="po-tracker" class="py-24 px-6 lg:px-16 bg-shironeri pattern-kumiko">
+    <section id="po-tracker" class="py-24 px-6 lg:px-16 bg-shironeri pattern-grid"> 
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-16 accent-left">
@@ -206,7 +206,7 @@
     </section>
 
     <!-- KATALOG SECTION -->
-    <section id="katalog" class="py-24 px-6 lg:px-16 bg-washi pattern-asanoha">
+    <section id="katalog" class="py-24 px-6 lg:px-16 bg-washi pattern-hemp"> 
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-16 pb-10 accent-top">
@@ -264,7 +264,7 @@
     </section>
 
     <!-- TIKTOK SECTION -->
-    <section id="tiktok" class="py-24 px-6 lg:px-16 bg-sumi text-washi">
+    <section id="tiktok" class="py-24 px-6 lg:px-16 bg-sumi text-washi pattern-dot-wave">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
@@ -387,7 +387,7 @@
     </div>
 
     <!-- HOW IT WORKS -->
-    <section id="how-it-works" class="py-24 px-6 lg:px-16 bg-shironeri pattern-seigaiha">
+    <section id="how-it-works" class="py-24 px-6 lg:px-16 bg-shironeri pattern-bamboo">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-16 pb-10 accent-top">
@@ -432,7 +432,7 @@
     </section>
 
     <!-- GALERI -->
-    <section id="galeri" class="py-24 px-6 lg:px-16 bg-washi">
+    <section id="galeri" class="py-24 px-6 lg:px-16 bg-washi pattern-plum">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
@@ -474,7 +474,7 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-sumi text-washi py-16 px-6 lg:px-16">
+    <footer class="bg-sumi text-washi py-16 px-6 lg:px-16 pattern-koinobori">
       <div class="max-w-7xl mx-auto">
         <!-- Big Text -->
         <div class="mb-16">
@@ -690,30 +690,50 @@ html {
   background: #1a1a1a;
 }
 
-/* Japanese pattern backgrounds */
-.pattern-seigaiha {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.08' d='M0 40a19.96 19.96 0 0 1 5.9-14.11 20.17 20.17 0 0 1 19.44-5.2A20 20 0 0 1 20.2 40H0zM40 40a20 20 0 0 1-14.11-5.9 19.96 19.96 0 0 1-5.2-19.44A20.17 20.17 0 0 1 40 20.2V40zM40 20.2a20.17 20.17 0 0 1 19.44 5.2A20 20 0 0 1 40 40V20.2zM80 40H59.8a20 20 0 0 1 5.2-19.44 19.96 19.96 0 0 1 14.11-5.9V40z'/%3E%3C/svg%3E");
+/* Japanese pattern backgrounds - Refined */
+/* Wave Pattern (Seigaiha) - for Hero */
+.pattern-wave {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.09' d='M0 30 Q 15 15 30 30 T 60 30 T 90 30 T 120 30'/%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.6' opacity='0.06' d='M0 40 Q 15 25 30 40 T 60 40 T 90 40 T 120 40'/%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.04' d='M0 50 Q 15 35 30 50 T 60 50 T 90 50 T 120 50'/%3E%3C/svg%3E");
+  background-size: 120px 60px;
 }
 
-.pattern-asanoha {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.06' d='M24 0v48M0 24h48M0 0l48 48M48 0L0 48M12 0v24l12 12 12-12V0M12 48V24l12-12 12 12v24'/%3E%3C/svg%3E");
+/* Hemp Leaf Pattern (Asanoha) - for Katalog */
+.pattern-hemp {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%231A1A1A' stroke-width='0.7' opacity='0.08'%3E%3Cpath d='M30 0 L15 15 M30 0 L45 15 M0 30 L15 15 M0 30 L15 45 M60 30 L45 15 M60 30 L45 45 M30 60 L15 45 M30 60 L45 45'/%3E%3Crect x='20' y='20' width='20' height='20'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
 }
 
-.pattern-kumiko {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.12' d='M0 0h60v60H0z M15 0v60M30 0v60M45 0v60 M0 15h60M0 30h60M0 45h60' /%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.06' d='M10 10 L50 50 M50 10 L10 50' /%3E%3C/svg%3E");
+/* Grid Pattern (Kumiko) - for PO Tracker */
+.pattern-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='0.6' opacity='0.09' d='M0 0h50v50H0z M25 0v50 M0 25h50' /%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='0.4' opacity='0.05' d='M10 10 L40 40 M40 10 L10 40' /%3E%3C/svg%3E");
+  background-size: 50px 50px;
 }
 
-.pattern-shippou {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='grad' cx='50%25' cy='50%25'%3E%3Cstop offset='0%25' style='stop-color:%231A1A1A;stop-opacity:0.15' /%3E%3Cstop offset='100%25' style='stop-color:%231A1A1A;stop-opacity:0.04' /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='12' fill='url(%23grad)' /%3E%3Ccircle cx='48' cy='16' r='12' fill='url(%23grad)' /%3E%3Ccircle cx='16' cy='48' r='12' fill='url(%23grad)' /%3E%3Ccircle cx='48' cy='48' r='12' fill='url(%23grad)' /%3E%3C/svg%3E");
+/* Dot Wave Pattern - for TikTok */
+.pattern-dot-wave {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cdefs%3E%3CradialGradient id='dotGrad'%3E%3Cstop offset='0%25' stop-color='%23f7f5f0' stop-opacity='0.2'/%3E%3Cstop offset='100%25' stop-color='%23f7f5f0' stop-opacity='0'/3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='50' cy='30' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='80' cy='20' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='30' cy='60' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='70' cy='70' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='20' cy='90' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3Ccircle cx='80' cy='80' r='2' fill='url(%23dotGrad)' opacity='0.2'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
 }
 
-.pattern-ichimatsu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect x='0' y='0' width='20' height='20' fill='%231A1A1A' opacity='0.08' /%3E%3Crect x='20' y='20' width='20' height='20' fill='%231A1A1A' opacity='0.08' /%3E%3C/svg%3E");
+/* Bamboo Pattern - for How It Works */
+.pattern-bamboo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='1' opacity='0.08' d='M20 0 L20 80 M60 0 L60 80'/%3E%3Crect x='15' y='10' width='10' height='15' fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.06'/%3E%3Crect x='15' y='35' width='10' height='15' fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.06'/%3E%3Crect x='15' y='60' width='10' height='15' fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.06'/%3E%3Crect x='55' y='20' width='10' height='15' fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.06'/%3E%3Crect x='55' y='45' width='10' height='15' fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 80px 80px;
 }
 
-.pattern-sakura {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='3' fill='%237C8C5A' opacity='0.12' /%3E%3Ccircle cx='15' cy='25' r='2' fill='%23d97781' opacity='0.1' /%3E%3Ccircle cx='65' cy='30' r='2' fill='%23d97781' opacity='0.1' /%3E%3Ccircle cx='20' cy='60' r='2' fill='%23d97781' opacity='0.1' /%3E%3Ccircle cx='70' cy='65' r='2' fill='%23d97781' opacity='0.1' /%3E%3Ccircle cx='45' cy='15' r='1.5' fill='%23d97781' opacity='0.08' /%3E%3Ccircle cx='10' cy='75' r='1.5' fill='%23d97781' opacity='0.08' /%3E%3C/svg%3E");
+/* Plum Blossom Pattern - for Gallery */
+.pattern-plum {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='25' cy='25' r='3' fill='%234a4a4a' opacity='0.05'/%3E%3Ccircle cx='75' cy='25' r='3' fill='%234a4a4a' opacity='0.05'/%3E%3Ccircle cx='25' cy='75' r='3' fill='%234a4a4a' opacity='0.05'/%3E%3Ccircle cx='75' cy='75' r='3' fill='%234a4a4a' opacity='0.05'/%3E%3Ccircle cx='50' cy='50' r='2' fill='%234a4a4a' opacity='0.07'/%3E%3Cpath fill='none' stroke='%234a4a4a' stroke-width='0.5' opacity='0.04' d='M25 25 L75 75 M75 25 L25 75'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
 }
+
+/* Koinobori Pattern (Carp Streamer) - for Footer */
+.pattern-koinobori {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='100' viewBox='0 0 120 100'%3E%3Cpath fill='none' stroke='%23f7f5f0' stroke-width='1.2' opacity='0.08' d='M10 30 Q 30 20 50 30 T 90 30'/%3E%3Cpath fill='none' stroke='%23f7f5f0' stroke-width='1' opacity='0.06' d='M10 55 Q 30 45 50 55 T 90 55'/%3E%3Cpath fill='none' stroke='%23f7f5f0' stroke-width='0.8' opacity='0.04' d='M10 80 Q 30 70 50 80 T 90 80'/%3E%3C/svg%3E");
+  background-size: 120px 100px;
+}
+
+
 
 /* Animations */
 @keyframes float {
@@ -846,14 +866,7 @@ html {
   pointer-events: none;
 }
 
-/* Additional Japanese patterns */
-.pattern-kumiko {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='0.8' opacity='0.08' d='M0 0h64v64H0z M16 0v64M32 0v64M48 0v64 M0 16h64M0 32h64M0 48h64' /%3E%3C/svg%3E");
-}
 
-.pattern-ichimatsu {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect x='0' y='0' width='20' height='20' fill='%237C8C5A' opacity='0.05' /%3E%3Crect x='20' y='20' width='20' height='20' fill='%237C8C5A' opacity='0.05' /%3E%3C/svg%3E");
-}
 
 /* Japanese accent borders */
 .accent-left {
