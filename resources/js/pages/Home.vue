@@ -87,7 +87,7 @@
               </div>
 
               <!-- Gradient Overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-kuro/80 via-transparent to-transparent"></div>
+              <div class="absolute inset-0 bg-linear-to-t from-kuro/80 via-transparent to-transparent"></div>
 
               <!-- Info Card -->
               <div class="absolute bottom-8 left-8 right-8 z-10">
@@ -712,6 +712,7 @@ onUnmounted(() => {
   if (timerInterval !== undefined) {
     clearInterval(timerInterval)
   }
+
   if (carouselInterval !== undefined) {
     clearInterval(carouselInterval)
   }
