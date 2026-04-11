@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme inline {
+    --font-sans:
+        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --font-zen: "Zen Kaku Gothic New", sans-serif;
+    --font-noto: "Noto Sans JP", sans-serif;
+
+    /* Japanese Aesthetic Colors */
+    --color-washi: #F7F5F0;
+    --color-sumi: #1A1A1A;
+    --color-matcha: #7C8C5A;
+    --color-indigo: #2C4A6E;
+    --color-sakura: #D4A5A5;
+    --color-take: #3D5A4C;
+    --color-kuro: #0D0D0D;
+    --color-hai: #8A8A8A;
+    --color-usuzumi: #4A4A4A;
+    --color-shironeri: #FAFAF8;
+    --color-usuzemi: #5A5A5A;
+}
