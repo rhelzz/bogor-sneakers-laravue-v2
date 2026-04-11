@@ -1,34 +1,34 @@
 <template>
-  <div class="bg-washi text-sumi font-body antialiased">
+  <div class="min-h-screen bg-washi text-sumi font-body antialiased">
     <FloatingMenuNav current-page="katalog" />
     <FloatingAdminPanel :contacts="contacts" />
     <FloatingOrderPanel :orders="orders" />
 
-    <section class="catalog-page pattern-seigaiha">
-      <div class="catalog-shell">
-        <header class="cat-header">
-          <div class="cat-header__left">
-            <p class="cat-header__eyebrow">STORE ID BGS-001 · BOGOR, IDN</p>
-            <h1 class="cat-header__title">Katalog</h1>
-            <p class="cat-header__sub">
+    <section class="min-h-screen bg-[radial-gradient(circle_at_1px_1px,rgba(26,26,26,0.06)_1px,transparent_0)] bg-size-[26px_26px] px-4 pb-12 pt-28 sm:px-6 lg:px-10">
+      <div class="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-sumi/10 bg-shironeri/95 shadow-[0_16px_36px_rgba(26,26,26,0.08)] backdrop-blur">
+        <header class="flex flex-wrap items-end gap-4 border-b border-sumi/10 bg-washi/80 p-4 sm:p-6">
+          <div>
+            <p class="mb-1 text-[11px] uppercase tracking-[0.16em] text-hai">Store ID BGS-001 · Bogor, IDN</p>
+            <h1 class="text-[30px] font-bold leading-none tracking-tight sm:text-[36px]">Katalog</h1>
+            <p class="mt-2 text-xs tracking-[0.03em] text-hai">
               Menampilkan
-              <strong>{{ shownCount }}</strong>
+              <strong class="text-sumi">{{ shownCount }}</strong>
               dari
-              <strong>{{ filteredCount }}</strong>
+              <strong class="text-sumi">{{ filteredCount }}</strong>
               produk
             </p>
           </div>
 
-          <div class="cat-search-wrap">
+          <div class="relative min-w-55 flex-1 sm:min-w-[320px]">
             <input
               v-model="searchQuery"
-              class="cat-search"
               type="text"
               placeholder="Cari nama / brand / kode..."
               autocomplete="off"
               spellcheck="false"
+              class="w-full rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 pr-10 text-xs tracking-[0.04em] text-sumi outline-none transition focus:border-matcha"
             >
-            <span class="cat-search-icon">
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-hai">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -36,34 +36,38 @@
             </span>
           </div>
 
-          <div class="cat-header__right">
-            <select v-model="sortMode" class="cat-sort">
+          <div class="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+            <select
+              v-model="sortMode"
+              class="min-w-42.5 flex-1 rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 text-xs tracking-[0.05em] text-sumi outline-none transition focus:border-matcha sm:flex-none"
+            >
               <option value="newest">Terbaru</option>
               <option value="price-asc">Harga: Rendah ke Tinggi</option>
               <option value="price-desc">Harga: Tinggi ke Rendah</option>
               <option value="popular">Terpopuler</option>
               <option value="az">A ke Z</option>
             </select>
-            <div class="view-toggle">
+
+            <div class="flex overflow-hidden rounded-xl border border-sumi/15 bg-shironeri">
               <button
-                class="view-btn"
-                :class="{ active: viewMode === '3col' }"
+                class="h-9 w-9 text-hai transition hover:text-sumi"
+                :class="viewMode === '3col' ? 'bg-sumi text-washi hover:text-washi' : ''"
                 title="3 kolom"
                 @click="setViewMode('3col')"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
                   <rect x="3" y="3" width="5" height="18" rx="1" />
                   <rect x="10" y="3" width="5" height="18" rx="1" />
                   <rect x="17" y="3" width="5" height="18" rx="1" />
                 </svg>
               </button>
               <button
-                class="view-btn"
-                :class="{ active: viewMode === '4col' }"
+                class="h-9 w-9 text-hai transition hover:text-sumi"
+                :class="viewMode === '4col' ? 'bg-sumi text-washi hover:text-washi' : ''"
                 title="4 kolom"
                 @click="setViewMode('4col')"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
                   <rect x="2" y="3" width="4" height="18" rx="1" />
                   <rect x="7.5" y="3" width="4" height="18" rx="1" />
                   <rect x="13" y="3" width="4" height="18" rx="1" />
@@ -71,12 +75,12 @@
                 </svg>
               </button>
               <button
-                class="view-btn"
-                :class="{ active: viewMode === 'list' }"
+                class="h-9 w-9 text-hai transition hover:text-sumi"
+                :class="viewMode === 'list' ? 'bg-sumi text-washi hover:text-washi' : ''"
                 title="List"
                 @click="setViewMode('list')"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mx-auto">
                   <line x1="8" y1="6" x2="21" y2="6" />
                   <line x1="8" y1="12" x2="21" y2="12" />
                   <line x1="8" y1="18" x2="21" y2="18" />
@@ -89,168 +93,202 @@
           </div>
         </header>
 
-        <div class="catalog-layout">
-          <aside class="sidebar">
-            <div class="sidebar__section">
-              <div class="sidebar__label">
-                Brand
-                <button class="sidebar__label-reset" @click="resetBrandFilter">Reset</button>
+        <div class="grid lg:grid-cols-[260px_minmax(0,1fr)]">
+          <aside class="border-b border-sumi/10 p-4 sm:p-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-sumi/10">
+            <div class="space-y-4">
+              <div class="border-b border-sumi/10 pb-4">
+                <div class="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-hai">
+                  <span>Brand</span>
+                  <button class="text-[10px] tracking-[0.08em] underline hover:text-sumi" @click="resetBrandFilter">Reset</button>
+                </div>
+                <div class="space-y-1">
+                  <button
+                    v-for="brand in brandFilters"
+                    :key="brand.key"
+                    class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition"
+                    :class="selectedBrands.includes(brand.key) ? 'bg-matcha/15' : 'hover:bg-sumi/5'"
+                    @click="toggleBrand(brand.key)"
+                  >
+                    <span class="flex items-center gap-2">
+                      <span
+                        class="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border"
+                        :class="selectedBrands.includes(brand.key) ? 'border-matcha bg-matcha text-washi' : 'border-sumi/30'"
+                      >
+                        <i v-if="selectedBrands.includes(brand.key)" class="bi bi-check text-[10px]" />
+                      </span>
+                      <span class="text-xs tracking-[0.03em]">{{ brand.label }}</span>
+                    </span>
+                    <span class="text-[11px] text-hai">{{ brandCount[brand.key] ?? 0 }}</span>
+                  </button>
+                </div>
               </div>
-              <div class="filter-list">
-                <button
-                  v-for="brand in brandFilters"
-                  :key="brand.key"
-                  class="filter-item"
-                  :class="{ selected: selectedBrands.includes(brand.key) }"
-                  @click="toggleBrand(brand.key)"
-                >
-                  <span class="filter-item__left">
-                    <span class="filter-checkbox" />
-                    <span class="filter-item__name">{{ brand.label }}</span>
-                  </span>
-                  <span class="filter-item__count">{{ brandCount[brand.key] ?? 0 }}</span>
-                </button>
-              </div>
-            </div>
 
-            <div class="sidebar__section">
-              <div class="sidebar__label">
-                Ukuran (EU)
-                <button class="sidebar__label-reset" @click="resetSizeFilter">Reset</button>
+              <div class="border-b border-sumi/10 pb-4">
+                <div class="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-hai">
+                  <span>Ukuran (EU)</span>
+                  <button class="text-[10px] tracking-[0.08em] underline hover:text-sumi" @click="resetSizeFilter">Reset</button>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5">
+                  <button
+                    v-for="size in availableSizes"
+                    :key="size"
+                    class="rounded-md border px-1 py-1.5 text-xs transition"
+                    :class="selectedSizes.includes(size) ? 'border-sumi bg-sumi text-washi' : 'border-sumi/15 bg-shironeri text-usuzumi hover:border-matcha hover:text-sumi'"
+                    @click="toggleSize(size)"
+                  >
+                    {{ size }}
+                  </button>
+                </div>
               </div>
-              <div class="size-grid">
-                <button
-                  v-for="size in availableSizes"
-                  :key="size"
-                  class="size-btn"
-                  :class="{ active: selectedSizes.includes(size) }"
-                  @click="toggleSize(size)"
-                >
-                  {{ size }}
-                </button>
-              </div>
-            </div>
 
-            <div class="sidebar__section">
-              <div class="sidebar__label">Harga</div>
-              <div class="price-inputs">
-                <input
-                  v-model.number="priceMin"
-                  class="price-input"
-                  type="number"
-                  min="0"
-                  :max="MAX_PRICE"
-                  placeholder="Min"
-                >
-                <span class="price-sep">-</span>
+              <div class="border-b border-sumi/10 pb-4">
+                <p class="mb-3 text-[11px] uppercase tracking-[0.14em] text-hai">Harga</p>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="priceMin"
+                    type="number"
+                    min="0"
+                    :max="MAX_PRICE"
+                    placeholder="Min"
+                    class="w-full rounded-md border border-sumi/15 bg-shironeri px-2 py-1.5 text-xs outline-none focus:border-matcha"
+                  >
+                  <span class="text-xs text-hai">-</span>
+                  <input
+                    v-model.number="priceMax"
+                    type="number"
+                    min="0"
+                    :max="MAX_PRICE"
+                    placeholder="Maks"
+                    class="w-full rounded-md border border-sumi/15 bg-shironeri px-2 py-1.5 text-xs outline-none focus:border-matcha"
+                  >
+                </div>
                 <input
                   v-model.number="priceMax"
-                  class="price-input"
-                  type="number"
+                  type="range"
                   min="0"
                   :max="MAX_PRICE"
-                  placeholder="Maks"
+                  step="50000"
+                  class="mt-3 w-full accent-matcha"
                 >
               </div>
-              <input
-                v-model.number="priceMax"
-                class="price-slider"
-                type="range"
-                min="0"
-                :max="MAX_PRICE"
-                step="50000"
+
+              <div class="border-b border-sumi/10 pb-4">
+                <p class="mb-3 text-[11px] uppercase tracking-[0.14em] text-hai">Status Stok</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <button
+                    v-for="status in statusFilters"
+                    :key="status.key"
+                    class="rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] transition"
+                    :class="statusButtonClass(status.key)"
+                    @click="selectedStatus = status.key"
+                  >
+                    {{ status.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="border-b border-sumi/10 pb-4">
+                <div class="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-hai">
+                  <span>Koleksi</span>
+                  <button class="text-[10px] tracking-[0.08em] underline hover:text-sumi" @click="resetCollectionFilter">Reset</button>
+                </div>
+                <div class="space-y-1">
+                  <button
+                    v-for="collection in collectionFilters"
+                    :key="collection.key"
+                    class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition"
+                    :class="selectedCollections.includes(collection.key) ? 'bg-matcha/15' : 'hover:bg-sumi/5'"
+                    @click="toggleCollection(collection.key)"
+                  >
+                    <span class="flex items-center gap-2">
+                      <span
+                        class="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border"
+                        :class="selectedCollections.includes(collection.key) ? 'border-matcha bg-matcha text-washi' : 'border-sumi/30'"
+                      >
+                        <i v-if="selectedCollections.includes(collection.key)" class="bi bi-check text-[10px]" />
+                      </span>
+                      <span class="text-xs tracking-[0.03em]">{{ collection.label }}</span>
+                    </span>
+                    <span class="text-[11px] text-hai">{{ collectionCount[collection.key] ?? 0 }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                class="w-full rounded-full bg-sumi px-3 py-2.5 text-xs uppercase tracking-[0.12em] text-washi transition hover:opacity-85"
+                @click="showApplyFeedback"
               >
+                {{ applyButtonLabel }}
+              </button>
             </div>
-
-            <div class="sidebar__section">
-              <div class="sidebar__label">Status Stok</div>
-              <div class="status-pills">
-                <button
-                  v-for="status in statusFilters"
-                  :key="status.key"
-                  class="status-pill"
-                  :class="[
-                    status.className,
-                    { active: selectedStatus === status.key },
-                  ]"
-                  @click="selectedStatus = status.key"
-                >
-                  {{ status.label }}
-                </button>
-              </div>
-            </div>
-
-            <div class="sidebar__section">
-              <div class="sidebar__label">
-                Koleksi
-                <button class="sidebar__label-reset" @click="resetCollectionFilter">Reset</button>
-              </div>
-              <div class="filter-list">
-                <button
-                  v-for="collection in collectionFilters"
-                  :key="collection.key"
-                  class="filter-item"
-                  :class="{ selected: selectedCollections.includes(collection.key) }"
-                  @click="toggleCollection(collection.key)"
-                >
-                  <span class="filter-item__left">
-                    <span class="filter-checkbox" />
-                    <span class="filter-item__name">{{ collection.label }}</span>
-                  </span>
-                  <span class="filter-item__count">{{ collectionCount[collection.key] ?? 0 }}</span>
-                </button>
-              </div>
-            </div>
-
-            <button class="sidebar__apply" @click="showApplyFeedback">
-              {{ applyButtonLabel }}
-            </button>
           </aside>
 
-          <main class="catalog-main">
-            <div class="active-filters">
-              <span class="active-filters__label">Filter:</span>
+          <main class="p-4 sm:p-5">
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <span class="text-[11px] uppercase tracking-widest text-hai">Filter:</span>
               <span
                 v-for="chip in activeFilterChips"
                 :key="chip.key"
-                class="active-chip"
+                class="inline-flex items-center gap-1.5 rounded-full border border-sumi/15 bg-shironeri px-2 py-1 text-[11px] text-sumi"
               >
                 {{ chip.label }}
-                <button class="active-chip__remove" :aria-label="`Hapus ${chip.label}`" @click="removeFilterChip(chip)">
+                <button
+                  class="flex h-4 w-4 items-center justify-center rounded-full bg-sumi/10 text-[10px] text-usuzumi transition hover:bg-sumi/25 hover:text-washi"
+                  :aria-label="`Hapus ${chip.label}`"
+                  @click="removeFilterChip(chip)"
+                >
                   <i class="bi bi-x" />
                 </button>
               </span>
-              <button class="active-filters__clear" :disabled="activeFilterChips.length === 0" @click="clearAllFilters">
+              <button
+                class="ml-auto text-[11px] text-hai underline disabled:cursor-not-allowed disabled:opacity-50"
+                :disabled="activeFilterChips.length === 0"
+                @click="clearAllFilters"
+              >
                 Hapus semua
               </button>
             </div>
 
-            <div class="results-meta">
-              <p class="results-meta__count">
+            <div class="mb-4 border-b border-sumi/10 pb-3">
+              <p class="text-xs tracking-[0.04em] text-hai">
                 Menampilkan
-                <strong>{{ shownCount }}</strong>
+                <strong class="text-sumi">{{ shownCount }}</strong>
                 produk · halaman
-                <strong>{{ currentPage }}</strong>
+                <strong class="text-sumi">{{ currentPage }}</strong>
                 dari
-                <strong>{{ totalPages }}</strong>
+                <strong class="text-sumi">{{ totalPages }}</strong>
               </p>
             </div>
 
-            <div class="product-grid" :class="productGridClass">
+            <div :class="['grid gap-3', gridClass]">
               <article
                 v-for="product in visibleProducts"
                 :key="product.id"
-                class="prod-card card-lift"
-                :class="{ 'prod-card--disabled': product.status === 'habis' }"
-                @click="openModal(product)"
+                class="group overflow-hidden border border-sumi/12 bg-washi transition"
+                :class="[
+                  viewMode === 'list' ? 'flex rounded-xl hover:border-sumi/30' : 'rounded-2xl hover:-translate-y-1 hover:border-sumi/25',
+                  product.status === 'habis' ? 'opacity-60' : '',
+                ]"
+                @click="goToProduct(product.id)"
               >
-                <div class="prod-card__thumb img-reveal">
-                  <span class="prod-card__status" :class="statusBadgeClass(product.status)">
+                <div
+                  class="relative overflow-hidden bg-sumi/5"
+                  :class="viewMode === 'list' ? 'm-3 h-24 w-24 shrink-0 rounded-xl' : 'aspect-square w-full'"
+                >
+                  <div class="absolute inset-0 flex items-center justify-center text-hai/35">
+                    <i class="bi bi-image text-3xl" />
+                  </div>
+
+                  <span
+                    class="absolute left-2 top-2 rounded px-2 py-1 text-[10px] uppercase tracking-[0.08em]"
+                    :class="statusBadgeClass(product.status)"
+                  >
                     {{ statusText(product.status) }}
                   </span>
+
                   <button
-                    class="prod-card__wish"
-                    :class="{ liked: isWishlisted(product.id) }"
+                    class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-washi/35 bg-sumi/35 text-washi/80"
+                    :class="isWishlisted(product.id) ? 'border-sakura/60 text-sakura' : 'hover:text-sakura'"
                     :aria-label="`Wishlist ${product.name}`"
                     @click.stop="toggleWishlist(product.id)"
                   >
@@ -258,118 +296,110 @@
                   </button>
                 </div>
 
-                <div class="prod-card__body">
-                  <p class="prod-card__brand">{{ product.brandLabel }} · {{ collectionLabel(product.collection) }}</p>
-                  <p class="prod-card__name">{{ product.name }}</p>
+                <div
+                  class="min-w-0 flex-1"
+                  :class="viewMode === 'list' ? 'flex items-center gap-3 py-3 pr-3' : 'flex flex-col gap-2 p-4'"
+                >
+                  <div :class="viewMode === 'list' ? 'min-w-0 flex-1' : ''">
+                    <p v-if="viewMode !== 'list'" class="text-[10px] uppercase tracking-[0.11em] text-hai">
+                      {{ product.brandLabel }} · {{ collectionLabel(product.collection) }}
+                    </p>
+                    <p class="font-bold text-sumi" :class="viewMode === 'list' ? 'truncate text-sm' : 'text-sm leading-snug'">
+                      {{ product.name }}
+                    </p>
 
-                  <div class="prod-card__sizes">
-                    <span v-for="size in product.sizes.slice(0, 6)" :key="`${product.id}-${size}`" class="prod-card__size-tag">
-                      {{ size }}
-                    </span>
+                    <div v-if="viewMode !== 'list'" class="mt-1.5 flex flex-wrap gap-1">
+                      <span
+                        v-for="size in product.sizes.slice(0, 6)"
+                        :key="`${product.id}-${size}`"
+                        class="rounded bg-sumi/6 px-1.5 py-0.5 text-[10px] text-usuzumi"
+                      >
+                        {{ size }}
+                      </span>
+                    </div>
                   </div>
 
-                  <div class="prod-card__footer">
+                  <div
+                    class="flex items-center gap-2"
+                    :class="viewMode === 'list' ? '' : 'mt-auto justify-between border-t border-sumi/10 pt-3'"
+                  >
                     <div>
-                      <p class="prod-card__price">{{ formatCompactPrice(product.price) }}</p>
-                      <p class="prod-card__price-sub">{{ priceSubtext(product.status) }}</p>
+                      <p class="text-[15px] font-bold">{{ formatCompactPrice(product.price) }}</p>
+                      <p class="text-[10px] text-hai">{{ priceSubtext(product.status) }}</p>
                     </div>
-                    <button class="prod-card__cta" @click.stop="openModal(product)">
+                    <button
+                      class="rounded-full bg-sumi px-3 py-1.5 text-[10px] uppercase tracking-[0.09em] text-washi transition hover:opacity-85"
+                      @click.stop="goToProduct(product.id)"
+                    >
                       {{ product.status === 'habis' ? 'Notif' : 'Order' }}
                     </button>
                   </div>
                 </div>
               </article>
 
-              <div v-if="visibleProducts.length === 0" class="empty-state">
-                <div class="empty-state__icon">
+              <div
+                v-if="visibleProducts.length === 0"
+                class="col-span-full rounded-2xl border border-dashed border-sumi/20 bg-shironeri px-4 py-12 text-center"
+              >
+                <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-sumi/15 text-hai">
                   <i class="bi bi-search" />
                 </div>
-                <p class="empty-state__title">Produk tidak ditemukan</p>
-                <p class="empty-state__sub">Coba ubah filter atau kata kunci pencarian</p>
+                <p class="font-bold">Produk tidak ditemukan</p>
+                <p class="mt-1 text-sm text-hai">Coba ubah filter atau kata kunci pencarian</p>
               </div>
             </div>
 
-            <div v-if="filteredCount > 0" class="catalog-footer">
-              <p class="load-more-label">Menampilkan {{ shownCount }} dari {{ filteredCount }} produk</p>
-              <div class="load-more-bar">
-                <div class="load-more-bar__fill" :style="{ width: `${loadProgress}%` }" />
+            <div v-if="filteredCount > 0" class="mt-6 flex flex-col items-center gap-3">
+              <p class="text-[11px] uppercase tracking-[0.09em] text-hai">
+                Menampilkan {{ shownCount }} dari {{ filteredCount }} produk
+              </p>
+              <div class="h-0.75 w-full max-w-md overflow-hidden rounded-full bg-sumi/10">
+                <div class="h-full bg-matcha transition-all" :style="{ width: `${loadProgress}%` }" />
               </div>
-              <button class="load-more-btn" :disabled="shownCount >= filteredCount" @click="loadMore">
+              <button
+                class="rounded-full border border-sumi/20 px-5 py-2 text-xs uppercase tracking-[0.12em] transition hover:bg-sumi/5 disabled:cursor-not-allowed disabled:opacity-45"
+                :disabled="shownCount >= filteredCount"
+                @click="loadMore"
+              >
                 Muat lebih banyak
               </button>
 
-              <div class="pagination">
-                <button class="page-btn page-btn--arrow" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">‹</button>
+              <div class="flex items-center gap-1">
+                <button
+                  class="flex h-8 w-8 items-center justify-center rounded-md border border-sumi/15 text-sm text-hai transition hover:bg-sumi/5 hover:text-sumi disabled:cursor-not-allowed disabled:opacity-35"
+                  :disabled="currentPage === 1"
+                  @click="goToPage(currentPage - 1)"
+                >
+                  ‹
+                </button>
                 <button
                   v-for="page in pageNumbers"
                   :key="page"
-                  class="page-btn"
-                  :class="{ active: currentPage === page }"
+                  class="flex h-8 w-8 items-center justify-center rounded-md border text-xs transition"
+                  :class="currentPage === page ? 'border-sumi bg-sumi text-washi' : 'border-sumi/15 text-hai hover:bg-sumi/5 hover:text-sumi'"
                   @click="goToPage(page)"
                 >
                   {{ page }}
                 </button>
-                <button class="page-btn page-btn--arrow" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">›</button>
+                <button
+                  class="flex h-8 w-8 items-center justify-center rounded-md border border-sumi/15 text-sm text-hai transition hover:bg-sumi/5 hover:text-sumi disabled:cursor-not-allowed disabled:opacity-35"
+                  :disabled="currentPage === totalPages"
+                  @click="goToPage(currentPage + 1)"
+                >
+                  ›
+                </button>
               </div>
             </div>
           </main>
         </div>
       </div>
     </section>
-
-    <div class="modal-overlay" :class="{ open: isModalOpen }" @click="closeModalOnOverlay">
-      <div v-if="selectedProduct" class="modal">
-        <div class="modal__top">
-          <div class="modal__thumb" />
-          <div class="modal__info">
-            <p class="modal__brand">{{ selectedProduct.brandLabel }}</p>
-            <h2 class="modal__name">{{ selectedProduct.name }}</h2>
-            <p class="modal__price">{{ formatCurrency(selectedProduct.price) }}</p>
-
-            <p class="modal__section-label">Pilih Ukuran</p>
-            <div class="modal__size-grid">
-              <button
-                v-for="size in availableSizes"
-                :key="`modal-${size}`"
-                class="modal__size-btn"
-                :class="{
-                  active: modalSelectedSize === size,
-                  unavail: !selectedProduct.sizes.includes(size),
-                }"
-                @click="selectModalSize(size)"
-              >
-                {{ size }}
-              </button>
-            </div>
-
-            <div class="modal__actions">
-              <button class="modal__btn-main">
-                {{ modalCtaText }}
-              </button>
-              <button
-                class="modal__btn-wish"
-                :class="{ liked: isWishlisted(selectedProduct.id) }"
-                @click="toggleWishlist(selectedProduct.id)"
-              >
-                <i class="bi bi-heart" />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="modal__footer">
-          <span class="modal__meta">{{ modalMetaText }}</span>
-          <button class="modal__close" @click="closeModal">
-            <i class="bi bi-x" />
-            Tutup
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { computed, onUnmounted, ref, watch } from 'vue'
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue'
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue'
@@ -405,10 +435,10 @@ const MAX_PRICE = 3000000
 const ITEMS_PER_PAGE = 12
 
 const statusFilters = [
-  { key: 'all', label: 'Semua', className: '' },
-  { key: 'ready', label: 'Ready', className: 'status-pill--ready' },
-  { key: 'po', label: 'PO', className: 'status-pill--po' },
-  { key: 'habis', label: 'Habis', className: 'status-pill--habis' },
+  { key: 'all', label: 'Semua' },
+  { key: 'ready', label: 'Ready' },
+  { key: 'po', label: 'PO' },
+  { key: 'habis', label: 'Habis' },
 ] as const
 
 const brandFilters = [
@@ -471,10 +501,6 @@ const priceMax = ref(MAX_PRICE)
 
 const currentPage = ref(1)
 const applyButtonLabel = ref('Terapkan Filter')
-
-const selectedProduct = ref<CatalogProduct | null>(null)
-const isModalOpen = ref(false)
-const modalSelectedSize = ref<number | null>(null)
 
 const wishlistedIds = ref<number[]>([])
 
@@ -564,40 +590,16 @@ const loadProgress = computed(() => {
   return (shownCount.value / filteredCount.value) * 100
 })
 
-const productGridClass = computed(() => {
-  if (viewMode.value === '4col') {
-    return 'view--4col'
-  }
-
+const gridClass = computed(() => {
   if (viewMode.value === 'list') {
-    return 'view--list'
+    return 'grid-cols-1'
   }
 
-  return ''
-})
-
-const modalCtaText = computed(() => {
-  if (selectedProduct.value?.status === 'habis') {
-    return 'Notifikasi Saya'
+  if (viewMode.value === '4col') {
+    return 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4'
   }
 
-  if (selectedProduct.value?.status === 'po') {
-    return 'Pre-Order Sekarang'
-  }
-
-  return 'Pesan Sekarang'
-})
-
-const modalMetaText = computed(() => {
-  if (selectedProduct.value?.status === 'habis') {
-    return 'Stok habis · aktifkan notifikasi saat tersedia'
-  }
-
-  if (selectedProduct.value?.status === 'po') {
-    return 'Pre-order · estimasi 14 sampai 21 hari kerja'
-  }
-
-  return 'Pilih ukuran lalu pesan via WA atau DM'
+  return 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
 })
 
 const activeFilterChips = computed<FilterChip[]>(() => {
@@ -661,12 +663,6 @@ watch([searchQuery, sortMode, selectedStatus, selectedBrands, selectedSizes, sel
 watch(sortedProducts, () => {
   if (currentPage.value > totalPages.value) {
     currentPage.value = totalPages.value
-  }
-})
-
-watch(isModalOpen, value => {
-  if (typeof document !== 'undefined') {
-    document.body.style.overflow = value ? 'hidden' : ''
   }
 })
 
@@ -786,34 +782,8 @@ const removeFilterChip = (chip: FilterChip) => {
   }
 }
 
-const openModal = (product: CatalogProduct) => {
-  selectedProduct.value = product
-  modalSelectedSize.value = product.sizes[0] ?? null
-  isModalOpen.value = true
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-}
-
-const closeModalOnOverlay = (event: MouseEvent) => {
-  if (event.target === event.currentTarget) {
-    closeModal()
-  }
-}
-
-const selectModalSize = (size: number) => {
-  if (!selectedProduct.value?.sizes.includes(size)) {
-    return
-  }
-
-  modalSelectedSize.value = size
-}
-
-const handleEscape = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && isModalOpen.value) {
-    closeModal()
-  }
+const goToProduct = (productId: number) => {
+  router.visit(`/katalog/${productId}`)
 }
 
 const toggleWishlist = (id: number) => {
@@ -842,14 +812,34 @@ const statusText = (status: ProductStatus) => {
 
 const statusBadgeClass = (status: ProductStatus) => {
   if (status === 'po') {
-    return 'prod-card__status--po'
+    return 'border border-matcha/40 bg-matcha/15 text-matcha'
   }
 
   if (status === 'ready') {
-    return 'prod-card__status--ready'
+    return 'border border-take/40 bg-take/15 text-take'
   }
 
-  return 'prod-card__status--habis'
+  return 'border border-sumi/15 bg-sumi/5 text-hai'
+}
+
+const statusButtonClass = (status: (typeof statusFilters)[number]['key']) => {
+  if (selectedStatus.value !== status) {
+    return 'border-sumi/15 bg-shironeri text-hai hover:border-sumi/30 hover:text-sumi'
+  }
+
+  if (status === 'po') {
+    return 'border-matcha/50 bg-matcha/15 text-matcha'
+  }
+
+  if (status === 'ready') {
+    return 'border-take/50 bg-take/15 text-take'
+  }
+
+  if (status === 'habis') {
+    return 'border-sumi/30 bg-sumi/5 text-hai'
+  }
+
+  return 'border-sumi bg-sumi text-washi'
 }
 
 const collectionLabel = (collection: string) => {
@@ -874,14 +864,6 @@ const formatCompactPrice = (price: number) => {
   return `Rp ${inThousands.toLocaleString('id-ID')}K`
 }
 
-const formatCurrency = (price: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(price)
-}
-
 const normalizePrice = (value: number) => {
   if (!Number.isFinite(value)) {
     return 0
@@ -890,1130 +872,9 @@ const normalizePrice = (value: number) => {
   return Math.min(Math.max(Math.floor(value), 0), MAX_PRICE)
 }
 
-onMounted(() => {
-  if (typeof document !== 'undefined') {
-    document.addEventListener('keydown', handleEscape)
-  }
-})
-
 onUnmounted(() => {
   if (applyFeedbackTimeout !== undefined) {
     clearTimeout(applyFeedbackTimeout)
   }
-
-  if (typeof document !== 'undefined') {
-    document.removeEventListener('keydown', handleEscape)
-    document.body.style.overflow = ''
-  }
 })
 </script>
-
-<style scoped>
-* {
-  box-sizing: border-box;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f7f5f0;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #1a1a1a;
-}
-
-.catalog-page {
-  min-height: 100vh;
-  padding: 7rem 1rem 3rem;
-}
-
-.catalog-shell {
-  max-width: 1280px;
-  margin: 0 auto;
-  border: 1px solid rgba(26, 26, 26, 0.1);
-  border-radius: 2rem;
-  background: rgba(250, 250, 248, 0.92);
-  backdrop-filter: blur(8px);
-  overflow: hidden;
-  box-shadow: 0 16px 36px rgba(26, 26, 26, 0.08);
-}
-
-.cat-header {
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
-  background: rgba(247, 245, 240, 0.85);
-  padding: 1.5rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.cat-header__eyebrow {
-  font-size: 0.65rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  margin-bottom: 0.4rem;
-}
-
-.cat-header__title {
-  font-size: clamp(1.7rem, 2.8vw, 2.25rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1;
-}
-
-.cat-header__sub {
-  margin-top: 0.45rem;
-  font-size: 0.75rem;
-  color: #8a8a8a;
-  letter-spacing: 0.03em;
-}
-
-.cat-header__sub strong {
-  color: #1a1a1a;
-}
-
-.cat-search-wrap {
-  flex: 1;
-  max-width: 24rem;
-  position: relative;
-}
-
-.cat-search {
-  width: 100%;
-  background: #fafaf8;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.75rem;
-  padding: 0.72rem 2.4rem 0.72rem 0.9rem;
-  font-size: 0.78rem;
-  color: #1a1a1a;
-  letter-spacing: 0.04em;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.cat-search::placeholder {
-  color: #8a8a8a;
-}
-
-.cat-search:focus {
-  border-color: #7c8c5a;
-}
-
-.cat-search-icon {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #8a8a8a;
-  pointer-events: none;
-}
-
-.cat-header__right {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.cat-sort {
-  background: #fafaf8;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.75rem;
-  padding: 0.62rem 1.8rem 0.62rem 0.75rem;
-  font-size: 0.72rem;
-  color: #1a1a1a;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%234a4a4a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.55rem center;
-  outline: none;
-}
-
-.view-toggle {
-  display: flex;
-  background: #fafaf8;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.75rem;
-  overflow: hidden;
-}
-
-.view-btn {
-  width: 2.1rem;
-  height: 2.1rem;
-  border: none;
-  background: transparent;
-  color: #8a8a8a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.view-btn:hover {
-  color: #1a1a1a;
-}
-
-.view-btn.active {
-  background: #1a1a1a;
-  color: #f7f5f0;
-}
-
-.catalog-layout {
-  display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
-}
-
-.sidebar {
-  border-right: 1px solid rgba(26, 26, 26, 0.1);
-  background: rgba(247, 245, 240, 0.8);
-  padding: 1.2rem;
-  max-height: calc(100vh - 11.5rem);
-  overflow-y: auto;
-  position: sticky;
-  top: 6rem;
-}
-
-.sidebar__section {
-  margin-bottom: 1.2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
-}
-
-.sidebar__section:last-child {
-  margin-bottom: 0;
-  border-bottom: none;
-}
-
-.sidebar__label {
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  margin-bottom: 0.7rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sidebar__label-reset {
-  border: none;
-  background: none;
-  color: #8a8a8a;
-  font-size: 0.63rem;
-  letter-spacing: 0.08em;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.sidebar__label-reset:hover {
-  color: #1a1a1a;
-}
-
-.filter-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.filter-item {
-  border: none;
-  background: transparent;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 0.55rem;
-  padding: 0.45rem 0.55rem;
-  cursor: pointer;
-  transition: background 0.12s;
-}
-
-.filter-item:hover {
-  background: rgba(26, 26, 26, 0.05);
-}
-
-.filter-item.selected {
-  background: rgba(124, 140, 90, 0.12);
-}
-
-.filter-item__left {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.filter-checkbox {
-  width: 0.8rem;
-  height: 0.8rem;
-  border: 1.5px solid rgba(26, 26, 26, 0.3);
-  border-radius: 0.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.filter-item.selected .filter-checkbox {
-  border-color: #7c8c5a;
-  background: #7c8c5a;
-}
-
-.filter-item.selected .filter-checkbox::after {
-  content: '';
-  width: 0.42rem;
-  height: 0.25rem;
-  border-left: 1.2px solid #f7f5f0;
-  border-bottom: 1.2px solid #f7f5f0;
-  transform: rotate(-45deg) translateY(-1px);
-}
-
-.filter-item__name {
-  font-size: 0.72rem;
-  color: #1a1a1a;
-  letter-spacing: 0.03em;
-}
-
-.filter-item__count {
-  font-size: 0.66rem;
-  color: #8a8a8a;
-}
-
-.size-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.3rem;
-}
-
-.size-btn {
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  background: #fafaf8;
-  border-radius: 0.45rem;
-  padding: 0.4rem 0.2rem;
-  font-size: 0.7rem;
-  color: #4a4a4a;
-  cursor: pointer;
-  transition: all 0.12s;
-}
-
-.size-btn:hover {
-  border-color: #7c8c5a;
-  color: #1a1a1a;
-}
-
-.size-btn.active {
-  background: #1a1a1a;
-  border-color: #1a1a1a;
-  color: #f7f5f0;
-}
-
-.price-inputs {
-  display: flex;
-  gap: 0.45rem;
-  align-items: center;
-}
-
-.price-input {
-  flex: 1;
-  min-width: 0;
-  background: #fafaf8;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.45rem;
-  padding: 0.45rem 0.5rem;
-  font-size: 0.68rem;
-  color: #1a1a1a;
-  outline: none;
-}
-
-.price-input:focus {
-  border-color: #7c8c5a;
-}
-
-.price-sep {
-  font-size: 0.7rem;
-  color: #8a8a8a;
-}
-
-.price-slider {
-  width: 100%;
-  margin-top: 0.65rem;
-  accent-color: #7c8c5a;
-  cursor: pointer;
-}
-
-.status-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.status-pill {
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  background: #fafaf8;
-  border-radius: 999px;
-  padding: 0.28rem 0.65rem;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.status-pill:hover {
-  border-color: #1a1a1a;
-  color: #1a1a1a;
-}
-
-.status-pill.active {
-  border-color: #1a1a1a;
-  background: #1a1a1a;
-  color: #f7f5f0;
-}
-
-.status-pill--po.active {
-  border-color: #7c8c5a;
-  color: #7c8c5a;
-  background: rgba(124, 140, 90, 0.14);
-}
-
-.status-pill--ready.active {
-  border-color: #3d5a4c;
-  color: #3d5a4c;
-  background: rgba(61, 90, 76, 0.14);
-}
-
-.status-pill--habis.active {
-  border-color: rgba(26, 26, 26, 0.3);
-  color: #8a8a8a;
-  background: rgba(26, 26, 26, 0.06);
-}
-
-.sidebar__apply {
-  width: 100%;
-  border: none;
-  border-radius: 999px;
-  background: #1a1a1a;
-  color: #f7f5f0;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.65rem;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.sidebar__apply:hover {
-  opacity: 0.87;
-}
-
-.catalog-main {
-  padding: 1.2rem;
-}
-
-.active-filters {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.active-filters__label {
-  font-size: 0.64rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #8a8a8a;
-}
-
-.active-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 999px;
-  padding: 0.22rem 0.35rem 0.22rem 0.6rem;
-  font-size: 0.64rem;
-  color: #1a1a1a;
-  background: #fafaf8;
-}
-
-.active-chip__remove {
-  width: 1rem;
-  height: 1rem;
-  border: none;
-  border-radius: 50%;
-  background: rgba(26, 26, 26, 0.08);
-  color: #4a4a4a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.active-chip__remove:hover {
-  background: rgba(26, 26, 26, 0.2);
-  color: #f7f5f0;
-}
-
-.active-filters__clear {
-  margin-left: auto;
-  border: none;
-  background: none;
-  font-size: 0.64rem;
-  color: #8a8a8a;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.active-filters__clear:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.results-meta {
-  margin-bottom: 1rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
-}
-
-.results-meta__count {
-  font-size: 0.72rem;
-  color: #8a8a8a;
-  letter-spacing: 0.04em;
-}
-
-.results-meta__count strong {
-  color: #1a1a1a;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.8rem;
-}
-
-.product-grid.view--4col {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.product-grid.view--list {
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-
-.prod-card {
-  border: 1px solid rgba(26, 26, 26, 0.12);
-  border-radius: 0.95rem;
-  background: #fafaf8;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-}
-
-.prod-card--disabled {
-  opacity: 0.6;
-}
-
-.view--list .prod-card {
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  flex-direction: row;
-}
-
-.view--list .prod-card:first-child {
-  border-top: 1px solid rgba(26, 26, 26, 0.12);
-}
-
-.prod-card__thumb {
-  aspect-ratio: 1 / 1;
-  background: rgba(26, 26, 26, 0.06);
-  position: relative;
-}
-
-.prod-card__thumb::before,
-.prod-card__thumb::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background: rgba(26, 26, 26, 0.14);
-}
-
-.prod-card__thumb::before {
-  transform: rotate(20deg);
-}
-
-.prod-card__thumb::after {
-  transform: rotate(-20deg);
-}
-
-.view--list .prod-card__thumb {
-  width: 5.6rem;
-  margin: 0.65rem;
-  border-radius: 0.7rem;
-  flex-shrink: 0;
-}
-
-.prod-card__status {
-  position: absolute;
-  top: 0.55rem;
-  left: 0.55rem;
-  border-radius: 0.3rem;
-  padding: 0.18rem 0.42rem;
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.prod-card__status--po {
-  border: 1px solid rgba(124, 140, 90, 0.4);
-  background: rgba(124, 140, 90, 0.14);
-  color: #7c8c5a;
-}
-
-.prod-card__status--ready {
-  border: 1px solid rgba(61, 90, 76, 0.4);
-  background: rgba(61, 90, 76, 0.14);
-  color: #3d5a4c;
-}
-
-.prod-card__status--habis {
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  background: rgba(26, 26, 26, 0.06);
-  color: #8a8a8a;
-}
-
-.prod-card__wish {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.55rem;
-  width: 1.7rem;
-  height: 1.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  background: rgba(26, 26, 26, 0.35);
-  color: rgba(247, 245, 240, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.prod-card__wish.liked {
-  color: #d4a5a5;
-  border-color: rgba(212, 165, 165, 0.55);
-}
-
-.prod-card__body {
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.view--list .prod-card__body {
-  flex-direction: row;
-  align-items: center;
-  gap: 0;
-  padding: 0.7rem 0.8rem 0.7rem 0;
-}
-
-.prod-card__brand {
-  font-size: 0.58rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-}
-
-.prod-card__name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.28;
-  color: #1a1a1a;
-}
-
-.view--list .prod-card__name {
-  flex: 1;
-  margin: 0 0.8rem;
-}
-
-.view--list .prod-card__brand {
-  display: none;
-}
-
-.prod-card__sizes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-}
-
-.prod-card__size-tag {
-  background: rgba(26, 26, 26, 0.06);
-  border-radius: 0.25rem;
-  padding: 0.12rem 0.3rem;
-  font-size: 0.58rem;
-  color: #4a4a4a;
-}
-
-.view--list .prod-card__sizes {
-  display: none;
-}
-
-.prod-card__footer {
-  margin-top: auto;
-  padding-top: 0.55rem;
-  border-top: 1px solid rgba(26, 26, 26, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-}
-
-.view--list .prod-card__footer {
-  border-top: none;
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.prod-card__price {
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.prod-card__price-sub {
-  font-size: 0.58rem;
-  color: #8a8a8a;
-}
-
-.prod-card__cta {
-  border: none;
-  border-radius: 999px;
-  background: #1a1a1a;
-  color: #f7f5f0;
-  font-size: 0.63rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: 0.45rem 0.75rem;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.prod-card__cta:hover {
-  opacity: 0.85;
-}
-
-.empty-state {
-  grid-column: 1 / -1;
-  border: 1px dashed rgba(26, 26, 26, 0.2);
-  border-radius: 1rem;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.empty-state__icon {
-  width: 3.2rem;
-  height: 3.2rem;
-  border-radius: 0.8rem;
-  border: 1px solid rgba(26, 26, 26, 0.15);
-  color: #8a8a8a;
-  margin: 0 auto 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-state__title {
-  font-weight: 700;
-  margin-bottom: 0.35rem;
-}
-
-.empty-state__sub {
-  font-size: 0.75rem;
-  color: #8a8a8a;
-}
-
-.catalog-footer {
-  margin-top: 1.4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.load-more-label {
-  font-size: 0.64rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-}
-
-.load-more-bar {
-  width: min(100%, 24rem);
-  height: 3px;
-  border-radius: 999px;
-  background: rgba(26, 26, 26, 0.1);
-  overflow: hidden;
-}
-
-.load-more-bar__fill {
-  height: 100%;
-  background: #7c8c5a;
-  transition: width 0.3s;
-}
-
-.load-more-btn {
-  border: 1px solid rgba(26, 26, 26, 0.18);
-  border-radius: 999px;
-  background: transparent;
-  color: #1a1a1a;
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.62rem 1.5rem;
-  cursor: pointer;
-}
-
-.load-more-btn:hover {
-  background: rgba(26, 26, 26, 0.06);
-}
-
-.load-more-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.page-btn {
-  width: 1.95rem;
-  height: 1.95rem;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.45rem;
-  background: transparent;
-  font-size: 0.7rem;
-  color: #8a8a8a;
-  cursor: pointer;
-}
-
-.page-btn:hover {
-  background: rgba(26, 26, 26, 0.08);
-  color: #1a1a1a;
-}
-
-.page-btn.active {
-  background: #1a1a1a;
-  color: #f7f5f0;
-  border-color: #1a1a1a;
-}
-
-.page-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 13, 13, 0.56);
-  backdrop-filter: blur(3px);
-  z-index: 990;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal {
-  width: min(92vw, 35rem);
-  background: #fafaf8;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  overflow: hidden;
-  transform: translateY(10px) scale(0.96);
-  transition: transform 0.2s;
-}
-
-.modal-overlay.open .modal {
-  transform: translateY(0) scale(1);
-}
-
-.modal__top {
-  display: flex;
-}
-
-.modal__thumb {
-  width: 13rem;
-  flex-shrink: 0;
-  position: relative;
-  background: rgba(26, 26, 26, 0.08);
-}
-
-.modal__thumb::before,
-.modal__thumb::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  height: 1px;
-  background: rgba(26, 26, 26, 0.2);
-}
-
-.modal__thumb::before {
-  transform: rotate(20deg);
-}
-
-.modal__thumb::after {
-  transform: rotate(-20deg);
-}
-
-.modal__info {
-  flex: 1;
-  padding: 1.1rem;
-}
-
-.modal__brand {
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  margin-bottom: 0.4rem;
-}
-
-.modal__name {
-  font-size: 1rem;
-  line-height: 1.3;
-  margin-bottom: 0.45rem;
-}
-
-.modal__price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.8rem;
-}
-
-.modal__section-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  margin-bottom: 0.4rem;
-}
-
-.modal__size-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.3rem;
-  margin-bottom: 0.75rem;
-}
-
-.modal__size-btn {
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  border-radius: 0.4rem;
-  background: transparent;
-  font-size: 0.68rem;
-  color: #4a4a4a;
-  padding: 0.35rem 0;
-  cursor: pointer;
-}
-
-.modal__size-btn.active {
-  background: #1a1a1a;
-  border-color: #1a1a1a;
-  color: #f7f5f0;
-}
-
-.modal__size-btn.unavail {
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.modal__actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.modal__btn-main {
-  flex: 1;
-  border: none;
-  border-radius: 999px;
-  background: #1a1a1a;
-  color: #f7f5f0;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.7rem 0;
-  cursor: pointer;
-}
-
-.modal__btn-wish {
-  width: 2.45rem;
-  height: 2.45rem;
-  border-radius: 50%;
-  border: 1px solid rgba(26, 26, 26, 0.14);
-  background: transparent;
-  color: #8a8a8a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.modal__btn-wish.liked {
-  color: #d4a5a5;
-  border-color: rgba(212, 165, 165, 0.5);
-}
-
-.modal__footer {
-  border-top: 1px solid rgba(26, 26, 26, 0.1);
-  padding: 0.75rem 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.modal__meta {
-  font-size: 0.62rem;
-  color: #8a8a8a;
-  letter-spacing: 0.05em;
-}
-
-.modal__close {
-  border: none;
-  background: none;
-  font-size: 0.64rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #8a8a8a;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  cursor: pointer;
-}
-
-.modal__close:hover {
-  color: #1a1a1a;
-}
-
-.pattern-seigaiha {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40' viewBox='0 0 80 40'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.08' d='M0 40a19.96 19.96 0 0 1 5.9-14.11 20.17 20.17 0 0 1 19.44-5.2A20 20 0 0 1 20.2 40H0zM40 40a20 20 0 0 1-14.11-5.9 19.96 19.96 0 0 1-5.2-19.44A20.17 20.17 0 0 1 40 20.2V40zM40 20.2a20.17 20.17 0 0 1 19.44 5.2A20 20 0 0 1 40 40V20.2zM80 40H59.8a20 20 0 0 1 5.2-19.44 19.96 19.96 0 0 1 14.11-5.9V40z'/%3E%3C/svg%3E");
-}
-
-@media (max-width: 1200px) {
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .product-grid.view--4col {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1024px) {
-  .catalog-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: static;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid rgba(26, 26, 26, 0.1);
-  }
-
-  .catalog-main {
-    padding-top: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .catalog-page {
-    padding-top: 6.2rem;
-    padding-left: 0.6rem;
-    padding-right: 0.6rem;
-  }
-
-  .cat-header {
-    padding: 1rem;
-  }
-
-  .cat-search-wrap {
-    order: 3;
-    min-width: 100%;
-    max-width: none;
-  }
-
-  .cat-header__right {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .cat-sort {
-    flex: 1;
-  }
-
-  .catalog-main,
-  .sidebar {
-    padding: 0.9rem;
-  }
-
-  .product-grid,
-  .product-grid.view--4col {
-    grid-template-columns: 1fr;
-  }
-
-  .view--list .prod-card {
-    border-radius: 0.7rem;
-    border: 1px solid rgba(26, 26, 26, 0.12);
-    margin-bottom: 0.6rem;
-  }
-
-  .view--list .prod-card:first-child {
-    border-top: 1px solid rgba(26, 26, 26, 0.12);
-  }
-
-  .modal {
-    width: 92vw;
-  }
-
-  .modal__top {
-    flex-direction: column;
-  }
-
-  .modal__thumb {
-    width: 100%;
-    min-height: 10rem;
-  }
-}
-</style>
