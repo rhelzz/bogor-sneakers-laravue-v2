@@ -43,7 +43,7 @@
                         class="font-heading mb-6 text-5xl leading-none font-bold tracking-tight lg:text-7xl"
                     >
                         BOGOR'S<br />
-                        <span class="text-matcha">FINEST</span>
+                        <span class="text-matcha">SNEAKERS</span>
                     </h1>
                 </div>
 
@@ -197,7 +197,7 @@
             >
                 <span class="text-sm tracking-widest">BOGORSNEAKERS</span>
                 <span class="text-matcha">◆</span>
-                <span class="text-sm tracking-widest">BOGOR'S FINEST</span>
+                <span class="text-sm tracking-widest">BOGOR'S SNEAKERS</span>
                 <span class="text-matcha">◆</span>
                 <span class="text-sm tracking-widest">LEGIT VERIFIED</span>
                 <span class="text-matcha">◆</span>
@@ -209,7 +209,7 @@
                 <span class="text-matcha">◆</span>
                 <span class="text-sm tracking-widest">BOGORSNEAKERS</span>
                 <span class="text-matcha">◆</span>
-                <span class="text-sm tracking-widest">BOGOR'S FINEST</span>
+                <span class="text-sm tracking-widest">BOGOR'S SNEAKERS</span>
                 <span class="text-matcha">◆</span>
                 <span class="text-sm tracking-widest">LEGIT VERIFIED</span>
                 <span class="text-matcha">◆</span>
