@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'tiktok' => [
+        'username' => env('TIKTOK_USERNAME', 'bogorsneaker'),
+        'client_key' => env('TIKTOK_CLIENT_KEY'),
+        'client_secret' => env('TIKTOK_CLIENT_SECRET'),
+        'access_token' => env('TIKTOK_ACCESS_TOKEN'),
+        'api_base_url' => env('TIKTOK_API_BASE_URL', 'https://open.tiktokapis.com'),
+        'rapidapi_key' => env('TIKTOK_RAPIDAPI_KEY'),
+        'rapidapi_host' => env('TIKTOK_RAPIDAPI_HOST', 'tiktok-scraper7.p.rapidapi.com'),
+        'rapidapi_url' => env('TIKTOK_RAPIDAPI_URL', 'https://tiktok-scraper7.p.rapidapi.com/user/info'),
+        'follower_cache_ttl' => env('TIKTOK_FOLLOWER_CACHE_TTL', 900),
+    ],
+
 ];
