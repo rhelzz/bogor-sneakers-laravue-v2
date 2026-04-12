@@ -567,10 +567,10 @@
                 </div>
 
                 <!-- TikTok Grid -->
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2" id="tiktokGrid">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" id="tiktokGrid">
                     <div
                         v-if="filteredTiktokVideos.length === 0"
-                        class="col-span-2 rounded-3xl border border-washi/10 bg-washi/5 p-8 text-center lg:col-span-4"
+                        class="col-span-1 rounded-3xl border border-washi/10 bg-washi/5 p-8 text-center sm:col-span-2 lg:col-span-3"
                     >
                         <i class="bi bi-collection-play mb-3 block text-4xl text-washi/40"></i>
                         <p class="text-sm text-washi/70">
@@ -599,10 +599,10 @@
                         </div>
 
                         <blockquote
-                            class="tiktok-embed mx-auto"
+                            class="tiktok-embed mx-auto w-full"
                             :cite="video.url"
                             :data-video-id="video.video_id ?? undefined"
-                            style="max-width: 605px; min-width: 220px"
+                            style="max-width: 500px; min-width: 280px"
                         >
                             <section>
                                 <a
@@ -1188,6 +1188,28 @@ const getEmbedCaption = (video: TikTokFeedItem) => {
     return video.title?.trim() || 'Lihat video terbaru dari Bogor Sneakers.';
 };
 
+const disableTikTokAutoplay = () => {
+    const tiktokEmbeds = document.querySelectorAll('.tiktok-embed');
+
+    tiktokEmbeds.forEach((embed) => {
+        const iframe = embed.querySelector('iframe');
+
+        if (iframe) {
+            iframe.addEventListener('load', () => {
+                try {
+                    const sandboxValue = iframe.getAttribute('sandbox') || '';
+
+                    if (!sandboxValue.includes('allow-scripts')) {
+                        iframe.setAttribute('sandbox', sandboxValue + ' allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation');
+                    }
+                } catch (e) {
+                    console.warn('Could not disable autoplay:', e);
+                }
+            }, { once: true });
+        }
+    });
+};
+
 const refreshTikTokEmbedScript = () => {
     const existing = document.getElementById(TIKTOK_EMBED_SCRIPT_ID);
 
@@ -1200,6 +1222,12 @@ const refreshTikTokEmbedScript = () => {
     script.async = true;
     script.src = 'https://www.tiktok.com/embed.js';
 
+    script.onload = () => {
+        setTimeout(() => {
+            disableTikTokAutoplay();
+        }, 100);
+    };
+
     document.body.appendChild(script);
 };
 
@@ -1211,6 +1239,10 @@ const renderTikTokEmbeds = async () => {
     }
 
     refreshTikTokEmbedScript();
+
+    setTimeout(() => {
+        disableTikTokAutoplay();
+    }, 200);
 };
 
 // Carousel Navigation
