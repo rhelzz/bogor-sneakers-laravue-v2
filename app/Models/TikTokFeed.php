@@ -2,8 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $url
+ * @property string $category
+ * @property string|null $title
+ * @property string|null $author_name
+ * @property string|null $thumbnail_url
+ * @property string|null $video_id
+ * @property bool $is_active
+ * @property int $sort_order
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class TikTokFeed extends Model
 {
     /**
@@ -44,7 +59,7 @@ class TikTokFeed extends Model
     /**
      * Scope to get only active feed entries.
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true)->orderBy('sort_order', 'asc');
     }

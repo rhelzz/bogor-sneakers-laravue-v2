@@ -912,6 +912,21 @@ import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 import type { GallerySlot as GallerySlotApi } from '@/types/gallery';
 import type { TikTokFeedItem, TikTokFollowerSnapshot } from '@/types/tiktok';
 
+type HeroCarouselSlide = {
+    id: number;
+    image_url: string;
+    is_active: boolean;
+};
+
+type HomePageProps = {
+    carouselSlides: HeroCarouselSlide[];
+    tiktokFeed: TikTokFeedItem[];
+    tiktokFollowers: TikTokFollowerSnapshot | null;
+    gallerySlots: GallerySlotApi[];
+};
+
+const props = defineProps<HomePageProps>();
+
 // State Management
 const produktFilter = ref('all');
 const tiktokCategoryFilter = ref('all');
@@ -1105,16 +1120,10 @@ const filteredProducts = computed(() => {
     );
 });
 
-// Hero Carousel - Fetched from API
-type HeroCarouselSlide = {
-    id: number;
-    image_url: string;
-    is_active: boolean;
-};
-
-const heroCarousel = ref<HeroCarouselSlide[]>([]);
-const tiktokVideos = ref<TikTokFeedItem[]>([]);
-const tiktokFollowers = ref<TikTokFollowerSnapshot | null>(null);
+// Hero Carousel - Initialized from Inertia props
+const heroCarousel = ref<HeroCarouselSlide[]>([...props.carouselSlides]);
+const tiktokVideos = ref<TikTokFeedItem[]>([...props.tiktokFeed]);
+const tiktokFollowers = ref<TikTokFollowerSnapshot | null>(props.tiktokFollowers);
 
 type GalleryItem = {
     id: number;
@@ -1147,7 +1156,31 @@ const buildGalleryPlaceholders = (): GalleryItem[] => {
     });
 };
 
-const galleryItems = ref<GalleryItem[]>(buildGalleryPlaceholders());
+const normalizeGalleryItems = (slots: GallerySlotApi[]): GalleryItem[] => {
+    const placeholders = buildGalleryPlaceholders();
+
+    const normalizedSlots = [...slots]
+        .sort((a, b) => a.slot - b.slot)
+        .slice(0, 8)
+        .map((slot) => {
+            return {
+                id: slot.id,
+                slot: slot.slot,
+                image_url: slot.image_url,
+                aspectClass:
+                    galleryAspectClassMap[slot.slot] ?? 'aspect-square',
+            };
+        });
+
+    return placeholders.map((placeholder) => {
+        return (
+            normalizedSlots.find((slot) => slot.slot === placeholder.slot) ??
+            placeholder
+        );
+    });
+};
+
+const galleryItems = ref<GalleryItem[]>(normalizeGalleryItems(props.gallerySlots));
 
 const tiktokCategories = computed(() => {
     const categories = Array.from(
@@ -1388,106 +1421,14 @@ const updatePoTimers = () => {
     });
 };
 
-const fetchTikTokFeed = async () => {
-    const response = await fetch('/api/tiktok-feed', {
-        headers: {
-            Accept: 'application/json',
-        },
-        credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch TikTok feed');
-    }
-
-    const data = (await response.json()) as TikTokFeedItem[];
-    tiktokVideos.value = data;
-
-    if (!tiktokCategories.value.includes(tiktokCategoryFilter.value)) {
-        tiktokCategoryFilter.value = 'all';
-    }
-};
-
-const fetchTikTokFollowers = async () => {
-    const response = await fetch('/api/tiktok-followers?username=bogorsneaker', {
-        headers: {
-            Accept: 'application/json',
-        },
-        credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch TikTok followers');
-    }
-
-    const data = (await response.json()) as TikTokFollowerSnapshot;
-    tiktokFollowers.value = data;
-};
-
-const fetchGalleryKarya = async () => {
-    const response = await fetch('/api/galeri-karya', {
-        headers: {
-            Accept: 'application/json',
-        },
-        credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch gallery karya');
-    }
-
-    const data = (await response.json()) as GallerySlotApi[];
-    const placeholders = buildGalleryPlaceholders();
-
-    const normalizedSlots = data
-        .sort((a, b) => a.slot - b.slot)
-        .slice(0, 8)
-        .map((slot) => {
-            return {
-                id: slot.id,
-                slot: slot.slot,
-                image_url: slot.image_url,
-                aspectClass:
-                    galleryAspectClassMap[slot.slot] ?? 'aspect-square',
-            };
-        });
-
-    galleryItems.value = placeholders.map((placeholder) => {
-        return (
-            normalizedSlots.find((slot) => slot.slot === placeholder.slot) ??
-            placeholder
-        );
-    });
-};
-
 let timerInterval: ReturnType<typeof setInterval> | undefined;
 let carouselInterval: ReturnType<typeof setInterval> | undefined;
 
 onMounted(async () => {
-    // Fetch carousel slides from API
-    try {
-        const response = await fetch('/api/carousel-slides', {
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin',
-        });
-
-        if (response.ok) {
-            const data = (await response.json()) as HeroCarouselSlide[];
-            heroCarousel.value = data;
-            currentCarouselIndex.value = 0;
-        }
-    } catch (error) {
-        console.error('Failed to fetch carousel slides:', error);
-        // Carousel will remain empty if fetch fails
+    if (!tiktokCategories.value.includes(tiktokCategoryFilter.value)) {
+        tiktokCategoryFilter.value = 'all';
     }
 
-    await Promise.allSettled([
-        fetchTikTokFeed(),
-        fetchTikTokFollowers(),
-        fetchGalleryKarya(),
-    ]);
     await renderTikTokEmbeds();
 
     timerInterval = setInterval(updatePoTimers, 1000);

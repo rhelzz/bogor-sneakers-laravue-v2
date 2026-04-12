@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\TikTokFeed;
-use App\Services\TikTok\TikTokFollowerService;
 use App\Services\TikTok\TikTokOEmbedService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,16 +14,14 @@ class TikTokFeedController extends Controller
 {
     public function __construct(
         private readonly TikTokOEmbedService $oEmbedService,
-        private readonly TikTokFollowerService $followerService,
-    ) {
-    }
+    ) {}
 
     /**
      * Show the TikTok feed admin page.
      */
     public function index()
     {
-        $feeds = TikTokFeed::orderBy('sort_order', 'asc')->get();
+        $feeds = TikTokFeed::orderBy('sort_order', 'asc')->get(['*']);
 
         return Inertia::render('Admin/TikTokFeed', [
             'feeds' => $feeds,
@@ -42,7 +39,7 @@ class TikTokFeedController extends Controller
      */
     public function store(Request $request)
     {
-        if (TikTokFeed::count() >= 4) {
+        if (TikTokFeed::count('*') >= 4) {
             throw ValidationException::withMessages([
                 'url' => 'Maksimal 4 link TikTok pada feed home.',
             ]);
@@ -112,46 +109,12 @@ class TikTokFeedController extends Controller
     {
         $deletedId = $tiktokFeed->id;
 
-        $tiktokFeed->delete();
+        TikTokFeed::destroy($deletedId);
 
         return response()->json([
             'message' => 'Link TikTok berhasil dihapus.',
             'id' => $deletedId,
         ]);
-    }
-
-    /**
-     * Public API for TikTok feed on home page.
-     */
-    public function apiFeed()
-    {
-        $feeds = TikTokFeed::active()->get()->map(fn (TikTokFeed $feed) => [
-            'id' => $feed->id,
-            'url' => $feed->url,
-            'category' => $feed->category,
-            'title' => $feed->title,
-            'author_name' => $feed->author_name,
-            'thumbnail_url' => $feed->thumbnail_url,
-            'video_id' => $feed->video_id,
-        ]);
-
-        return response()->json($feeds);
-    }
-
-    /**
-     * Public API for TikTok follower count.
-     */
-    public function apiFollowers(Request $request)
-    {
-        $username = (string) $request->query('username', config('services.tiktok.username', 'bogorsneaker'));
-
-        if ($username === '') {
-            $username = 'bogorsneaker';
-        }
-
-        $snapshot = $this->followerService->getFollowerSnapshot($username);
-
-        return response()->json($snapshot);
     }
 
     /**

@@ -14,7 +14,7 @@ class CarouselSlideController extends Controller
      */
     public function index()
     {
-        $slides = CarouselSlide::orderBy('order', 'asc')->get();
+        $slides = CarouselSlide::orderBy('order', 'asc')->get(['*']);
 
         return Inertia::render('Admin/CarouselHome', [
             'slides' => $slides,
@@ -111,7 +111,7 @@ class CarouselSlideController extends Controller
         }
 
         // Delete the slide record
-        $carouselSlide->delete();
+        CarouselSlide::destroy($deletedSlideId);
 
         if (request()->expectsJson()) {
             return response()->json([
@@ -121,25 +121,5 @@ class CarouselSlideController extends Controller
         }
 
         return back()->with('message', 'Slide carousel berhasil dihapus!');
-    }
-
-    /**
-     * Get carousel slides as JSON (for frontend API).
-     */
-    public function api()
-    {
-        $slides = CarouselSlide::active()
-            ->whereNotNull('image_path')
-            ->where('image_path', '!=', '')
-            ->get()
-            ->map(function ($slide) {
-            return [
-                'id' => $slide->id,
-                'image_url' => $slide->image_url,
-                'is_active' => $slide->is_active,
-            ];
-        });
-
-        return response()->json($slides);
     }
 }

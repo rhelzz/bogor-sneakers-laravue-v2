@@ -58,18 +58,6 @@ class GalleryKaryaController extends Controller
     }
 
     /**
-     * Public API for homepage gallery.
-     */
-    public function api()
-    {
-        $slots = $this->ensureEightSlots();
-
-        return response()->json(
-            $slots->map(fn (GallerySlot $slot) => $this->serializeSlot($slot))
-        );
-    }
-
-    /**
      * Ensure database always has exactly 8 fixed slots.
      */
     private function ensureEightSlots(): Collection
@@ -82,9 +70,9 @@ class GalleryKaryaController extends Controller
         }
 
         return GallerySlot::query()
-            ->whereBetween('slot', [1, self::MAX_SLOT])
+            ->whereBetween('slot', [1, self::MAX_SLOT], 'and', false)
             ->ordered()
-            ->get();
+            ->get(['*']);
     }
 
     /**
@@ -132,8 +120,6 @@ class GalleryKaryaController extends Controller
         $sourceHeight = imagesy($sourceImage);
 
         if ($sourceWidth < 1 || $sourceHeight < 1) {
-            imagedestroy($sourceImage);
-
             return null;
         }
 
@@ -150,8 +136,6 @@ class GalleryKaryaController extends Controller
         $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
 
         if ($canvas === false) {
-            imagedestroy($sourceImage);
-
             return null;
         }
 
@@ -195,9 +179,6 @@ class GalleryKaryaController extends Controller
                 $path = sprintf('%s/%s.jpg', $storageFolder, $fileName);
             }
         }
-
-        imagedestroy($canvas);
-        imagedestroy($sourceImage);
 
         if (! is_string($binary) || $binary === '' || ! is_string($path)) {
             return null;

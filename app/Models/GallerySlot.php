@@ -2,8 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $slot
+ * @property string|null $image_path
+ * @property Carbon|null $updated_at
+ * @property-read string|null $image_url
+ */
 class GallerySlot extends Model
 {
     /**
@@ -19,7 +28,7 @@ class GallerySlot extends Model
     /**
      * Scope a query to order gallery slots by slot number.
      */
-    public function scopeOrdered($query)
+    public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('slot', 'asc');
     }
@@ -33,6 +42,6 @@ class GallerySlot extends Model
             return null;
         }
 
-        return asset('storage/' . $this->image_path);
+        return asset('storage/'.$this->image_path);
     }
 }
