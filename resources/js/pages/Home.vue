@@ -741,14 +741,8 @@
                         >
                             Galeri<br />Karya
                         </h2>
-                        <p class="text-hai">submit @bogorsneakers</p>
+                        <p class="text-hai">Koleksi karya terbaru komunitas.</p>
                     </div>
-                    <a
-                        href="#"
-                        class="mt-6 rounded-full bg-sumi px-6 py-3 text-sm tracking-wider text-washi transition-all hover:bg-usuzumi lg:mt-0"
-                    >
-                        Submit Foto
-                    </a>
                 </div>
 
                 <!-- Masonry Grid -->
@@ -762,29 +756,25 @@
                             class="card-lift overflow-hidden rounded-3xl border border-sumi/5 bg-shironeri"
                         >
                             <div
-                                :class="`img-reveal relative flex items-center justify-center bg-sumi/5 ${gallery.aspectClass}`"
+                                :class="`img-reveal relative overflow-hidden bg-sumi/5 ${gallery.aspectClass}`"
                             >
-                                <i class="bi bi-image text-4xl text-hai/30"></i>
-                            </div>
-                            <div class="p-4">
-                                <p class="text-sm font-medium">
-                                    {{ gallery.title }}
-                                </p>
-                                <p class="text-xs text-hai">
-                                    {{ gallery.author }}
-                                </p>
+                                <img
+                                    v-if="gallery.image_url"
+                                    :src="gallery.image_url"
+                                    :alt="`Galeri karya slot ${gallery.slot}`"
+                                    class="h-full w-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                                <div
+                                    v-else
+                                    class="flex h-full w-full items-center justify-center"
+                                >
+                                    <i class="bi bi-image text-4xl text-hai/30"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Load More -->
-                <div class="mt-12 text-center">
-                    <button
-                        class="rounded-full border-2 border-sumi px-8 py-3 text-sm tracking-wider text-sumi transition-all hover:bg-sumi hover:text-washi"
-                    >
-                        Muat Lebih Banyak
-                    </button>
                 </div>
             </div>
         </section>
@@ -919,6 +909,7 @@ import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
+import type { GallerySlot as GallerySlotApi } from '@/types/gallery';
 import type { TikTokFeedItem, TikTokFollowerSnapshot } from '@/types/tiktok';
 
 // State Management
@@ -1124,6 +1115,39 @@ type HeroCarouselSlide = {
 const heroCarousel = ref<HeroCarouselSlide[]>([]);
 const tiktokVideos = ref<TikTokFeedItem[]>([]);
 const tiktokFollowers = ref<TikTokFollowerSnapshot | null>(null);
+
+type GalleryItem = {
+    id: number;
+    slot: number;
+    image_url: string | null;
+    aspectClass: string;
+};
+
+const galleryAspectClassMap: Record<number, string> = {
+    1: 'aspect-[3/4]',
+    2: 'aspect-square',
+    3: 'aspect-[4/5]',
+    4: 'aspect-[3/4]',
+    5: 'aspect-square',
+    6: 'aspect-[4/3]',
+    7: 'aspect-[3/4]',
+    8: 'aspect-square',
+};
+
+const buildGalleryPlaceholders = (): GalleryItem[] => {
+    return Array.from({ length: 8 }, (_, index) => {
+        const slot = index + 1;
+
+        return {
+            id: slot,
+            slot,
+            image_url: null,
+            aspectClass: galleryAspectClassMap[slot] ?? 'aspect-square',
+        };
+    });
+};
+
+const galleryItems = ref<GalleryItem[]>(buildGalleryPlaceholders());
 
 const tiktokCategories = computed(() => {
     const categories = Array.from(
@@ -1345,58 +1369,6 @@ const guarantees = ref([
     },
 ]);
 
-// Gallery
-const galleryItems = ref([
-    {
-        id: 1,
-        title: 'Air Max 97 x Jogja Streets',
-        author: '@rizky.jkt',
-        aspectClass: 'aspect-[3/4]',
-    },
-    {
-        id: 2,
-        title: 'Samba OG - Bogor Vibe',
-        author: '@adit_sneaks',
-        aspectClass: 'aspect-square',
-    },
-    {
-        id: 3,
-        title: 'Jordan 1 Bred - Cold Day',
-        author: '@febri.kicks',
-        aspectClass: 'aspect-[4/5]',
-    },
-    {
-        id: 4,
-        title: 'NB 574 Navy x Rain',
-        author: '@putri.sneakers',
-        aspectClass: 'aspect-[3/4]',
-    },
-    {
-        id: 5,
-        title: 'Vans Old Skool',
-        author: '@hendra.s',
-        aspectClass: 'aspect-square',
-    },
-    {
-        id: 6,
-        title: 'Converse Chuck 70',
-        author: '@sinta.kicks',
-        aspectClass: 'aspect-[4/3]',
-    },
-    {
-        id: 7,
-        title: 'Asics Gel-Kayano',
-        author: '@dimas.bgr',
-        aspectClass: 'aspect-[3/4]',
-    },
-    {
-        id: 8,
-        title: 'Puma RS-X Effekt',
-        author: '@yuli.sneaks',
-        aspectClass: 'aspect-square',
-    },
-]);
-
 // PO Timer
 const updatePoTimers = () => {
     poList.value.forEach((po) => {
@@ -1452,6 +1424,42 @@ const fetchTikTokFollowers = async () => {
     tiktokFollowers.value = data;
 };
 
+const fetchGalleryKarya = async () => {
+    const response = await fetch('/api/galeri-karya', {
+        headers: {
+            Accept: 'application/json',
+        },
+        credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch gallery karya');
+    }
+
+    const data = (await response.json()) as GallerySlotApi[];
+    const placeholders = buildGalleryPlaceholders();
+
+    const normalizedSlots = data
+        .sort((a, b) => a.slot - b.slot)
+        .slice(0, 8)
+        .map((slot) => {
+            return {
+                id: slot.id,
+                slot: slot.slot,
+                image_url: slot.image_url,
+                aspectClass:
+                    galleryAspectClassMap[slot.slot] ?? 'aspect-square',
+            };
+        });
+
+    galleryItems.value = placeholders.map((placeholder) => {
+        return (
+            normalizedSlots.find((slot) => slot.slot === placeholder.slot) ??
+            placeholder
+        );
+    });
+};
+
 let timerInterval: ReturnType<typeof setInterval> | undefined;
 let carouselInterval: ReturnType<typeof setInterval> | undefined;
 
@@ -1475,7 +1483,11 @@ onMounted(async () => {
         // Carousel will remain empty if fetch fails
     }
 
-    await Promise.allSettled([fetchTikTokFeed(), fetchTikTokFollowers()]);
+    await Promise.allSettled([
+        fetchTikTokFeed(),
+        fetchTikTokFollowers(),
+        fetchGalleryKarya(),
+    ]);
     await renderTikTokEmbeds();
 
     timerInterval = setInterval(updatePoTimers, 1000);
