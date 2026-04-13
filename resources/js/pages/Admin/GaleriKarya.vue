@@ -1,11 +1,11 @@
 <template>
     <AdminLayout>
         <div class="mx-auto max-w-6xl">
-            <div class="accent-left mb-8">
-                <h2 class="font-heading mb-2 text-3xl font-bold lg:text-4xl">
+            <div class="accent-left mb-6">
+                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
                     Kelola Galeri Karya
                 </h2>
-                <p class="text-hai">
+                <p class="text-sm text-hai">
                     Galeri homepage selalu 8 slot tetap. Admin dapat mengganti
                     gambar, judul, dan author tiap slot.
                 </p>
@@ -13,7 +13,7 @@
 
             <div
                 v-if="successMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-matcha bg-matcha/20 p-4 text-matcha"
+                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-check-circle"></i>
@@ -23,7 +23,7 @@
 
             <div
                 v-if="errorMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-red-500 bg-red-200/20 p-4 text-red-600"
+                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-exclamation-circle"></i>
@@ -31,8 +31,8 @@
                 </div>
             </div>
 
-            <div class="mb-8 rounded-2xl border border-sumi/10 bg-washi p-5">
-                <p class="text-sm text-hai">
+            <div class="mb-6 rounded-2xl border border-sumi/10 bg-washi p-4">
+                <p class="text-xs text-hai">
                     Format upload: JPEG/PNG, maksimal 5MB. Setelah memilih file,
                     preview slot langsung muncul lalu otomatis diunggah ke
                     server. Judul dan author bisa diubah lalu disimpan per slot.
@@ -43,7 +43,7 @@
                 <article
                     v-for="slot in slots"
                     :key="slot.id"
-                    class="card-lift overflow-hidden rounded-3xl border border-sumi/10 bg-washi"
+                    class="card-lift overflow-hidden rounded-2xl border border-sumi/10 bg-washi"
                 >
                     <div
                         :class="`relative overflow-hidden bg-sumi/5 ${getAspectClass(slot.slot)}`"
@@ -66,7 +66,7 @@
 
                         <div class="absolute top-3 left-3">
                             <span
-                                class="rounded-full bg-sumi px-3 py-1 text-xs font-bold tracking-wide text-washi"
+                                class="rounded-full bg-sumi px-2.5 py-1 text-[11px] font-bold tracking-wide text-washi"
                             >
                                 SLOT {{ slot.slot }}
                             </span>
@@ -85,10 +85,10 @@
                         </div>
                     </div>
 
-                    <div class="space-y-3 p-4">
+                    <div class="space-y-2.5 p-3">
                         <label
                             :for="fileInputId(slot.slot)"
-                            class="block w-full cursor-pointer rounded-xl bg-matcha px-4 py-3 text-center text-sm font-bold text-washi transition-all hover:bg-matcha/80"
+                            class="block w-full cursor-pointer rounded-lg bg-matcha px-3 py-2.5 text-center text-xs font-bold text-washi transition-all hover:bg-matcha/80"
                             :class="{
                                 'cursor-not-allowed opacity-50':
                                     uploadingSlot === slot.slot,
@@ -117,7 +117,7 @@
                                 v-model="metadataForms[slot.id].title"
                                 type="text"
                                 maxlength="120"
-                                class="w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm text-sumi focus:border-matcha focus:outline-none"
+                                class="w-full rounded-lg border border-sumi/20 bg-white px-3 py-2 text-xs text-sumi focus:border-matcha focus:outline-none"
                                 :disabled="savingMetadataSlot === slot.slot"
                             />
                         </div>
@@ -130,13 +130,13 @@
                                 v-model="metadataForms[slot.id].author"
                                 type="text"
                                 maxlength="80"
-                                class="w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm text-sumi focus:border-matcha focus:outline-none"
+                                class="w-full rounded-lg border border-sumi/20 bg-white px-3 py-2 text-xs text-sumi focus:border-matcha focus:outline-none"
                                 :disabled="savingMetadataSlot === slot.slot"
                             />
                         </div>
 
                         <button
-                            class="w-full rounded-xl bg-sumi px-4 py-2 text-sm font-bold text-washi transition-all hover:bg-sumi/85 disabled:cursor-not-allowed disabled:opacity-50"
+                            class="w-full rounded-lg bg-sumi px-4 py-2 text-xs font-bold text-washi transition-all hover:bg-sumi/85 disabled:cursor-not-allowed disabled:opacity-50"
                             :disabled="
                                 savingMetadataSlot === slot.slot ||
                                 uploadingSlot === slot.slot
