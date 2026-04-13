@@ -302,7 +302,7 @@ class KatalogController extends Controller
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
             'sizes' => ['required', 'array', 'min:1'],
-            'sizes.*' => ['required', 'integer', 'min:30', 'max:55'],
+            'sizes.*' => ['required', 'integer', 'min:36', 'max:50'],
             'images' => ['nullable', 'array', 'max:6'],
             'images.*' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ], [
@@ -318,6 +318,8 @@ class KatalogController extends Controller
             'sizes.array' => 'Format ukuran tidak valid.',
             'sizes.min' => 'Minimal satu ukuran wajib diisi.',
             'sizes.*.integer' => 'Ukuran harus berupa angka.',
+            'sizes.*.min' => 'Ukuran minimal adalah EU 36.',
+            'sizes.*.max' => 'Ukuran maksimal adalah EU 50.',
             'images.max' => sprintf('Maksimal %d gambar per produk.', self::MAX_IMAGES),
             'images.*.mimes' => 'Format gambar harus JPEG, PNG, atau WEBP.',
             'images.*.max' => 'Ukuran setiap gambar maksimal 5MB.',
@@ -331,7 +333,7 @@ class KatalogController extends Controller
     {
         $unique = collect($sizes)
             ->map(fn (int|string $size): int => (int) $size)
-            ->filter(fn (int $size): bool => $size >= 30 && $size <= 55)
+            ->filter(fn (int $size): bool => $size >= 36 && $size <= 50)
             ->unique()
             ->sort()
             ->values();
