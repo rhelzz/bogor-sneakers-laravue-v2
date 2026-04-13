@@ -2,11 +2,11 @@
     <AdminLayout>
         <div class="mx-auto max-w-6xl">
             <!-- Page Header -->
-            <div class="accent-left mb-8">
-                <h2 class="font-heading mb-2 text-3xl font-bold lg:text-4xl">
+            <div class="accent-left mb-6">
+                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
                     Kelola Carousel Home
                 </h2>
-                <p class="text-hai">
+                <p class="text-sm text-hai">
                     Upload dan kelola slide carousel di halaman utama website
                 </p>
             </div>
@@ -14,7 +14,7 @@
             <!-- Alerts -->
             <div
                 v-if="successMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-matcha bg-matcha/20 p-4 text-matcha"
+                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-check-circle"></i>
@@ -23,7 +23,7 @@
             </div>
             <div
                 v-if="errorMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-red-500 bg-red-200/20 p-4 text-red-600"
+                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-exclamation-circle"></i>
@@ -32,14 +32,14 @@
             </div>
 
             <!-- Main Grid: Upload Form + Gallery -->
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <!-- Upload Form Card -->
                 <div class="lg:col-span-1">
                     <div
-                        class="card-lift sticky top-24 rounded-3xl border border-sumi/5 bg-washi p-8"
+                        class="card-lift sticky top-6 rounded-2xl border border-sumi/5 bg-washi p-6"
                     >
                         <h3
-                            class="font-heading mb-6 flex items-center gap-2 text-xl font-bold"
+                            class="font-heading mb-5 flex items-center gap-2 text-lg font-bold"
                         >
                             <i
                                 class="bi bi-cloud-arrow-up text-2xl text-matcha"
@@ -49,7 +49,7 @@
 
                         <!-- File Drop Zone -->
                         <div
-                            class="mb-6 cursor-pointer rounded-2xl border-2 border-dashed border-sumi/30 p-8 text-center transition-all hover:border-matcha hover:bg-matcha/5"
+                            class="mb-5 cursor-pointer rounded-xl border-2 border-dashed border-sumi/30 p-6 text-center transition-all hover:border-matcha hover:bg-matcha/5"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
                             @drop.prevent="handleFileDrop"
@@ -64,16 +64,16 @@
                             />
                             <div @click="openFilePicker">
                                 <i
-                                    class="bi bi-image mb-3 block text-4xl text-hai/50"
+                                    class="bi bi-image mb-2 block text-3xl text-hai/50"
                                 ></i>
-                                <p class="mb-1 text-sm font-medium">
+                                <p class="mb-1 text-xs font-medium">
                                     {{
                                         form.image
                                             ? '✓ ' + form.image.name
                                             : 'Pilih atau Drag Image'
                                     }}
                                 </p>
-                                <p class="text-xs text-hai">
+                                <p class="text-[11px] text-hai">
                                     JPEG atau PNG, max 5MB
                                 </p>
                             </div>
@@ -83,7 +83,7 @@
                         <button
                             @click="uploadSlide"
                             :disabled="isSubmitting || !form.image"
-                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-matcha px-6 py-3 font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
+                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-matcha px-4 py-2.5 text-sm font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
                         >
                             <i v-if="!isSubmitting" class="bi bi-upload"></i>
                             <i
@@ -96,14 +96,14 @@
                         <!-- Reset Button -->
                         <button
                             @click="resetForm"
-                            class="mt-3 w-full rounded-xl bg-sumi/10 px-6 py-3 font-medium text-sumi transition-all hover:bg-sumi/20"
+                            class="mt-2.5 w-full rounded-lg bg-sumi/10 px-4 py-2.5 text-sm font-medium text-sumi transition-all hover:bg-sumi/20"
                         >
                             Reset
                         </button>
 
                         <!-- Info Box -->
                         <div
-                            class="mt-6 rounded-xl border border-sumi/10 bg-sumi/5 p-4"
+                            class="mt-5 rounded-lg border border-sumi/10 bg-sumi/5 p-3"
                         >
                             <p class="text-xs leading-relaxed text-hai/70">
                                 <strong>Tips:</strong> Upload hanya gambar saja.
@@ -116,11 +116,11 @@
 
                 <!-- Gallery Section -->
                 <div class="lg:col-span-2">
-                    <div class="mb-6 flex items-center justify-between">
+                    <div class="mb-4 flex items-center justify-between">
                         <h3
-                            class="font-heading flex items-center gap-2 text-2xl font-bold"
+                            class="font-heading flex items-center gap-2 text-xl font-bold"
                         >
-                            <i class="bi bi-gallery text-2xl text-matcha"></i>
+                            <i class="bi bi-gallery text-xl text-matcha"></i>
                             Slides ({{ slides.length }})
                         </h3>
                         <span
@@ -134,12 +134,12 @@
                     <!-- Empty State -->
                     <div
                         v-if="slides.length === 0"
-                        class="rounded-3xl border border-sumi/5 bg-washi p-12 text-center"
+                        class="rounded-2xl border border-sumi/5 bg-washi p-8 text-center"
                     >
                         <i
-                            class="bi bi-inbox mb-4 block text-6xl text-hai/30"
+                            class="bi bi-inbox mb-3 block text-5xl text-hai/30"
                         ></i>
-                        <p class="mb-2 text-lg font-bold text-hai">
+                        <p class="mb-1 text-base font-bold text-hai">
                             Belum ada slide carousel
                         </p>
                         <p class="text-sm text-hai/60">

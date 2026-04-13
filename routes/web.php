@@ -3,17 +3,15 @@
 use App\Http\Controllers\CarouselSlideController;
 use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\TikTokFeedController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::inertia('/katalog', 'Katalog')->name('katalog');
-Route::get('/katalog/{productId}', function (int $productId) {
-    return Inertia::render('ProductDetail', [
-        'productId' => $productId,
-    ]);
-})->whereNumber('productId')->name('katalog.show');
+Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog');
+Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
+    ->where('catalog', '^[a-z0-9-]+-[0-9a-hjkmnp-tv-z]{26}$')
+    ->name('katalog.show');
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
 
@@ -32,4 +30,12 @@ Route::prefix('admin')->group(function () {
     Route::post('/tiktok-feed', [TikTokFeedController::class, 'store'])->name('admin.tiktok-feed.store');
     Route::put('/tiktok-feed/{tiktokFeed}', [TikTokFeedController::class, 'update'])->name('admin.tiktok-feed.update');
     Route::delete('/tiktok-feed/{tiktokFeed}', [TikTokFeedController::class, 'destroy'])->name('admin.tiktok-feed.destroy');
+
+    Route::get('/katalog', [KatalogController::class, 'adminIndex'])->name('admin.katalog');
+    Route::post('/katalog', [KatalogController::class, 'store'])->name('admin.katalog.store');
+    Route::put('/katalog/{catalog}', [KatalogController::class, 'update'])->name('admin.katalog.update');
+    Route::delete('/katalog/{catalog}', [KatalogController::class, 'destroy'])->name('admin.katalog.destroy');
+    Route::post('/katalog/{catalog}/images', [KatalogController::class, 'uploadImage'])->name('admin.katalog.images.store');
+    Route::delete('/katalog/{catalog}/images/{catalogImage}', [KatalogController::class, 'deleteImage'])->name('admin.katalog.images.destroy');
+    Route::put('/katalog/{catalog}/images/reorder', [KatalogController::class, 'reorderImages'])->name('admin.katalog.images.reorder');
 });

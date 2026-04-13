@@ -1,11 +1,11 @@
 <template>
     <AdminLayout>
         <div class="mx-auto max-w-6xl">
-            <div class="accent-left mb-8">
-                <h2 class="font-heading mb-2 text-3xl font-bold lg:text-4xl">
+            <div class="accent-left mb-6">
+                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
                     Kelola TikTok Feed
                 </h2>
-                <p class="text-hai">
+                <p class="text-sm text-hai">
                     Maksimal 4 link TikTok untuk ditampilkan di Home dengan
                     filter kategori.
                 </p>
@@ -13,7 +13,7 @@
 
             <div
                 v-if="successMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-matcha bg-matcha/20 p-4 text-matcha"
+                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-check-circle"></i>
@@ -23,7 +23,7 @@
 
             <div
                 v-if="errorMessage"
-                class="animate-fade-in mb-6 rounded-xl border border-red-500 bg-red-200/20 p-4 text-red-600"
+                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
             >
                 <div class="flex items-center gap-2">
                     <i class="bi bi-exclamation-circle"></i>
@@ -31,15 +31,15 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-1">
                     <div
-                        class="card-lift sticky top-24 rounded-3xl border border-sumi/5 bg-washi p-8"
+                        class="card-lift sticky top-6 rounded-2xl border border-sumi/5 bg-washi p-6"
                     >
                         <h3
-                            class="font-heading mb-6 flex items-center gap-2 text-xl font-bold"
+                            class="font-heading mb-5 flex items-center gap-2 text-lg font-bold"
                         >
-                            <i class="bi bi-tiktok text-2xl text-matcha"></i>
+                            <i class="bi bi-tiktok text-xl text-matcha"></i>
                             {{
                                 editId
                                     ? 'Edit Link TikTok'
@@ -56,7 +56,7 @@
                                 v-model.trim="form.url"
                                 type="url"
                                 placeholder="https://www.tiktok.com/@username/video/123"
-                                class="w-full rounded-xl border border-sumi/20 bg-shironeri px-4 py-3 text-sm transition-all outline-none focus:border-matcha"
+                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
                             />
                         </div>
 
@@ -67,7 +67,7 @@
                             >
                             <select
                                 v-model="form.category"
-                                class="w-full rounded-xl border border-sumi/20 bg-shironeri px-4 py-3 text-sm transition-all outline-none focus:border-matcha"
+                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
                             >
                                 <option value="">Pilih kategori</option>
                                 <option
@@ -93,14 +93,14 @@
                                 type="text"
                                 maxlength="64"
                                 placeholder="Contoh: unboxing"
-                                class="w-full rounded-xl border border-sumi/20 bg-shironeri px-4 py-3 text-sm transition-all outline-none focus:border-matcha"
+                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
                             />
                         </div>
 
                         <div
-                            class="mb-5 flex items-center justify-between rounded-xl bg-sumi/5 p-3"
+                            class="mb-4 flex items-center justify-between rounded-lg bg-sumi/5 p-2.5"
                         >
-                            <span class="text-sm text-hai"
+                            <span class="text-xs text-hai"
                                 >Tampilkan di Home</span
                             >
                             <button
@@ -125,7 +125,7 @@
                         <button
                             @click="submitForm"
                             :disabled="isSubmitting || isMaxReached"
-                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-matcha px-6 py-3 font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
+                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-matcha px-4 py-2.5 text-sm font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
                         >
                             <i v-if="!isSubmitting" class="bi bi-save"></i>
                             <i
@@ -144,13 +144,13 @@
                         <button
                             v-if="editId"
                             @click="resetForm"
-                            class="mt-3 w-full rounded-xl bg-sumi/10 px-6 py-3 font-medium text-sumi transition-all hover:bg-sumi/20"
+                            class="mt-2.5 w-full rounded-lg bg-sumi/10 px-4 py-2.5 text-sm font-medium text-sumi transition-all hover:bg-sumi/20"
                         >
                             Batal Edit
                         </button>
 
                         <div
-                            class="mt-6 rounded-xl border border-sumi/10 bg-sumi/5 p-4"
+                            class="mt-5 rounded-lg border border-sumi/10 bg-sumi/5 p-3"
                         >
                             <p class="text-xs leading-relaxed text-hai/70">
                                 <strong>Catatan:</strong> Slot terpakai
@@ -162,12 +162,12 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <div class="mb-6 flex items-center justify-between">
+                    <div class="mb-4 flex items-center justify-between">
                         <h3
-                            class="font-heading flex items-center gap-2 text-2xl font-bold"
+                            class="font-heading flex items-center gap-2 text-xl font-bold"
                         >
                             <i
-                                class="bi bi-grid-3x3-gap text-2xl text-matcha"
+                                class="bi bi-grid-3x3-gap text-xl text-matcha"
                             ></i>
                             Video Aktif ({{ feeds.length }})
                         </h3>
@@ -175,12 +175,12 @@
 
                     <div
                         v-if="feeds.length === 0"
-                        class="rounded-3xl border border-sumi/5 bg-washi p-12 text-center"
+                        class="rounded-2xl border border-sumi/5 bg-washi p-8 text-center"
                     >
                         <i
-                            class="bi bi-collection-play mb-4 block text-6xl text-hai/30"
+                            class="bi bi-collection-play mb-3 block text-5xl text-hai/30"
                         ></i>
-                        <p class="mb-2 text-lg font-bold text-hai">
+                        <p class="mb-1 text-base font-bold text-hai">
                             Belum ada link TikTok
                         </p>
                         <p class="text-sm text-hai/60">
