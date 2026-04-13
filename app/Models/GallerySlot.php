@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $slot
  * @property string|null $image_path
+ * @property string|null $title
+ * @property string|null $author
  * @property Carbon|null $updated_at
  * @property-read string|null $image_url
  */
@@ -23,6 +25,8 @@ class GallerySlot extends Model
     protected $fillable = [
         'slot',
         'image_path',
+        'title',
+        'author',
     ];
 
     /**

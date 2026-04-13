@@ -11,6 +11,22 @@ use Inertia\Response;
 
 class HomeController extends Controller
 {
+    private const GALLERY_DEFAULT_AUTHOR = '@bogorsneakers';
+
+    /**
+     * @var array<int, string>
+     */
+    private const GALLERY_DEFAULT_TITLES = [
+        1 => 'Air Max 97 x Jogja Streets',
+        2 => 'Samba OG - Bogor Vibe',
+        3 => 'Jordan 1 Bred - Cold Day',
+        4 => 'NB 574 Navy x Rain',
+        5 => 'Vans Old Skool',
+        6 => 'Converse Chuck 70',
+        7 => 'Asics Gel-Kayano',
+        8 => 'Puma RS-X Effekt',
+    ];
+
     public function __construct(
         private readonly TikTokFollowerService $followerService,
     ) {}
@@ -68,21 +84,53 @@ class HomeController extends Controller
     }
 
     /**
-     * @return array<int, array{id: int, slot: int, image_path: ?string, image_url: ?string}>
+     * @return array<int, array{id: int, slot: int, image_path: ?string, image_url: ?string, title: string, author: string}>
      */
     private function getGallerySlots(): array
     {
         return GallerySlot::query()
-            ->whereBetween('slot', [1, 8], 'and', false)
+            ->whereBetween('slot', [1, 8])
             ->ordered()
-            ->get(['*'])
-            ->map(static fn (GallerySlot $slot): array => [
-                'id' => $slot->id,
-                'slot' => $slot->slot,
-                'image_path' => $slot->image_path,
-                'image_url' => $slot->image_url,
-            ])
+            ->get()
+            ->map(function (GallerySlot $slot): array {
+                $title = is_string($slot->title) && trim($slot->title) !== ''
+                    ? trim($slot->title)
+                    : $this->defaultGalleryTitle((int) $slot->slot);
+
+                $author = is_string($slot->author) && trim($slot->author) !== ''
+                    ? $this->normalizeGalleryAuthor($slot->author)
+                    : self::GALLERY_DEFAULT_AUTHOR;
+
+                return [
+                    'id' => $slot->id,
+                    'slot' => $slot->slot,
+                    'image_path' => $slot->image_path,
+                    'image_url' => $slot->image_url,
+                    'title' => $title,
+                    'author' => $author,
+                ];
+            })
             ->values()
             ->all();
+    }
+
+    private function defaultGalleryTitle(int $slot): string
+    {
+        return self::GALLERY_DEFAULT_TITLES[$slot] ?? sprintf('Galeri Karya Slot %d', $slot);
+    }
+
+    private function normalizeGalleryAuthor(string $author): string
+    {
+        $trimmed = trim($author);
+
+        if ($trimmed === '') {
+            return self::GALLERY_DEFAULT_AUTHOR;
+        }
+
+        if (str_starts_with($trimmed, '@')) {
+            return $trimmed;
+        }
+
+        return '@'.$trimmed;
     }
 }

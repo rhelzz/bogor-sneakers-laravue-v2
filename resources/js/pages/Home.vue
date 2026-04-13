@@ -110,20 +110,18 @@
             >
                 <!-- Carousel Container -->
                 <div
-                    class="relative flex h-full w-full items-center justify-center px-8"
+                    class="relative flex h-full w-full items-center justify-center"
                 >
-                    <!-- Carousel Slides -->
-                    <div
-                        class="relative h-full max-h-96 w-full max-w-md lg:max-h-96"
-                    >
+                    <!-- Carousel Slides - Full Background -->
+                    <div class="absolute inset-0">
                         <div
                             v-for="(slide, idx) in heroCarousel"
                             :key="slide.id"
-                            class="carousel-slide img-reveal absolute inset-0 overflow-hidden rounded-3xl transition-all duration-1000 ease-in-out"
+                            class="carousel-slide img-reveal absolute inset-0 overflow-hidden transition-all duration-1000 ease-in-out"
                             :class="
                                 idx === currentCarouselIndex
                                     ? 'scale-100 opacity-100'
-                                    : 'pointer-events-none scale-95 opacity-0'
+                                    : 'pointer-events-none scale-105 opacity-0'
                             "
                         >
                             <img
@@ -141,7 +139,7 @@
                             >
                                 <div class="text-center">
                                     <i
-                                        class="bi bi-image mb-2 text-5xl text-washi/30"
+                                        class="bi bi-image mb-2 text-6xl text-washi/30"
                                     ></i>
                                     <p class="text-sm text-washi/50">
                                         Carousel Slide
@@ -151,38 +149,38 @@
 
                             <!-- Gradient Overlay -->
                             <div
-                                class="absolute inset-0 bg-linear-to-t from-kuro/80 via-transparent to-transparent"
+                                class="absolute inset-0 bg-linear-to-t from-kuro/60 via-kuro/20 to-transparent"
                             ></div>
                         </div>
                     </div>
 
-                    <!-- Navigation Buttons -->
+                    <!-- Navigation Buttons - Overlay -->
                     <button
                         @click="prevCarousel"
-                        class="absolute left-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-washi/10 text-washi opacity-0 backdrop-blur-md transition-all group-hover:opacity-100 hover:bg-washi/20"
+                        class="absolute left-6 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-washi/15 text-washi opacity-0 backdrop-blur-md transition-all group-hover:opacity-100 hover:bg-washi/25"
                     >
-                        <i class="bi bi-chevron-left"></i>
+                        <i class="bi bi-chevron-left text-lg"></i>
                     </button>
                     <button
                         @click="nextCarousel"
-                        class="absolute right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-washi/10 text-washi opacity-0 backdrop-blur-md transition-all group-hover:opacity-100 hover:bg-washi/20"
+                        class="absolute right-6 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-washi/15 text-washi opacity-0 backdrop-blur-md transition-all group-hover:opacity-100 hover:bg-washi/25"
                     >
-                        <i class="bi bi-chevron-right"></i>
+                        <i class="bi bi-chevron-right text-lg"></i>
                     </button>
 
-                    <!-- Dot Indicators -->
+                    <!-- Dot Indicators - Bottom -->
                     <div
-                        class="absolute inset-x-0 bottom-4 z-20 flex justify-center gap-2"
+                        class="absolute inset-x-0 bottom-6 z-20 flex justify-center gap-3"
                     >
                         <button
                             v-for="(slide, idx) in heroCarousel"
                             :key="`dot-${slide.id}`"
                             @click="currentCarouselIndex = idx"
-                            class="transition-all"
+                            class="backdrop-blur-sm transition-all"
                             :class="
                                 idx === currentCarouselIndex
-                                    ? 'h-2 w-8 rounded-full bg-washi'
-                                    : 'h-2 w-2 rounded-full bg-washi/30 hover:bg-washi/50'
+                                    ? 'h-3 w-8 rounded-full bg-washi'
+                                    : 'h-3 w-3 rounded-full bg-washi/40 hover:bg-washi/60'
                             "
                         ></button>
                     </div>
@@ -567,12 +565,17 @@
                 </div>
 
                 <!-- TikTok Grid -->
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" id="tiktokGrid">
+                <div
+                    class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                    id="tiktokGrid"
+                >
                     <div
                         v-if="filteredTiktokVideos.length === 0"
                         class="col-span-1 rounded-3xl border border-washi/10 bg-washi/5 p-8 text-center sm:col-span-2 lg:col-span-3"
                     >
-                        <i class="bi bi-collection-play mb-3 block text-4xl text-washi/40"></i>
+                        <i
+                            class="bi bi-collection-play mb-3 block text-4xl text-washi/40"
+                        ></i>
                         <p class="text-sm text-washi/70">
                             Belum ada video TikTok pada kategori ini.
                         </p>
@@ -582,7 +585,9 @@
                         :key="video.id"
                         class="tiktok-card rounded-3xl border border-washi/10 bg-washi/5 p-4"
                     >
-                        <div class="mb-4 flex items-center justify-between gap-3">
+                        <div
+                            class="mb-4 flex items-center justify-between gap-3"
+                        >
                             <span
                                 class="rounded-full bg-washi/10 px-3 py-1 text-[10px] tracking-wide text-washi/80"
                             >
@@ -746,7 +751,9 @@
                 </div>
 
                 <!-- Masonry Grid -->
-                <div class="columns-2 gap-4 lg:columns-4">
+                <div
+                    class="columns-1 gap-4 [column-fill:balance] sm:columns-2 xl:columns-4"
+                >
                     <div
                         v-for="gallery in galleryItems"
                         :key="gallery.id"
@@ -755,23 +762,32 @@
                         <div
                             class="card-lift overflow-hidden rounded-3xl border border-sumi/5 bg-shironeri"
                         >
-                            <div
-                                :class="`img-reveal relative overflow-hidden bg-sumi/5 ${gallery.aspectClass}`"
-                            >
+                            <div class="img-reveal bg-sumi/5">
                                 <img
                                     v-if="gallery.image_url"
                                     :src="gallery.image_url"
                                     :alt="`Galeri karya slot ${gallery.slot}`"
-                                    class="h-full w-full object-cover"
+                                    class="block h-auto w-full object-contain"
                                     loading="lazy"
                                     decoding="async"
                                 />
                                 <div
                                     v-else
-                                    class="flex h-full w-full items-center justify-center"
+                                    class="flex min-h-45 w-full items-center justify-center"
                                 >
-                                    <i class="bi bi-image text-4xl text-hai/30"></i>
+                                    <i
+                                        class="bi bi-image text-4xl text-hai/30"
+                                    ></i>
                                 </div>
+                            </div>
+
+                            <div class="p-4">
+                                <p class="text-sm font-medium">
+                                    {{ gallery.title }}
+                                </p>
+                                <p class="text-xs text-hai">
+                                    {{ gallery.author }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1123,24 +1139,47 @@ const filteredProducts = computed(() => {
 // Hero Carousel - Initialized from Inertia props
 const heroCarousel = ref<HeroCarouselSlide[]>([...props.carouselSlides]);
 const tiktokVideos = ref<TikTokFeedItem[]>([...props.tiktokFeed]);
-const tiktokFollowers = ref<TikTokFollowerSnapshot | null>(props.tiktokFollowers);
+const tiktokFollowers = ref<TikTokFollowerSnapshot | null>(
+    props.tiktokFollowers,
+);
 
 type GalleryItem = {
     id: number;
     slot: number;
     image_url: string | null;
-    aspectClass: string;
+    title: string;
+    author: string;
 };
 
-const galleryAspectClassMap: Record<number, string> = {
-    1: 'aspect-[3/4]',
-    2: 'aspect-square',
-    3: 'aspect-[4/5]',
-    4: 'aspect-[3/4]',
-    5: 'aspect-square',
-    6: 'aspect-[4/3]',
-    7: 'aspect-[3/4]',
-    8: 'aspect-square',
+const galleryDefaultTitles: Record<number, string> = {
+    1: 'Air Max 97 x Jogja Streets',
+    2: 'Samba OG - Bogor Vibe',
+    3: 'Jordan 1 Bred - Cold Day',
+    4: 'NB 574 Navy x Rain',
+    5: 'Vans Old Skool',
+    6: 'Converse Chuck 70',
+    7: 'Asics Gel-Kayano',
+    8: 'Puma RS-X Effekt',
+};
+
+const galleryDefaultAuthor = '@bogorsneakers';
+
+const getDefaultGalleryTitle = (slot: number) => {
+    return galleryDefaultTitles[slot] ?? `Galeri Karya Slot ${slot}`;
+};
+
+const normalizeGalleryAuthor = (author?: string | null) => {
+    const trimmed = (author ?? '').trim();
+
+    if (trimmed === '') {
+        return galleryDefaultAuthor;
+    }
+
+    if (trimmed.startsWith('@')) {
+        return trimmed;
+    }
+
+    return `@${trimmed}`;
 };
 
 const buildGalleryPlaceholders = (): GalleryItem[] => {
@@ -1151,7 +1190,8 @@ const buildGalleryPlaceholders = (): GalleryItem[] => {
             id: slot,
             slot,
             image_url: null,
-            aspectClass: galleryAspectClassMap[slot] ?? 'aspect-square',
+            title: getDefaultGalleryTitle(slot),
+            author: galleryDefaultAuthor,
         };
     });
 };
@@ -1167,8 +1207,10 @@ const normalizeGalleryItems = (slots: GallerySlotApi[]): GalleryItem[] => {
                 id: slot.id,
                 slot: slot.slot,
                 image_url: slot.image_url,
-                aspectClass:
-                    galleryAspectClassMap[slot.slot] ?? 'aspect-square',
+                title:
+                    (slot.title ?? '').trim() ||
+                    getDefaultGalleryTitle(slot.slot),
+                author: normalizeGalleryAuthor(slot.author),
             };
         });
 
@@ -1180,7 +1222,9 @@ const normalizeGalleryItems = (slots: GallerySlotApi[]): GalleryItem[] => {
     });
 };
 
-const galleryItems = ref<GalleryItem[]>(normalizeGalleryItems(props.gallerySlots));
+const galleryItems = ref<GalleryItem[]>(
+    normalizeGalleryItems(props.gallerySlots),
+);
 
 const tiktokCategories = computed(() => {
     const categories = Array.from(
@@ -1252,17 +1296,26 @@ const disableTikTokAutoplay = () => {
         const iframe = embed.querySelector('iframe');
 
         if (iframe) {
-            iframe.addEventListener('load', () => {
-                try {
-                    const sandboxValue = iframe.getAttribute('sandbox') || '';
+            iframe.addEventListener(
+                'load',
+                () => {
+                    try {
+                        const sandboxValue =
+                            iframe.getAttribute('sandbox') || '';
 
-                    if (!sandboxValue.includes('allow-scripts')) {
-                        iframe.setAttribute('sandbox', sandboxValue + ' allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation');
+                        if (!sandboxValue.includes('allow-scripts')) {
+                            iframe.setAttribute(
+                                'sandbox',
+                                sandboxValue +
+                                    ' allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation',
+                            );
+                        }
+                    } catch (e) {
+                        console.warn('Could not disable autoplay:', e);
                     }
-                } catch (e) {
-                    console.warn('Could not disable autoplay:', e);
-                }
-            }, { once: true });
+                },
+                { once: true },
+            );
         }
     });
 };
@@ -1611,9 +1664,8 @@ html {
 
 /* Carousel Styles */
 .carousel-slide {
-    box-shadow:
-        0 12px 28px rgba(26, 26, 26, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .animate-float {

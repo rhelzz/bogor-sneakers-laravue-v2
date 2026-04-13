@@ -14,6 +14,22 @@ class GalleryKaryaController extends Controller
 {
     private const MAX_SLOT = 8;
 
+    private const DEFAULT_AUTHOR = '@bogorsneakers';
+
+    /**
+     * @var array<int, string>
+     */
+    private const DEFAULT_TITLES = [
+        1 => 'Air Max 97 x Jogja Streets',
+        2 => 'Samba OG - Bogor Vibe',
+        3 => 'Jordan 1 Bred - Cold Day',
+        4 => 'NB 574 Navy x Rain',
+        5 => 'Vans Old Skool',
+        6 => 'Converse Chuck 70',
+        7 => 'Asics Gel-Kayano',
+        8 => 'Puma RS-X Effekt',
+    ];
+
     /**
      * Show the gallery karya admin page.
      */
@@ -58,21 +74,85 @@ class GalleryKaryaController extends Controller
     }
 
     /**
+     * Update title and author for a fixed gallery slot.
+     */
+    public function updateMetadata(Request $request, GallerySlot $gallerySlot)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:120',
+            'author' => 'required|string|max:80',
+        ], [
+            'title.required' => 'Judul wajib diisi.',
+            'title.max' => 'Judul maksimal 120 karakter.',
+            'author.required' => 'Author wajib diisi.',
+            'author.max' => 'Author maksimal 80 karakter.',
+        ]);
+
+        $title = trim((string) $validated['title']);
+        $author = $this->normalizeAuthor((string) $validated['author']);
+
+        if ($title === '') {
+            $title = $this->defaultTitleForSlot((int) $gallerySlot->slot);
+        }
+
+        $gallerySlot->update([
+            'title' => $title,
+            'author' => $author,
+        ]);
+
+        return response()->json([
+            'message' => 'Judul dan author berhasil diperbarui.',
+            'slot' => $this->serializeSlot($gallerySlot->fresh()),
+        ]);
+    }
+
+    /**
+     * Public API for homepage gallery.
+     */
+    public function api()
+    {
+        $slots = $this->ensureEightSlots();
+
+        return response()->json(
+            $slots->map(fn (GallerySlot $slot) => $this->serializeSlot($slot))
+        );
+    }
+
+    /**
      * Ensure database always has exactly 8 fixed slots.
      */
     private function ensureEightSlots(): Collection
     {
         for ($slotNumber = 1; $slotNumber <= self::MAX_SLOT; $slotNumber++) {
-            GallerySlot::firstOrCreate(
+            $slot = GallerySlot::firstOrCreate(
                 ['slot' => $slotNumber],
-                ['image_path' => null],
+                [
+                    'image_path' => null,
+                    'title' => $this->defaultTitleForSlot($slotNumber),
+                    'author' => self::DEFAULT_AUTHOR,
+                ],
             );
+
+            $updates = [];
+
+            if (! is_string($slot->title) || trim($slot->title) === '') {
+                $updates['title'] = $this->defaultTitleForSlot($slotNumber);
+            }
+
+            if (! is_string($slot->author) || trim($slot->author) === '') {
+                $updates['author'] = self::DEFAULT_AUTHOR;
+            }
+
+            if ($updates !== []) {
+                $slot->fill($updates);
+                $slot->save();
+            }
         }
 
         return GallerySlot::query()
-            ->whereBetween('slot', [1, self::MAX_SLOT], 'and', false)
+            ->whereBetween('slot', [1, self::MAX_SLOT])
             ->ordered()
-            ->get(['*']);
+            ->get();
     }
 
     /**
@@ -120,6 +200,8 @@ class GalleryKaryaController extends Controller
         $sourceHeight = imagesy($sourceImage);
 
         if ($sourceWidth < 1 || $sourceHeight < 1) {
+            imagedestroy($sourceImage);
+
             return null;
         }
 
@@ -136,6 +218,8 @@ class GalleryKaryaController extends Controller
         $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
 
         if ($canvas === false) {
+            imagedestroy($sourceImage);
+
             return null;
         }
 
@@ -180,6 +264,9 @@ class GalleryKaryaController extends Controller
             }
         }
 
+        imagedestroy($canvas);
+        imagedestroy($sourceImage);
+
         if (! is_string($binary) || $binary === '' || ! is_string($path)) {
             return null;
         }
@@ -191,16 +278,46 @@ class GalleryKaryaController extends Controller
     }
 
     /**
-     * @return array{id: int, slot: int, image_path: ?string, image_url: ?string, updated_at: mixed}
+     * @return array{id: int, slot: int, image_path: ?string, image_url: ?string, title: string, author: string, updated_at: mixed}
      */
     private function serializeSlot(GallerySlot $slot): array
     {
+        $title = is_string($slot->title) && trim($slot->title) !== ''
+            ? trim($slot->title)
+            : $this->defaultTitleForSlot((int) $slot->slot);
+
+        $author = is_string($slot->author) && trim($slot->author) !== ''
+            ? $this->normalizeAuthor($slot->author)
+            : self::DEFAULT_AUTHOR;
+
         return [
             'id' => $slot->id,
             'slot' => $slot->slot,
             'image_path' => $slot->image_path,
             'image_url' => $slot->image_url,
+            'title' => $title,
+            'author' => $author,
             'updated_at' => $slot->updated_at,
         ];
+    }
+
+    private function defaultTitleForSlot(int $slot): string
+    {
+        return self::DEFAULT_TITLES[$slot] ?? sprintf('Galeri Karya Slot %d', $slot);
+    }
+
+    private function normalizeAuthor(string $author): string
+    {
+        $trimmed = trim($author);
+
+        if ($trimmed === '') {
+            return self::DEFAULT_AUTHOR;
+        }
+
+        if (str_starts_with($trimmed, '@')) {
+            return $trimmed;
+        }
+
+        return '@'.$trimmed;
     }
 }
