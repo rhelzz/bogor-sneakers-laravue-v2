@@ -75,6 +75,17 @@
                     </a>
 
                     <a
+                        href="/admin/katalog"
+                        class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
+                        :class="{
+                            'bg-matcha/20 text-matcha': isActive('admin/katalog'),
+                        }"
+                    >
+                        <i class="bi bi-shop text-lg"></i>
+                        <span>Katalog</span>
+                    </a>
+
+                    <a
                         href="/"
                         target="_blank"
                         class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"

@@ -262,19 +262,27 @@
             <div :class="['grid gap-3', gridClass]">
               <article
                 v-for="product in visibleProducts"
-                :key="product.id"
+                :key="product.public_id"
                 class="group overflow-hidden border border-sumi/12 bg-washi transition"
                 :class="[
                   viewMode === 'list' ? 'flex rounded-xl hover:border-sumi/30' : 'rounded-2xl hover:-translate-y-1 hover:border-sumi/25',
                   product.status === 'habis' ? 'opacity-60' : '',
                 ]"
-                @click="goToProduct(product.id)"
+                @click="goToProduct(product.route_key)"
               >
                 <div
                   class="relative overflow-hidden bg-sumi/5"
                   :class="viewMode === 'list' ? 'm-3 h-24 w-24 shrink-0 rounded-xl' : 'aspect-square w-full'"
                 >
-                  <div class="absolute inset-0 flex items-center justify-center text-hai/35">
+                  <img
+                    v-if="product.image_url"
+                    :src="product.image_url"
+                    :alt="product.name"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  >
+
+                  <div v-else class="absolute inset-0 flex items-center justify-center text-hai/35">
                     <i class="bi bi-image text-3xl" />
                   </div>
 
@@ -284,15 +292,6 @@
                   >
                     {{ statusText(product.status) }}
                   </span>
-
-                  <button
-                    class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-washi/35 bg-sumi/35 text-washi/80"
-                    :class="isWishlisted(product.id) ? 'border-sakura/60 text-sakura' : 'hover:text-sakura'"
-                    :aria-label="`Wishlist ${product.name}`"
-                    @click.stop="toggleWishlist(product.id)"
-                  >
-                    <i class="bi bi-heart" />
-                  </button>
                 </div>
 
                 <div
@@ -328,7 +327,7 @@
                     </div>
                     <button
                       class="rounded-full bg-sumi px-3 py-1.5 text-[10px] uppercase tracking-[0.09em] text-washi transition hover:opacity-85"
-                      @click.stop="goToProduct(product.id)"
+                      @click.stop="goToProduct(product.route_key)"
                     >
                       {{ product.status === 'habis' ? 'Notif' : 'Order' }}
                     </button>
@@ -402,25 +401,11 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue'
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue'
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue'
+import type { CatalogPublicItem, CatalogStatus } from '@/types/catalog'
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui'
 
-type ProductStatus = 'po' | 'ready' | 'habis'
 type SortMode = 'newest' | 'price-asc' | 'price-desc' | 'popular' | 'az'
 type ViewMode = '3col' | '4col' | 'list'
-
-interface CatalogProduct {
-  id: number
-  code: string
-  name: string
-  brand: string
-  brandLabel: string
-  collection: string
-  price: number
-  status: ProductStatus
-  sizes: number[]
-  popularity: number
-  newestRank: number
-}
 
 interface FilterChip {
   key: string
@@ -429,7 +414,12 @@ interface FilterChip {
   value?: string | number
 }
 
-const MAX_PRICE = 3000000
+const props = defineProps<{
+  products: CatalogPublicItem[]
+  maxPrice?: number
+}>()
+
+const MAX_PRICE = Math.max(3000000, Number(props.maxPrice ?? 0))
 const ITEMS_PER_PAGE = 12
 
 const statusFilters = [
@@ -439,23 +429,45 @@ const statusFilters = [
   { key: 'habis', label: 'Habis' },
 ] as const
 
-const brandFilters = [
-  { key: 'nike', label: 'Nike' },
-  { key: 'adidas', label: 'Adidas' },
-  { key: 'jordan', label: 'Jordan' },
-  { key: 'newbalance', label: 'New Balance' },
-  { key: 'vans', label: 'Vans' },
-  { key: 'lokal', label: 'Lokal' },
-] as const
+const products = ref<CatalogPublicItem[]>([...props.products])
 
-const collectionFilters = [
-  { key: 'lifestyle', label: 'Lifestyle' },
-  { key: 'running', label: 'Running' },
-  { key: 'basketball', label: 'Basketball' },
-  { key: 'skate', label: 'Skateboarding' },
-] as const
+const brandFilters = computed(() => {
+  const map = new Map<string, string>()
 
-const availableSizes = [38, 39, 40, 41, 42, 43, 44, 45]
+  products.value.forEach(product => {
+    if (!map.has(product.brand)) {
+      map.set(product.brand, product.brandLabel)
+    }
+  })
+
+  return Array.from(map.entries())
+    .map(([key, label]) => ({ key, label }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'id-ID'))
+})
+
+const collectionFilters = computed(() => {
+  const map = new Map<string, string>()
+
+  products.value.forEach(product => {
+    if (!map.has(product.collection)) {
+      map.set(product.collection, product.collectionLabel)
+    }
+  })
+
+  return Array.from(map.entries())
+    .map(([key, label]) => ({ key, label }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'id-ID'))
+})
+
+const availableSizes = computed(() => {
+  const sizes = new Set<number>()
+
+  products.value.forEach(product => {
+    product.sizes.forEach(size => sizes.add(size))
+  })
+
+  return Array.from(sizes).sort((a, b) => a - b)
+})
 
 const contacts = ref<FloatingContact[]>([
   { id: 1, name: 'Rizky - Admin', role: 'PO · Order · Ketersediaan', phone: '6281234567890', initial: 'R', color: 'bg-matcha/20 text-matcha' },
@@ -468,21 +480,6 @@ const orders = ref<FloatingOrder[]>([
   { id: '#BGS-2790', product: 'Adidas Samba OG White', size: '40', status: 'Dikirim', statusClass: 'px-2 py-1 rounded text-[10px] bg-blue-100 text-blue-700', progress: 85, progressClass: 'bg-sumi' },
   { id: '#BGS-2755', product: 'Jordan 1 Retro High Bred', size: '43', status: 'Selesai', statusClass: 'px-2 py-1 rounded text-[10px] bg-matcha/20 text-matcha', progress: 100, progressClass: 'bg-matcha' },
   { id: '#BGS-2870', product: 'NB 574 Navy', size: '41', status: 'Menunggu', statusClass: 'px-2 py-1 rounded text-[10px] bg-sumi/10 text-hai', progress: 10, progressClass: 'bg-hai/50' },
-])
-
-const products = ref<CatalogProduct[]>([
-  { id: 1, code: 'BGS-NM97-SLV', name: 'Air Max 97 Silver Bullet', brand: 'nike', brandLabel: 'Nike', collection: 'lifestyle', price: 1850000, status: 'po', sizes: [39, 40, 41, 42, 43], popularity: 94, newestRank: 12 },
-  { id: 2, code: 'BGS-SMB-WHT', name: 'Samba OG White Gum', brand: 'adidas', brandLabel: 'Adidas', collection: 'lifestyle', price: 1290000, status: 'ready', sizes: [39, 40, 41, 42], popularity: 98, newestRank: 11 },
-  { id: 3, code: 'BGS-J1-BRED', name: 'Jordan 1 Retro High Bred', brand: 'jordan', brandLabel: 'Jordan', collection: 'basketball', price: 2100000, status: 'po', sizes: [40, 41, 42, 43, 44], popularity: 96, newestRank: 10 },
-  { id: 4, code: 'BGS-NB574-NVY', name: 'New Balance 574 Core Navy', brand: 'newbalance', brandLabel: 'New Balance', collection: 'lifestyle', price: 980000, status: 'ready', sizes: [39, 40, 41, 42, 43, 44], popularity: 88, newestRank: 9 },
-  { id: 5, code: 'BGS-DUNK-PND', name: 'Nike Dunk Low Retro Panda', brand: 'nike', brandLabel: 'Nike', collection: 'lifestyle', price: 1650000, status: 'habis', sizes: [], popularity: 91, newestRank: 8 },
-  { id: 6, code: 'BGS-FRM-WHT', name: 'Adidas Forum Low White Blue', brand: 'adidas', brandLabel: 'Adidas', collection: 'lifestyle', price: 1100000, status: 'ready', sizes: [39, 40, 41, 42, 43], popularity: 83, newestRank: 7 },
-  { id: 7, code: 'BGS-VNT-CLS', name: 'Ventela Classic White Low', brand: 'lokal', brandLabel: 'Ventela', collection: 'lifestyle', price: 420000, status: 'ready', sizes: [39, 40, 41, 42, 43, 44], popularity: 87, newestRank: 6 },
-  { id: 8, code: 'BGS-J4-BCAT', name: 'Jordan 4 Retro Black Cat', brand: 'jordan', brandLabel: 'Jordan', collection: 'basketball', price: 2450000, status: 'po', sizes: [41, 42, 43, 44, 45], popularity: 95, newestRank: 5 },
-  { id: 9, code: 'BGS-AF1-WHT', name: 'Air Force 1 Low 07 White', brand: 'nike', brandLabel: 'Nike', collection: 'lifestyle', price: 1200000, status: 'ready', sizes: [40, 41, 42, 43], popularity: 86, newestRank: 4 },
-  { id: 10, code: 'BGS-VNS-OLD', name: 'Vans Old Skool Black White', brand: 'vans', brandLabel: 'Vans', collection: 'skate', price: 750000, status: 'ready', sizes: [39, 40, 41, 42, 43], popularity: 84, newestRank: 3 },
-  { id: 11, code: 'BGS-PGS-41', name: 'Nike Pegasus 41 React', brand: 'nike', brandLabel: 'Nike', collection: 'running', price: 1550000, status: 'po', sizes: [40, 41, 42, 43, 44], popularity: 90, newestRank: 2 },
-  { id: 12, code: 'BGS-UB22-BLK', name: 'Adidas Ultra Boost 22 Core Black', brand: 'adidas', brandLabel: 'Adidas', collection: 'running', price: 1800000, status: 'ready', sizes: [40, 41, 42, 43], popularity: 89, newestRank: 1 },
 ])
 
 const searchQuery = ref('')
@@ -499,8 +496,6 @@ const priceMax = ref(MAX_PRICE)
 
 const currentPage = ref(1)
 const applyButtonLabel = ref('Terapkan Filter')
-
-const wishlistedIds = ref<number[]>([])
 
 let applyFeedbackTimeout: ReturnType<typeof setTimeout> | undefined
 
@@ -550,6 +545,20 @@ const filteredProducts = computed(() => {
 const sortedProducts = computed(() => {
   const items = [...filteredProducts.value]
 
+  const createdAtRank = (value: string | null) => {
+    if (!value) {
+      return 0
+    }
+
+    const timestamp = Date.parse(value)
+
+    if (Number.isNaN(timestamp)) {
+      return 0
+    }
+
+    return timestamp
+  }
+
   switch (sortMode.value) {
     case 'price-asc':
       return items.sort((a, b) => a.price - b.price)
@@ -560,7 +569,15 @@ const sortedProducts = computed(() => {
     case 'az':
       return items.sort((a, b) => a.name.localeCompare(b.name, 'id-ID'))
     default:
-      return items.sort((a, b) => b.newestRank - a.newestRank)
+      return items.sort((a, b) => {
+        const compareByDate = createdAtRank(b.created_at) - createdAtRank(a.created_at)
+
+        if (compareByDate !== 0) {
+          return compareByDate
+        }
+
+        return b.id - a.id
+      })
   }
 })
 
@@ -608,7 +625,7 @@ const activeFilterChips = computed<FilterChip[]>(() => {
   }
 
   selectedBrands.value.forEach(brand => {
-    const label = brandFilters.find(item => item.key === brand)?.label ?? brand
+    const label = brandFilters.value.find(item => item.key === brand)?.label ?? brand
     chips.push({ key: `brand-${brand}`, label, type: 'brand', value: brand })
   })
 
@@ -617,7 +634,7 @@ const activeFilterChips = computed<FilterChip[]>(() => {
   })
 
   selectedCollections.value.forEach(collection => {
-    const label = collectionFilters.find(item => item.key === collection)?.label ?? collection
+    const label = collectionFilters.value.find(item => item.key === collection)?.label ?? collection
     chips.push({ key: `collection-${collection}`, label, type: 'collection', value: collection })
   })
 
@@ -780,23 +797,11 @@ const removeFilterChip = (chip: FilterChip) => {
   }
 }
 
-const goToProduct = (productId: number) => {
-  router.visit(`/katalog/${productId}`)
+const goToProduct = (routeKey: string) => {
+  router.visit(`/katalog/${routeKey}`)
 }
 
-const toggleWishlist = (id: number) => {
-  if (wishlistedIds.value.includes(id)) {
-    wishlistedIds.value = wishlistedIds.value.filter(item => item !== id)
-
-    return
-  }
-
-  wishlistedIds.value = [...wishlistedIds.value, id]
-}
-
-const isWishlisted = (id: number) => wishlistedIds.value.includes(id)
-
-const statusText = (status: ProductStatus) => {
+const statusText = (status: CatalogStatus) => {
   if (status === 'po') {
     return 'PO'
   }
@@ -808,13 +813,9 @@ const statusText = (status: ProductStatus) => {
   return 'Habis'
 }
 
-const statusBadgeClass = (status: ProductStatus) => {
-  if (status === 'po') {
+const statusBadgeClass = (status: CatalogStatus) => {
+  if (status === 'po' || status === 'ready') {
     return 'border border-matcha/40 bg-matcha/15 text-matcha'
-  }
-
-  if (status === 'ready') {
-    return 'border border-take/40 bg-take/15 text-take'
   }
 
   return 'border border-sumi/15 bg-sumi/5 text-hai'
@@ -825,12 +826,8 @@ const statusButtonClass = (status: (typeof statusFilters)[number]['key']) => {
     return 'border-sumi/15 bg-shironeri text-hai hover:border-sumi/30 hover:text-sumi'
   }
 
-  if (status === 'po') {
+  if (status === 'po' || status === 'ready') {
     return 'border-matcha/50 bg-matcha/15 text-matcha'
-  }
-
-  if (status === 'ready') {
-    return 'border-take/50 bg-take/15 text-take'
   }
 
   if (status === 'habis') {
@@ -841,10 +838,10 @@ const statusButtonClass = (status: (typeof statusFilters)[number]['key']) => {
 }
 
 const collectionLabel = (collection: string) => {
-  return collectionFilters.find(item => item.key === collection)?.label ?? collection
+  return collectionFilters.value.find(item => item.key === collection)?.label ?? collection
 }
 
-const priceSubtext = (status: ProductStatus) => {
+const priceSubtext = (status: CatalogStatus) => {
   if (status === 'po') {
     return 'Pre-order · 14-21 hari'
   }
