@@ -6,8 +6,8 @@
                     Kelola Galeri Karya
                 </h2>
                 <p class="text-hai">
-                    Galeri homepage selalu 8 slot tetap. Admin hanya mengganti
-                    gambar tiap slot.
+                    Galeri homepage selalu 8 slot tetap. Admin dapat mengganti
+                    gambar, judul, dan author tiap slot.
                 </p>
             </div>
 
@@ -35,7 +35,7 @@
                 <p class="text-sm text-hai">
                     Format upload: JPEG/PNG, maksimal 5MB. Setelah memilih file,
                     preview slot langsung muncul lalu otomatis diunggah ke
-                    server.
+                    server. Judul dan author bisa diubah lalu disimpan per slot.
                 </p>
             </div>
 
@@ -52,7 +52,7 @@
                             v-if="getDisplayImage(slot)"
                             :src="getDisplayImage(slot)"
                             :alt="`Galeri karya slot ${slot.slot}`"
-                            class="h-full w-full object-cover"
+                            class="h-full w-full object-contain"
                             loading="lazy"
                             decoding="async"
                         />
@@ -109,6 +109,47 @@
                             @change="handleFilePick(slot, $event)"
                         />
 
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-sumi/70"
+                                >Judul</label
+                            >
+                            <input
+                                v-model="metadataForms[slot.id].title"
+                                type="text"
+                                maxlength="120"
+                                class="w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm text-sumi focus:border-matcha focus:outline-none"
+                                :disabled="savingMetadataSlot === slot.slot"
+                            />
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-sumi/70"
+                                >Author</label
+                            >
+                            <input
+                                v-model="metadataForms[slot.id].author"
+                                type="text"
+                                maxlength="80"
+                                class="w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm text-sumi focus:border-matcha focus:outline-none"
+                                :disabled="savingMetadataSlot === slot.slot"
+                            />
+                        </div>
+
+                        <button
+                            class="w-full rounded-xl bg-sumi px-4 py-2 text-sm font-bold text-washi transition-all hover:bg-sumi/85 disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="
+                                savingMetadataSlot === slot.slot ||
+                                uploadingSlot === slot.slot
+                            "
+                            @click="saveMetadata(slot)"
+                        >
+                            {{
+                                savingMetadataSlot === slot.slot
+                                    ? 'Menyimpan...'
+                                    : 'Simpan Judul & Author'
+                            }}
+                        </button>
+
                         <p class="text-center text-xs text-hai/70">
                             Update terakhir:
                             {{ formatUpdatedAt(slot.updated_at) }}
@@ -143,13 +184,20 @@ type ApiErrorResponse = {
     errors?: Record<string, string[]>;
 };
 
+type SlotMetaForm = {
+    title: string;
+    author: string;
+};
+
 const slots = ref<GallerySlot[]>(
     [...props.slots].sort((a, b) => a.slot - b.slot),
 );
 const uploadingSlot = ref<number | null>(null);
+const savingMetadataSlot = ref<number | null>(null);
 const successMessage = ref('');
 const errorMessage = ref('');
 const localPreviews = ref<Record<number, string>>({});
+const metadataForms = ref<Record<number, SlotMetaForm>>({});
 
 const aspectClassMap: Record<number, string> = {
     1: 'aspect-[3/4]',
@@ -161,6 +209,52 @@ const aspectClassMap: Record<number, string> = {
     7: 'aspect-[3/4]',
     8: 'aspect-square',
 };
+
+const titleDefaults: Record<number, string> = {
+    1: 'Air Max 97 x Jogja Streets',
+    2: 'Samba OG - Bogor Vibe',
+    3: 'Jordan 1 Bred - Cold Day',
+    4: 'NB 574 Navy x Rain',
+    5: 'Vans Old Skool',
+    6: 'Converse Chuck 70',
+    7: 'Asics Gel-Kayano',
+    8: 'Puma RS-X Effekt',
+};
+
+const defaultAuthor = '@bogorsneakers';
+
+const defaultTitleForSlot = (slot: number) => {
+    return titleDefaults[slot] ?? `Galeri Karya Slot ${slot}`;
+};
+
+const normalizeAuthorInput = (author?: string | null) => {
+    const trimmed = (author ?? '').trim();
+
+    if (trimmed === '') {
+        return defaultAuthor;
+    }
+
+    if (trimmed.startsWith('@')) {
+        return trimmed;
+    }
+
+    return `@${trimmed}`;
+};
+
+const syncMetadataFormForSlot = (slot: GallerySlot) => {
+    metadataForms.value[slot.id] = {
+        title: (slot.title ?? '').trim() || defaultTitleForSlot(slot.slot),
+        author: normalizeAuthorInput(slot.author),
+    };
+};
+
+const initializeMetadataForms = () => {
+    slots.value.forEach((slot) => {
+        syncMetadataFormForSlot(slot);
+    });
+};
+
+initializeMetadataForms();
 
 const csrfToken =
     document
@@ -280,6 +374,8 @@ const replaceSlotImage = async (slot: GallerySlot, file: File) => {
             return data.slot;
         });
 
+        syncMetadataFormForSlot(data.slot);
+
         successMessage.value = data.message || 'Gambar slot berhasil diganti.';
 
         URL.revokeObjectURL(optimisticPreview);
@@ -297,6 +393,66 @@ const replaceSlotImage = async (slot: GallerySlot, file: File) => {
         delete localPreviews.value[slot.slot];
     } finally {
         uploadingSlot.value = null;
+    }
+};
+
+const saveMetadata = async (slot: GallerySlot) => {
+    const form = metadataForms.value[slot.id];
+
+    if (!form) {
+        syncMetadataFormForSlot(slot);
+
+        return;
+    }
+
+    const title = form.title.trim();
+    const author = normalizeAuthorInput(form.author);
+
+    if (title === '') {
+        errorMessage.value = 'Judul wajib diisi.';
+
+        return;
+    }
+
+    savingMetadataSlot.value = slot.slot;
+    errorMessage.value = '';
+    successMessage.value = '';
+
+    try {
+        const data = await requestJson<ApiSlotResponse>(
+            `/admin/galeri-karya/${slot.id}`,
+            {
+                method: 'PUT',
+                body: JSON.stringify({
+                    title,
+                    author,
+                }),
+            },
+        );
+
+        slots.value = slots.value.map((item) => {
+            if (item.id !== slot.id) {
+                return item;
+            }
+
+            return data.slot;
+        });
+
+        syncMetadataFormForSlot(data.slot);
+        successMessage.value =
+            data.message || 'Judul dan author berhasil disimpan.';
+    } catch (error) {
+        const apiError = error as { payload?: ApiErrorResponse };
+        const titleError = apiError.payload?.errors?.title?.[0];
+        const authorError = apiError.payload?.errors?.author?.[0];
+
+        errorMessage.value =
+            titleError ||
+            authorError ||
+            apiError.payload?.message ||
+            'Gagal menyimpan judul dan author.';
+    } finally {
+        savingMetadataSlot.value = null;
     }
 };
 
