@@ -196,6 +196,6 @@ const galleryItems = ref([
 
 /* Japanese pattern backgrounds */
 .pattern-kumiko {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.12' d='M0 0h60v60H0z M15 0v60M30 0v60M45 0v60 M0 15h60M0 30h60M0 45h60' /%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.06' d='M10 10 L50 50 M50 10 L10 50' /%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.2' d='M0 0h60v60H0z M15 0v60M30 0v60M45 0v60 M0 15h60M0 30h60M0 45h60' /%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.1' d='M10 10 L50 50 M50 10 L10 50' /%3E%3C/svg%3E");
 }
 </style>

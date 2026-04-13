@@ -267,6 +267,6 @@ const searchOrder = () => {
 
 /* Japanese pattern backgrounds */
 .pattern-shippou {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.08'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.06'/%3E%3Ccircle cx='20' cy='20' r='5' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.04'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='15' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.15'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.11'/%3E%3Ccircle cx='20' cy='20' r='5' fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.08'/%3E%3C/svg%3E");
 }
 </style>

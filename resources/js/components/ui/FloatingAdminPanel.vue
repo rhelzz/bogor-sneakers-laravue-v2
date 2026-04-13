@@ -1,7 +1,7 @@
 <template>
   <button
     aria-label="Hubungi admin"
-    class="fixed bottom-6 left-6 z-50 flex items-center gap-3 group"
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
     @click="contactOpen = !contactOpen"
   >
     <span class="w-12 h-12 rounded-full bg-matcha text-washi flex items-center justify-center transition-all duration-300 group-hover:opacity-90 shadow-lg">
@@ -12,7 +12,7 @@
 
   <div
     :class="[
-      'fixed bottom-24 left-6 w-72 bg-washi rounded-2xl shadow-2xl border border-sumi/10 z-40 overflow-hidden transition-all duration-300 origin-bottom-left',
+      'fixed bottom-24 right-6 w-72 bg-washi rounded-2xl shadow-2xl border border-sumi/10 z-40 overflow-hidden transition-all duration-300 origin-bottom-right',
       contactOpen ? 'opacity-100 pointer-events-auto translate-y-0 scale-100' : 'opacity-0 pointer-events-none translate-y-2 scale-[0.98]',
     ]"
   >

@@ -1,20 +1,21 @@
 <template>
   <button
     aria-label="Lacak pesanan"
-    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
+    class="fixed top-6 right-6 z-50 group md:right-auto md:left-1/2 md:translate-x-62"
     @click="orderOpen = !orderOpen"
   >
-    <span class="text-xs tracking-widest uppercase text-hai hidden md:block">{{ orderOpen ? 'Close' : buttonLabel }}</span>
-    <span class="w-12 h-12 rounded-full bg-indigo text-washi flex items-center justify-center transition-all duration-300 group-hover:opacity-90 shadow-lg relative">
-      <i :class="orderOpen ? 'bi bi-x-lg text-lg' : 'bi bi-box-seam text-lg'"></i>
-      <span class="absolute -top-1 -right-1 w-3 h-3 bg-matcha rounded-full animate-pulse"></span>
+    <span class="w-12 h-12 rounded-full bg-washi/90 border border-sumi/10 text-usuzumi flex items-center justify-center transition-all duration-300 group-hover:text-sumi shadow-lg backdrop-blur-md">
+      <i class="bi bi-bag text-lg"></i>
+    </span>
+    <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 text-[10px] tracking-widest uppercase text-hai whitespace-nowrap">
+      {{ buttonLabel }}
     </span>
   </button>
 
   <div
     :class="[
-      'fixed bottom-24 right-6 w-80 bg-washi rounded-2xl shadow-2xl border border-sumi/10 z-40 overflow-hidden transition-all duration-300 origin-bottom-right',
-      orderOpen ? 'opacity-100 pointer-events-auto translate-y-0 scale-100' : 'opacity-0 pointer-events-none translate-y-2 scale-[0.98]',
+      'fixed top-24 right-6 w-[min(20rem,calc(100vw-3rem))] bg-washi rounded-2xl shadow-2xl border border-sumi/10 z-40 overflow-hidden transition-all duration-300 origin-top-right md:right-auto md:left-1/2 md:-translate-x-6',
+      orderOpen ? 'opacity-100 pointer-events-auto translate-y-0 scale-100' : 'opacity-0 pointer-events-none -translate-y-2 scale-[0.98]',
     ]"
   >
     <div class="p-5 border-b border-sumi/10 flex items-center justify-between">
@@ -50,14 +51,14 @@
       <a
         v-if="isHashLink"
         :href="ctaHref"
-        class="text-xs tracking-widest uppercase text-indigo hover:text-indigo/70 transition-colors"
+        class="text-xs tracking-widest uppercase text-usuzumi hover:text-sumi transition-colors"
       >
         {{ ctaText }}
       </a>
       <Link
         v-else
         :href="ctaHref"
-        class="text-xs tracking-widest uppercase text-indigo hover:text-indigo/70 transition-colors"
+        class="text-xs tracking-widest uppercase text-usuzumi hover:text-sumi transition-colors"
       >
         {{ ctaText }}
       </Link>
@@ -85,7 +86,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   ctaHref: '/tracking',
   ctaText: 'Lihat Semua Order',
-  buttonLabel: 'Orders',
+  buttonLabel: 'Order',
 })
 
 const orderOpen = ref(false)

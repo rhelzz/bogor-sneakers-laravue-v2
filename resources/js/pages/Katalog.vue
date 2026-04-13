@@ -4,98 +4,97 @@
     <FloatingAdminPanel :contacts="contacts" />
     <FloatingOrderPanel :orders="orders" />
 
-    <section class="min-h-screen bg-[radial-gradient(circle_at_1px_1px,rgba(26,26,26,0.06)_1px,transparent_0)] bg-size-[26px_26px] px-4 pb-12 pt-28 sm:px-6 lg:px-10">
-      <div class="mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-sumi/10 bg-shironeri/95 shadow-[0_16px_36px_rgba(26,26,26,0.08)] backdrop-blur">
-        <header class="flex flex-wrap items-end gap-4 border-b border-sumi/10 bg-washi/80 p-4 sm:p-6">
-          <div>
-            <p class="mb-1 text-[11px] uppercase tracking-[0.16em] text-hai">Store ID BGS-001 · Bogor, IDN</p>
-            <h1 class="text-[30px] font-bold leading-none tracking-tight sm:text-[36px]">Katalog</h1>
-            <p class="mt-2 text-xs tracking-[0.03em] text-hai">
-              Menampilkan
-              <strong class="text-sumi">{{ shownCount }}</strong>
-              dari
-              <strong class="text-sumi">{{ filteredCount }}</strong>
-              produk
-            </p>
-          </div>
+    <section class="h-[calc(100vh-64px)] overflow-hidden bg-washi flex flex-col">
+      <header class="flex flex-wrap items-end gap-4 border-b border-sumi/10 bg-washi px-4 py-4 sm:px-6">
+        <div>
+          <p class="mb-1 text-[11px] uppercase tracking-[0.16em] text-hai">Store ID BGS-001 · Bogor, IDN</p>
+          <h1 class="text-[30px] font-bold leading-none tracking-tight sm:text-[36px]">Katalog</h1>
+          <p class="mt-2 text-xs tracking-[0.03em] text-hai">
+            Menampilkan
+            <strong class="text-sumi">{{ shownCount }}</strong>
+            dari
+            <strong class="text-sumi">{{ filteredCount }}</strong>
+            produk
+          </p>
+        </div>
 
-          <div class="relative min-w-55 flex-1 sm:min-w-[320px]">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Cari nama / brand / kode..."
-              autocomplete="off"
-              spellcheck="false"
-              class="w-full rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 pr-10 text-xs tracking-[0.04em] text-sumi outline-none transition focus:border-matcha"
+        <div class="relative min-w-55 flex-1 sm:min-w-[320px]">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Cari nama / brand / kode..."
+            autocomplete="off"
+            spellcheck="false"
+            class="w-full rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 pr-10 text-xs tracking-[0.04em] text-sumi outline-none transition focus:border-matcha"
+          >
+          <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-hai">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+        </div>
+
+        <div class="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+          <select
+            v-model="sortMode"
+            class="min-w-42.5 flex-1 rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 text-xs tracking-[0.05em] text-sumi outline-none transition focus:border-matcha sm:flex-none"
+          >
+            <option value="newest">Terbaru</option>
+            <option value="price-asc">Harga: Rendah ke Tinggi</option>
+            <option value="price-desc">Harga: Tinggi ke Rendah</option>
+            <option value="popular">Terpopuler</option>
+            <option value="az">A ke Z</option>
+          </select>
+
+          <div class="flex overflow-hidden rounded-xl border border-sumi/15 bg-shironeri">
+            <button
+              class="h-9 w-9 text-hai transition hover:text-sumi"
+              :class="viewMode === '3col' ? 'bg-sumi text-washi hover:text-washi' : ''"
+              title="3 kolom"
+              @click="setViewMode('3col')"
             >
-            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-hai">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
+                <rect x="3" y="3" width="5" height="18" rx="1" />
+                <rect x="10" y="3" width="5" height="18" rx="1" />
+                <rect x="17" y="3" width="5" height="18" rx="1" />
               </svg>
-            </span>
-          </div>
-
-          <div class="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-            <select
-              v-model="sortMode"
-              class="min-w-42.5 flex-1 rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 text-xs tracking-[0.05em] text-sumi outline-none transition focus:border-matcha sm:flex-none"
+            </button>
+            <button
+              class="h-9 w-9 text-hai transition hover:text-sumi"
+              :class="viewMode === '4col' ? 'bg-sumi text-washi hover:text-washi' : ''"
+              title="4 kolom"
+              @click="setViewMode('4col')"
             >
-              <option value="newest">Terbaru</option>
-              <option value="price-asc">Harga: Rendah ke Tinggi</option>
-              <option value="price-desc">Harga: Tinggi ke Rendah</option>
-              <option value="popular">Terpopuler</option>
-              <option value="az">A ke Z</option>
-            </select>
-
-            <div class="flex overflow-hidden rounded-xl border border-sumi/15 bg-shironeri">
-              <button
-                class="h-9 w-9 text-hai transition hover:text-sumi"
-                :class="viewMode === '3col' ? 'bg-sumi text-washi hover:text-washi' : ''"
-                title="3 kolom"
-                @click="setViewMode('3col')"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
-                  <rect x="3" y="3" width="5" height="18" rx="1" />
-                  <rect x="10" y="3" width="5" height="18" rx="1" />
-                  <rect x="17" y="3" width="5" height="18" rx="1" />
-                </svg>
-              </button>
-              <button
-                class="h-9 w-9 text-hai transition hover:text-sumi"
-                :class="viewMode === '4col' ? 'bg-sumi text-washi hover:text-washi' : ''"
-                title="4 kolom"
-                @click="setViewMode('4col')"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
-                  <rect x="2" y="3" width="4" height="18" rx="1" />
-                  <rect x="7.5" y="3" width="4" height="18" rx="1" />
-                  <rect x="13" y="3" width="4" height="18" rx="1" />
-                  <rect x="18.5" y="3" width="4" height="18" rx="1" />
-                </svg>
-              </button>
-              <button
-                class="h-9 w-9 text-hai transition hover:text-sumi"
-                :class="viewMode === 'list' ? 'bg-sumi text-washi hover:text-washi' : ''"
-                title="List"
-                @click="setViewMode('list')"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mx-auto">
-                  <line x1="8" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="21" y2="12" />
-                  <line x1="8" y1="18" x2="21" y2="18" />
-                  <line x1="3" y1="6" x2="3.01" y2="6" />
-                  <line x1="3" y1="12" x2="3.01" y2="12" />
-                  <line x1="3" y1="18" x2="3.01" y2="18" />
-                </svg>
-              </button>
-            </div>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto">
+                <rect x="2" y="3" width="4" height="18" rx="1" />
+                <rect x="7.5" y="3" width="4" height="18" rx="1" />
+                <rect x="13" y="3" width="4" height="18" rx="1" />
+                <rect x="18.5" y="3" width="4" height="18" rx="1" />
+              </svg>
+            </button>
+            <button
+              class="h-9 w-9 text-hai transition hover:text-sumi"
+              :class="viewMode === 'list' ? 'bg-sumi text-washi hover:text-washi' : ''"
+              title="List"
+              @click="setViewMode('list')"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="mx-auto">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+            </button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div class="grid lg:grid-cols-[260px_minmax(0,1fr)]">
-          <aside class="border-b border-sumi/10 p-4 sm:p-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:border-b-0 lg:border-r lg:border-sumi/10">
-            <div class="space-y-4">
+      <div class="flex flex-1 overflow-hidden">
+        <aside class="fixed left-0 top-32 w-70 h-[calc(100vh-128px)] border-r border-sumi/10 bg-shironeri overflow-y-auto p-4 sm:p-5">
+          <div class="space-y-4">
               <div class="border-b border-sumi/10 pb-4">
                 <div class="mb-3 flex items-center justify-between text-[11px] uppercase tracking-[0.14em] text-hai">
                   <span>Brand</span>
@@ -221,9 +220,9 @@
                 {{ applyButtonLabel }}
               </button>
             </div>
-          </aside>
+        </aside>
 
-          <main class="p-4 sm:p-5">
+        <main class="flex-1 overflow-y-auto p-4 sm:p-5 ml-70">
             <div class="mb-4 flex flex-wrap items-center gap-2">
               <span class="text-[11px] uppercase tracking-widest text-hai">Filter:</span>
               <span
@@ -391,7 +390,6 @@
               </div>
             </div>
           </main>
-        </div>
       </div>
     </section>
   </div>
