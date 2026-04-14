@@ -34,7 +34,7 @@
 
         <!-- Sidebar -->
         <aside
-            class="fixed inset-y-0 left-0 z-30 w-60 border-r border-sumi/20 bg-sumi text-washi"
+            class="fixed top-16 bottom-0 left-0 z-30 w-60 border-r border-sumi/20 bg-sumi text-washi"
         >
             <nav class="space-y-1.5 p-4">
                 <a
@@ -79,6 +79,17 @@
                 >
                     <i class="bi bi-shop text-base"></i>
                     <span>Katalog</span>
+                </a>
+
+                <a
+                    href="/admin/pre-order-home"
+                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
+                    :class="{
+                        'bg-matcha/20 text-matcha': isActive('pre-order-home'),
+                    }"
+                >
+                    <i class="bi bi-hourglass-split text-base"></i>
+                    <span>Pre-Order Home</span>
                 </a>
 
                 <a

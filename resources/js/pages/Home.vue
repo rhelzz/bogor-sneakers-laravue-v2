@@ -249,7 +249,9 @@
                         <p class="mb-1 text-xs tracking-wider text-hai">
                             SLOT TERSEDIA
                         </p>
-                        <p class="text-3xl font-bold text-matcha">23</p>
+                        <p class="text-3xl font-bold text-matcha">
+                            {{ totalRemainingSlots }}
+                        </p>
                     </div>
                 </div>
 
@@ -302,7 +304,7 @@
                                     : 'text-xl font-bold'
                             "
                         >
-                            {{ po.slots }}
+                            {{ po.remaining_slots }}
                         </p>
                         <div class="flex gap-1">
                             <span
@@ -328,9 +330,9 @@
                         </div>
                         <span
                             :class="[
-                                po.status === 'Open'
+                                po.status === 'BUKA'
                                     ? 'bg-matcha/20 px-3 py-1.5 text-matcha'
-                                    : po.status === 'Almost Full'
+                                    : po.status === 'HAMPIR HABIS'
                                       ? 'bg-amber-100 px-3 py-1.5 text-amber-700'
                                       : 'bg-sumi/10 px-3 py-1.5 text-hai',
                                 'w-fit rounded-full text-xs font-medium',
@@ -338,6 +340,13 @@
                         >
                             {{ po.status }}
                         </span>
+                    </div>
+
+                    <div
+                        v-if="poList.length === 0"
+                        class="px-8 py-10 text-center text-sm text-hai"
+                    >
+                        Belum ada produk pre-order yang aktif untuk ditampilkan.
                     </div>
                 </div>
 
@@ -351,11 +360,7 @@
                         <p class="mb-2 text-xs tracking-widest text-hai">
                             TOTAL PO AKTIF
                         </p>
-                        <p class="text-4xl font-bold">
-                            {{
-                                poList.filter((p) => p.status === 'Open').length
-                            }}
-                        </p>
+                        <p class="text-4xl font-bold">{{ totalPoAktif }}</p>
                     </div>
                     <div
                         class="border-r border-sumi/5 bg-washi p-8 text-center"
@@ -364,14 +369,16 @@
                             SLOT TERSEDIA
                         </p>
                         <p class="text-4xl font-bold text-matcha">
-                            {{ poList.reduce((sum, p) => sum + p.slots, 0) }}
+                            {{ totalRemainingSlots }}
                         </p>
                     </div>
                     <div class="bg-washi p-8 text-center">
                         <p class="mb-2 text-xs tracking-widest text-hai">
                             BATCH SELESAI
                         </p>
-                        <p class="text-4xl font-bold">12</p>
+                        <p class="text-4xl font-bold">
+                            {{ completedBatchCount }}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -385,7 +392,7 @@
                     <h2
                         class="font-heading mb-4 text-4xl font-bold lg:text-5xl"
                     >
-                        Koleksi<br />Terbaru
+                        Koleksi Terbaru
                     </h2>
                     <p class="mx-auto max-w-md text-hai">
                         Temukan sneaker impianmu dari koleksi terlengkap di
@@ -396,14 +403,7 @@
                 <!-- Filter Tabs -->
                 <div class="mb-12 flex flex-wrap justify-center gap-3">
                     <button
-                        v-for="filter in [
-                            'all',
-                            'nike',
-                            'adidas',
-                            'jordan',
-                            'nb',
-                            'lokal',
-                        ]"
+                        v-for="filter in productFilters"
                         :key="filter"
                         @click="produktFilter = filter"
                         :class="[
@@ -413,14 +413,7 @@
                                 : 'bg-sumi/5 text-usuzumi hover:bg-sumi/10',
                         ]"
                     >
-                        {{
-                            filter === 'all'
-                                ? 'Semua'
-                                : filter === 'nb'
-                                  ? 'New Balance'
-                                  : filter.charAt(0).toUpperCase() +
-                                    filter.slice(1)
-                        }}
+                        {{ toBrandLabel(filter) }}
                     </button>
                 </div>
 
@@ -437,7 +430,16 @@
                         <div
                             class="img-reveal relative aspect-square bg-sumi/5"
                         >
+                            <img
+                                v-if="product.image_url"
+                                :src="product.image_url"
+                                :alt="product.name"
+                                class="absolute inset-0 h-full w-full object-cover"
+                                loading="lazy"
+                                decoding="async"
+                            />
                             <div
+                                v-else
                                 class="absolute inset-0 flex items-center justify-center"
                             >
                                 <i class="bi bi-image text-4xl text-hai/30"></i>
@@ -474,7 +476,7 @@
                                             : '',
                                     ]"
                                 >
-                                    {{ product.price }}
+                                    {{ formatCompactPrice(product.price) }}
                                 </p>
                                 <button
                                     :disabled="product.status === 'Habis'"
@@ -485,15 +487,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Load More -->
-                <div class="mt-12 text-center">
-                    <button
-                        class="rounded-full border-2 border-sumi px-8 py-3 text-sm tracking-wider text-sumi transition-all hover:bg-sumi hover:text-washi"
-                    >
-                        Muat Lebih Banyak
-                    </button>
                 </div>
             </div>
         </section>
@@ -674,7 +667,7 @@
                     <h2
                         class="font-heading mb-4 text-4xl font-bold lg:text-5xl"
                     >
-                        Cara<br />Pesan
+                        Cara Pesan
                     </h2>
                 </div>
 
@@ -934,11 +927,42 @@ type HeroCarouselSlide = {
     is_active: boolean;
 };
 
+type HomePreorderStatus = 'BUKA' | 'HAMPIR HABIS' | 'HABIS';
+
+type HomePreorderItem = {
+    id: number;
+    catalog_id: number;
+    product: string;
+    sku: string;
+    size: string;
+    batch: string;
+    progress: number;
+    remaining_slots: number;
+    max_slots: number;
+    filled_slots: number;
+    status: HomePreorderStatus;
+    countdown_ends_at: string | null;
+};
+
+type HomeLatestCollectionItem = {
+    id: number;
+    name: string;
+    size: string;
+    price: number;
+    status: 'PO' | 'Ready' | 'Habis';
+    statusClass: string;
+    brand: string;
+    brand_label: string;
+    image_url: string | null;
+};
+
 type HomePageProps = {
     carouselSlides: HeroCarouselSlide[];
     tiktokFeed: TikTokFeedItem[];
     tiktokFollowers: TikTokFollowerSnapshot | null;
     gallerySlots: GallerySlotApi[];
+    preorderItems: HomePreorderItem[];
+    latestCollections: HomeLatestCollectionItem[];
 };
 
 const props = defineProps<HomePageProps>();
@@ -1017,124 +1041,101 @@ const orders = ref<FloatingOrder[]>([
     },
 ]);
 
-// PO List
-const poList = ref([
-    {
-        id: 1,
-        product: 'Nike Air Max 97 Silver',
-        sku: 'BGS-NM97-SLV',
-        size: '40-44',
-        batch: '#04',
-        progress: 78,
-        slots: 5,
-        status: 'Open',
-        timeLeft: { h: 8, m: 47, s: 23 },
-    },
-    {
-        id: 2,
-        product: 'Adidas Samba OG White',
-        sku: 'BGS-SB-WHT',
-        size: '39-45',
-        batch: '#02',
-        progress: 48,
-        slots: 18,
-        status: 'Open',
-        timeLeft: { h: 2, m: 14, s: 8 },
-    },
-    {
-        id: 3,
-        product: 'New Balance 574 Navy',
-        sku: 'BGS-NB574-NVY',
-        size: '40-43',
-        batch: '#01',
-        progress: 95,
-        slots: 2,
-        status: 'Almost Full',
-        timeLeft: { h: 0, m: 0, s: 0 },
-    },
-]);
+const nowTick = ref(Date.now());
 
-// Products
-const products = ref([
-    {
-        id: 1,
-        name: 'Nike Air Max 97 Silver',
-        size: '39-44',
-        price: 'Rp 1.850K',
-        status: 'PO',
-        statusClass: 'bg-matcha text-washi',
-        brand: 'nike',
-    },
-    {
-        id: 2,
-        name: 'Adidas Samba OG White',
-        size: '39-43',
-        price: 'Rp 1.290K',
-        status: 'Ready',
-        statusClass: 'bg-take text-washi',
-        brand: 'adidas',
-    },
-    {
-        id: 3,
-        name: 'Jordan 1 Retro High Bred',
-        size: '40-45',
-        price: 'Rp 2.100K',
-        status: 'PO',
-        statusClass: 'bg-matcha text-washi',
-        brand: 'jordan',
-    },
-    {
-        id: 4,
-        name: 'New Balance 574 Navy',
-        size: '39-44',
-        price: 'Rp 980K',
-        status: 'Ready',
-        statusClass: 'bg-take text-washi',
-        brand: 'nb',
-    },
-    {
-        id: 5,
-        name: 'Nike Dunk Low Panda',
-        size: '40-45',
-        price: 'Rp 1.650K',
-        status: 'Habis',
-        statusClass: 'bg-hai/50 text-washi',
-        brand: 'nike',
-    },
-    {
-        id: 6,
-        name: 'Adidas Forum Low',
-        size: '39-43',
-        price: 'Rp 1.100K',
-        status: 'Ready',
-        statusClass: 'bg-take text-washi',
-        brand: 'adidas',
-    },
-    {
-        id: 7,
-        name: 'Ventela Classic White',
-        size: '39-44',
-        price: 'Rp 420K',
-        status: 'Ready',
-        statusClass: 'bg-take text-washi',
-        brand: 'lokal',
-    },
-    {
-        id: 8,
-        name: 'Jordan 4 Retro Black Cat',
-        size: '41-45',
-        price: 'Rp 2.450K',
-        status: 'PO',
-        statusClass: 'bg-matcha text-washi',
-        brand: 'jordan',
-    },
-]);
+const calculateTimeLeft = (countdownEndsAt: string | null) => {
+    if (!countdownEndsAt) {
+        return { h: 0, m: 0, s: 0 };
+    }
+
+    const target = new Date(countdownEndsAt).getTime();
+
+    if (Number.isNaN(target)) {
+        return { h: 0, m: 0, s: 0 };
+    }
+
+    const remaining = target - nowTick.value;
+
+    if (remaining <= 0) {
+        return { h: 0, m: 0, s: 0 };
+    }
+
+    return {
+        h: Math.floor(remaining / 3_600_000),
+        m: Math.floor((remaining % 3_600_000) / 60_000),
+        s: Math.floor((remaining % 60_000) / 1_000),
+    };
+};
+
+const poList = computed(() => {
+    return props.preorderItems.map((item) => {
+        return {
+            ...item,
+            timeLeft: calculateTimeLeft(item.countdown_ends_at),
+        };
+    });
+});
+
+const totalPoAktif = computed(() => poList.value.length);
+
+const totalRemainingSlots = computed(() => {
+    return poList.value.reduce((sum, item) => sum + item.remaining_slots, 0);
+});
+
+const completedBatchCount = computed(() => {
+    return poList.value.filter((item) => item.status === 'HABIS').length;
+});
+
+const products = ref<HomeLatestCollectionItem[]>([...props.latestCollections]);
+
+const productBrandLabels = computed(() => {
+    const map = new Map<string, string>();
+
+    products.value.forEach((product) => {
+        if (!map.has(product.brand)) {
+            map.set(product.brand, product.brand_label);
+        }
+    });
+
+    return map;
+});
+
+const productFilters = computed(() => {
+    const brands = Array.from(
+        new Set(products.value.map((product) => product.brand).filter(Boolean)),
+    );
+
+    return ['all', ...brands];
+});
+
+const toBrandLabel = (brandKey: string) => {
+    if (brandKey === 'all') {
+        return 'Semua';
+    }
+
+    return (
+        productBrandLabels.value.get(brandKey) ??
+        brandKey.charAt(0).toUpperCase() + brandKey.slice(1)
+    );
+};
 
 const filteredProducts = computed(() => {
-    return products.value.filter(
-        (p) => produktFilter.value === 'all' || p.brand === produktFilter.value,
-    );
+    return products.value.filter((product) => {
+        return (
+            produktFilter.value === 'all' ||
+            product.brand === produktFilter.value
+        );
+    });
 });
+
+const formatCompactPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        notation: 'compact',
+        maximumFractionDigits: 1,
+    }).format(price);
+};
 
 // Hero Carousel - Initialized from Inertia props
 const heroCarousel = ref<HeroCarouselSlide[]>([...props.carouselSlides]);
@@ -1455,23 +1456,8 @@ const guarantees = ref([
     },
 ]);
 
-// PO Timer
-const updatePoTimers = () => {
-    poList.value.forEach((po) => {
-        if (po.timeLeft.s > 0 || po.timeLeft.m > 0 || po.timeLeft.h > 0) {
-            po.timeLeft.s--;
-
-            if (po.timeLeft.s < 0) {
-                po.timeLeft.s = 59;
-                po.timeLeft.m--;
-
-                if (po.timeLeft.m < 0) {
-                    po.timeLeft.m = 59;
-                    po.timeLeft.h--;
-                }
-            }
-        }
-    });
+const refreshNowTick = () => {
+    nowTick.value = Date.now();
 };
 
 let timerInterval: ReturnType<typeof setInterval> | undefined;
@@ -1484,7 +1470,7 @@ onMounted(async () => {
 
     await renderTikTokEmbeds();
 
-    timerInterval = setInterval(updatePoTimers, 1000);
+    timerInterval = setInterval(refreshNowTick, 1000);
     carouselInterval = setInterval(nextCarousel, 5000);
 });
 

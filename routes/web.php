@@ -4,6 +4,7 @@ use App\Http\Controllers\CarouselSlideController;
 use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\PreOrderHomeController;
 use App\Http\Controllers\TikTokFeedController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,4 +39,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/katalog/{catalog}/images', [KatalogController::class, 'uploadImage'])->name('admin.katalog.images.store');
     Route::delete('/katalog/{catalog}/images/{catalogImage}', [KatalogController::class, 'deleteImage'])->name('admin.katalog.images.destroy');
     Route::put('/katalog/{catalog}/images/reorder', [KatalogController::class, 'reorderImages'])->name('admin.katalog.images.reorder');
+
+    Route::get('/pre-order-home', [PreOrderHomeController::class, 'index'])->name('admin.pre-order-home');
+    Route::post('/pre-order-home', [PreOrderHomeController::class, 'store'])->name('admin.pre-order-home.store');
+    Route::put('/pre-order-home/{homePreorder}', [PreOrderHomeController::class, 'update'])->name('admin.pre-order-home.update');
+    Route::delete('/pre-order-home/{homePreorder}', [PreOrderHomeController::class, 'destroy'])->name('admin.pre-order-home.destroy');
 });
