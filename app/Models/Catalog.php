@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Models\CatalogImage;
 use App\Models\CatalogSize;
+use App\Models\HomePreorder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -31,6 +33,7 @@ use Illuminate\Support\Str;
  * @property int $sort_order
  * @property-read string $route_key
  * @property-read string|null $primary_image_url
+ * @property-read HomePreorder|null $homePreorder
  */
 class Catalog extends Model
 {
@@ -103,6 +106,11 @@ class Catalog extends Model
     public function sizes(): HasMany
     {
         return $this->hasMany(CatalogSize::class)->orderBy('size_eu', 'asc');
+    }
+
+    public function homePreorder(): HasOne
+    {
+        return $this->hasOne(HomePreorder::class);
     }
 
     public function scopeActive(Builder $query): Builder
