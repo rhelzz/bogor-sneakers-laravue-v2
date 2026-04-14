@@ -2,6 +2,7 @@
 /bootstrap/ssr
 /node_modules
 /public/build
+/public/shoes-svg
 /public/hot
 /public/storage
 /resources/js/actions

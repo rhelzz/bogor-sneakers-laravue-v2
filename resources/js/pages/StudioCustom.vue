@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-washi text-sumi font-body antialiased">
+  <div class="font-body bg-washi text-sumi antialiased">
     <FloatingMenuNav current-page="studio-custom" />
     <FloatingAdminPanel
       :contacts="contacts"
@@ -8,166 +8,2452 @@
     />
     <FloatingOrderPanel :orders="orders" />
 
-    <!-- STUDIO CUSTOM HEADER -->
-    <section class="min-h-screen flex flex-col justify-center px-6 lg:px-16 pt-32 pb-24 pattern-kumiko relative overflow-hidden">
-      <div class="max-w-7xl mx-auto w-full">
-        <!-- Header -->
-        <div class="mb-16 pb-10 accent-top">
-          <div class="flex items-center gap-3 mb-4 animate-slide-up">
-            <span class="w-2 h-2 rounded-full bg-sakura animate-pulse-soft"></span>
-            <span class="text-xs tracking-widest text-hai">BOGOR SNEAKER STUDIO</span>
+    <section class="pattern-wave relative overflow-hidden px-6 pb-12 pt-30 lg:px-16">
+      <div class="pointer-events-none absolute -top-28 -right-20 h-64 w-64 rounded-full bg-matcha/15 blur-3xl"></div>
+      <div class="pointer-events-none absolute -left-24 top-32 h-72 w-72 rounded-full bg-sakura/20 blur-3xl"></div>
+
+      <div class="relative mx-auto max-w-7xl">
+        <div class="grid items-end gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <div class="mb-5 flex items-center gap-3 animate-slide-up">
+              <span class="h-2 w-2 animate-pulse-soft rounded-full bg-matcha"></span>
+              <span class="text-xs tracking-[0.28em] text-hai">BOGORSNEAKER CUSTOM STUDIO</span>
+            </div>
+            <h1 class="font-heading animate-slide-up text-4xl leading-[0.95] font-bold tracking-tight text-sumi lg:text-6xl" style="animation-delay: 0.1s">
+              Custom Studio
+              <span class="block text-matcha">Japanese Craft Interface</span>
+            </h1>
+            <p class="mt-5 max-w-2xl animate-slide-up leading-relaxed text-usuzemi" style="animation-delay: 0.2s">
+              Editor ini membaca aset langsung dari katalog SVG internal, mendukung multi model,
+              upload gambar sementara, dan generator warna berbasis palet visual gambar Anda.
+            </p>
+            <div class="mt-7 flex animate-slide-up flex-wrap items-center gap-3" style="animation-delay: 0.3s">
+              <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
+                LIVE SVG RENDER
+              </span>
+              <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
+                TEMP IMAGE UPLOAD
+              </span>
+              <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
+                EXPORT PREVIEW + POLA
+              </span>
+            </div>
           </div>
-          <h1 class="text-5xl lg:text-7xl font-heading font-bold leading-none tracking-tight mb-6 animate-slide-up" style="animation-delay: 0.1s">
-            Custom<br>
-            <span class="text-sakura">Design</span>
-          </h1>
-          <p class="text-hai leading-relaxed max-w-md mb-8 animate-slide-up" style="animation-delay: 0.2s">
-            Ubah sepatu idaman Anda dengan customization profesional. Dari design simpel hingga custom hand-painted.
+
+          <div class="relative overflow-hidden rounded-3xl border border-sumi/10 bg-sumi px-6 py-7 text-washi shadow-xl">
+            <div class="pointer-events-none absolute right-3 bottom-3 text-[78px] leading-none text-washi/8">和</div>
+            <p class="vertical-text absolute top-5 right-4 text-[11px] tracking-[0.2em] text-washi/30">スタジオ カスタム</p>
+            <p class="text-xs tracking-[0.18em] text-washi/60">STATUS</p>
+            <p class="mt-2 text-2xl font-bold text-matcha">Production Ready</p>
+            <p class="mt-4 text-sm leading-relaxed text-washi/75">
+              Pilih model, pasang elemen desain, sesuaikan aksen, lalu ekspor file siap kirim ke buyer.
+            </p>
+            <div class="mt-6 flex items-center gap-2 text-xs text-washi/70">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-matcha"></span>
+              Katalog terakhir:
+              <span class="font-semibold text-washi">{{ catalogTimeLabel }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pattern-grid px-6 pb-28 lg:px-16">
+      <div class="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+        <div class="space-y-4">
+          <div
+            ref="viewerRef"
+            class="relative mx-auto aspect-square w-full overflow-hidden rounded-3xl border border-sumi/15 bg-linear-to-br from-white via-shironeri to-washi shadow-[0_28px_70px_-30px_rgba(10,10,10,0.55)]"
+            role="button"
+            tabindex="0"
+            aria-label="Area preview desain"
+            @click="handleViewerClick"
+            @keydown="handleViewerKeydown"
+          >
+            <canvas
+              ref="previewCanvasRef"
+              width="1000"
+              height="1000"
+              class="h-full w-full"
+              aria-hidden="true"
+            />
+
+            <div class="pointer-events-none absolute inset-0">
+              <template v-for="item in customElements" :key="item.id">
+                <div
+                  v-if="item.type === 'text'"
+                  data-draggable="true"
+                  role="button"
+                  tabindex="0"
+                  class="pointer-events-auto absolute top-0 left-0 select-none whitespace-nowrap font-black leading-none"
+                  :class="item.id === activeElementId ? 'ring-2 ring-matcha ring-offset-2 ring-offset-washi' : ''"
+                  :style="getTextElementStyle(item)"
+                  @pointerdown="startDragElement($event, item.id)"
+                  @click.stop="activeElementId = item.id"
+                  @keydown.enter.prevent="activeElementId = item.id"
+                  @keydown.space.prevent="activeElementId = item.id"
+                >
+                  {{ item.text }}
+                </div>
+
+                <div
+                  v-else
+                  data-draggable="true"
+                  role="button"
+                  tabindex="0"
+                  class="pointer-events-auto absolute top-0 left-0"
+                  :class="item.id === activeElementId ? 'ring-2 ring-matcha ring-offset-2 ring-offset-washi' : ''"
+                  :style="getImageElementStyle(item)"
+                  @pointerdown="startDragElement($event, item.id)"
+                  @click.stop="activeElementId = item.id"
+                  @keydown.enter.prevent="activeElementId = item.id"
+                  @keydown.space.prevent="activeElementId = item.id"
+                >
+                  <img
+                    :src="item.src"
+                    alt="Elemen gambar"
+                    class="pointer-events-none h-full w-full object-contain"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                </div>
+              </template>
+            </div>
+
+            <div class="pointer-events-none absolute bottom-4 left-4 rounded-lg border-l-4 border-matcha bg-washi/90 px-3 py-2 text-[11px] font-semibold text-usuzemi shadow-lg backdrop-blur-sm">
+              <p>
+                ID/WA: <span>{{ phone || '-' }}</span> | Nama: <span>{{ name || '-' }}</span> | Size: <span>{{ shoeSize || '-' }}</span>
+              </p>
+              <p class="mt-0.5">
+                Folder: <span>{{ folderNo || '-' }}</span> | OP: <span>{{ operatorName || '-' }}</span>
+              </p>
+            </div>
+
+            <div v-if="!lazyCanvasReady" class="absolute inset-0 z-20 flex items-center justify-center bg-sumi/80 text-center text-washi backdrop-blur-sm">
+              <div>
+                <p class="font-heading text-lg font-bold">Preview Ditunda</p>
+                <p class="mt-1 text-xs text-washi/70">Scroll ke area ini untuk memuat aset studio secara lazy.</p>
+              </div>
+            </div>
+
+            <div v-if="isSyncing" class="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-sumi/85 text-center text-washi backdrop-blur-sm">
+              <div class="h-12 w-12 animate-spin rounded-full border-4 border-washi/20 border-t-matcha"></div>
+              <div>
+                <p class="font-heading text-lg font-bold">Sinkronisasi Model</p>
+                <p class="mt-1 text-sm text-washi/75">Sedang memuat aset SVG model terpilih...</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="rounded-2xl border border-matcha/25 bg-matcha/10 px-4 py-3 text-center text-sm font-semibold text-take">
+            Tips: drag elemen langsung di preview, klik bagian sepatu untuk pilih aksen, lalu ubah warnanya cepat.
           </p>
-          <a
-            href="https://wa.me/6285511223344"
-            target="_blank"
-            class="inline-flex items-center gap-3 animate-slide-up"
-            style="animation-delay: 0.3s"
-          >
-            <span class="px-8 py-3 bg-sakura text-washi rounded-full text-sm tracking-wider hover:opacity-90 transition-all">
-              Konsultasi Desain
-            </span>
-          </a>
         </div>
-      </div>
-    </section>
 
-    <!-- SERVICES SECTION -->
-    <section class="py-24 px-6 lg:px-16 bg-shironeri">
-      <div class="max-w-7xl mx-auto">
-        <!-- Services Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="(service, idx) in services"
-            :key="idx"
-            class="bg-washi rounded-3xl p-8 card-lift border border-sumi/5 animate-slide-up"
-            :style="{ animationDelay: `${idx * 0.1}s` }"
-          >
-            <div :class="`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${service.bgColor}`">
-              <i :class="`${service.icon} text-2xl ${service.textColor}`"></i>
+        <div class="space-y-5">
+          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between gap-3">
+              <h2 class="font-heading text-base font-bold text-sumi">1. Pilih Family Model</h2>
+              <button
+                type="button"
+                class="rounded-full border border-sumi/20 px-3 py-1 text-[11px] font-bold tracking-widest text-usuzemi transition hover:border-sumi hover:text-sumi"
+                @click="refreshCatalogAndAssets"
+              >
+                Sinkron Ulang
+              </button>
             </div>
-            <h3 class="font-heading font-bold text-lg mb-3">{{ service.title }}</h3>
-            <p class="text-sm text-hai leading-relaxed mb-4">{{ service.description }}</p>
-            <p :class="`text-lg font-bold ${service.priceColor}`">{{ service.price }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- PORTFOLIO SECTION -->
-    <section class="py-24 px-6 lg:px-16 bg-washi">
-      <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-16 pb-10 accent-top">
-          <h2 class="text-4xl lg:text-5xl font-heading font-bold mb-4">Galeri<br>Custom Sneakers</h2>
-          <p class="text-hai max-w-md mx-auto">Karya-karya custom terbaik dari Bogor Sneaker Studio</p>
-        </div>
+            <p v-if="catalogError" class="mb-3 rounded-xl border border-sakura/30 bg-sakura/10 px-3 py-2 text-xs font-semibold text-sakura">
+              {{ catalogError }}
+            </p>
 
-        <!-- Gallery Grid -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div
-            v-for="(item, idx) in galleryItems"
-            :key="idx"
-            :class="`bg-sumi/5 rounded-2xl overflow-hidden card-lift border border-sumi/5 group cursor-pointer ${item.aspectClass}`"
-          >
-            <div class="w-full h-full flex items-center justify-center relative overflow-hidden">
-              <i class="bi bi-image text-4xl text-hai/30 group-hover:scale-110 transition-transform"></i>
-              <div class="absolute inset-0 bg-sumi/0 group-hover:bg-sumi/10 transition-all"></div>
+            <div class="space-y-3">
+              <label class="text-[11px] font-bold tracking-[0.12em] text-hai uppercase">
+                Tipe Sol / Family
+                <select
+                  v-model="activeFolderKey"
+                  class="mt-1 h-11 w-full rounded-xl border border-sumi/15 bg-shironeri px-3 text-sm font-semibold text-sumi"
+                  :disabled="catalogLoading || catalogFolders.length === 0"
+                >
+                  <option v-for="folder in catalogFolders" :key="folder.key" :value="folder.key">
+                    {{ folder.label }} ({{ folder.model_count }} model)
+                  </option>
+                </select>
+              </label>
+
+              <div>
+                <p class="mb-2 text-[11px] font-bold tracking-[0.12em] text-hai uppercase">Nomor Model</p>
+                <div class="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                  <button
+                    v-for="model in availableModels"
+                    :key="model.id"
+                    type="button"
+                    class="rounded-xl border px-2 py-2 text-xs font-extrabold transition"
+                    :class="model.id === currentModel
+                      ? 'border-sumi bg-sumi text-washi'
+                      : 'border-sumi/15 bg-shironeri text-usuzemi hover:border-sumi/35'"
+                    @click="currentModel = model.id"
+                  >
+                    {{ model.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="currentModelMeta" class="rounded-xl border border-sumi/10 bg-shironeri px-3 py-2 text-xs text-usuzemi">
+                <p>
+                  Layer aksen: <span class="font-bold text-sumi">{{ currentModelMeta.layers.length }}</span>
+                </p>
+                <p>
+                  Layer pola: <span class="font-bold text-sumi">{{ currentModelMeta.pattern_layers.length }}</span>
+                </p>
+              </div>
             </div>
-            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-linear-to-t from-kuro via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              <p class="text-sm font-medium text-washi">{{ item.title }}</p>
-              <p class="text-xs text-washi/60">{{ item.artist }}</p>
+          </article>
+
+          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">2. Tambah Teks & Gambar Sementara</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Upload hanya diproses di browser, tidak disimpan ke database.
+            </p>
+
+            <div class="mt-4 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                class="rounded-xl border border-sumi/25 bg-shironeri px-3 py-2 text-xs font-extrabold tracking-[0.08em] text-usuzemi uppercase transition hover:border-sumi/45 hover:text-sumi"
+                @click="addTextElement"
+              >
+                Tambah Teks
+              </button>
+              <button
+                type="button"
+                class="rounded-xl border border-sumi/25 bg-shironeri px-3 py-2 text-xs font-extrabold tracking-[0.08em] text-usuzemi uppercase transition hover:border-sumi/45 hover:text-sumi"
+                @click="triggerUpload"
+              >
+                Upload Gambar
+              </button>
             </div>
-          </div>
+
+            <div
+              class="mt-4 rounded-2xl border border-dashed px-4 py-4 text-center transition"
+              :class="isDropActive ? 'border-matcha bg-matcha/10' : 'border-sumi/25 bg-shironeri/70'"
+              @dragenter.prevent="isDropActive = true"
+              @dragover.prevent="isDropActive = true"
+              @dragleave.prevent="isDropActive = false"
+              @drop.prevent="handleDropUpload"
+            >
+              <p class="text-sm font-semibold text-sumi">Drop image ke sini</p>
+              <p class="mt-1 text-xs text-usuzemi">PNG, JPG, WEBP. Bisa upload banyak sekaligus.</p>
+              <button
+                type="button"
+                class="mt-3 rounded-full bg-sumi px-4 py-1.5 text-[11px] font-bold tracking-widest text-washi uppercase transition hover:bg-kuro"
+                @click="triggerUpload"
+              >
+                Pilih File
+              </button>
+            </div>
+
+            <div class="mt-4">
+              <div class="mb-2 flex items-center justify-between">
+                <p class="text-[11px] font-bold tracking-[0.12em] text-hai uppercase">Library Upload Sementara</p>
+                <button
+                  v-if="uploadedMedia.length > 0"
+                  type="button"
+                  class="text-[11px] font-bold tracking-[0.08em] text-sakura uppercase"
+                  @click="clearUploads"
+                >
+                  Bersihkan
+                </button>
+              </div>
+
+              <div v-if="uploadedMedia.length === 0" class="rounded-xl border border-sumi/10 bg-shironeri px-3 py-4 text-center text-xs font-semibold text-hai">
+                Belum ada gambar diupload.
+              </div>
+
+              <div v-else class="editor-scroll max-h-54 space-y-2 overflow-y-auto pr-1">
+                <article
+                  v-for="media in uploadedMedia"
+                  :key="media.id"
+                  class="rounded-xl border px-2 py-2"
+                  :class="media.id === selectedUploadId ? 'border-matcha/60 bg-matcha/10' : 'border-sumi/15 bg-shironeri/80'"
+                >
+                  <div class="flex gap-2">
+                    <img
+                      :src="media.src"
+                      :alt="media.name"
+                      class="h-18 w-18 rounded-lg border border-sumi/10 object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <div class="min-w-0 flex-1">
+                      <p class="truncate text-xs font-bold text-sumi">{{ media.name }}</p>
+                      <p class="mt-0.5 text-[11px] text-usuzemi">{{ media.naturalWidth }} x {{ media.naturalHeight }} px</p>
+
+                      <div class="mt-2 flex flex-wrap gap-1">
+                        <span
+                          v-for="color in media.palette"
+                          :key="`${media.id}-${color}`"
+                          class="h-4 w-4 rounded-full border border-sumi/20"
+                          :style="{ backgroundColor: color }"
+                        ></span>
+                      </div>
+
+                      <div class="mt-2 flex flex-wrap gap-1">
+                        <button
+                          type="button"
+                          class="rounded-md bg-sumi px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-washi uppercase"
+                          @click="addUploadAsElement(media.id)"
+                        >
+                          Pakai
+                        </button>
+                        <button
+                          type="button"
+                          class="rounded-md border border-sumi/25 px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-usuzemi uppercase"
+                          @click="setSelectedUpload(media.id)"
+                        >
+                          Jadikan Palet
+                        </button>
+                        <button
+                          type="button"
+                          class="rounded-md border border-sakura/35 px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-sakura uppercase"
+                          @click="removeUpload(media.id)"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-xl border border-matcha/30 bg-matcha/10 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[11px] font-bold tracking-[0.12em] text-take uppercase">Palette Source</p>
+                <p class="text-xs font-semibold text-usuzemi">{{ selectedPaletteLabel }}</p>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <span
+                  v-for="color in randomPalette"
+                  :key="`active-palette-${color}`"
+                  class="h-5 w-5 rounded-full border border-sumi/20"
+                  :style="{ backgroundColor: color }"
+                ></span>
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  class="rounded-lg bg-matcha px-3 py-2 text-[11px] font-extrabold tracking-[0.08em] text-washi uppercase transition hover:opacity-90"
+                  @click="randomizeLayerColorsFromImage"
+                >
+                  Generate Warna
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-matcha/45 bg-washi px-3 py-2 text-[11px] font-extrabold tracking-[0.08em] text-take uppercase transition hover:bg-matcha/10"
+                  @click="syncPaletteFromActiveImage"
+                  :disabled="activeElement?.type !== 'image'"
+                >
+                  Dari Gambar Aktif
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">3. Edit Elemen Aktif</h2>
+
+            <div v-if="!activeElement" class="mt-4 rounded-xl border border-dashed border-sumi/20 bg-shironeri px-3 py-4 text-center text-xs font-semibold text-hai">
+              Pilih elemen teks atau gambar di preview untuk mulai edit.
+            </div>
+
+            <div v-else class="mt-4 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-xs font-black tracking-[0.16em] text-usuzemi uppercase">
+                  {{ activeElement.type === 'text' ? 'Mode Teks' : 'Mode Gambar' }}
+                </p>
+                <div class="flex gap-1">
+                  <button
+                    type="button"
+                    class="rounded-md border border-sumi/20 px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-usuzemi uppercase"
+                    @click="duplicateActiveElement"
+                  >
+                    Duplikat
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-md bg-sakura px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-washi uppercase"
+                    @click="removeActiveElement"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+
+              <template v-if="activeElement.type === 'text'">
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Isi teks
+                  <textarea
+                    :value="activeElement.text"
+                    rows="2"
+                    class="mt-1 w-full rounded-lg border border-sumi/15 bg-white px-2 py-2 text-sm font-semibold text-sumi"
+                    @input="onTextInput"
+                  ></textarea>
+                </label>
+
+                <div class="grid grid-cols-3 gap-2">
+                  <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                    Warna
+                    <input
+                      type="color"
+                      :value="activeElement.color"
+                      class="mt-1 h-8 w-full cursor-pointer rounded-md border border-sumi/20"
+                      @change="onTextColorInput"
+                    >
+                  </label>
+                  <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                    Stroke
+                    <input
+                      type="color"
+                      :value="activeElement.strokeColor"
+                      class="mt-1 h-8 w-full cursor-pointer rounded-md border border-sumi/20"
+                      @change="onTextStrokeColorInput"
+                    >
+                  </label>
+                  <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                    Tebal
+                    <input
+                      type="number"
+                      min="0"
+                      max="50"
+                      :value="activeElement.strokeSize"
+                      class="mt-1 h-8 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                      @input="onTextStrokeSizeInput"
+                    >
+                  </label>
+                </div>
+              </template>
+
+              <template v-else>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-sumi/20 bg-shironeri px-2 py-2 text-[11px] font-bold tracking-[0.06em] text-usuzemi uppercase"
+                    @click="removeActiveImageBackground"
+                  >
+                    Hapus BG Putih
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-sumi/20 bg-shironeri px-2 py-2 text-[11px] font-bold tracking-[0.06em] text-usuzemi uppercase"
+                    @click="addActiveImageOutline"
+                  >
+                    Outline Putih
+                  </button>
+                </div>
+
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Opacity
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1"
+                    step="0.05"
+                    :value="activeElement.opacity"
+                    class="mt-2 w-full"
+                    @input="onImageOpacityInput"
+                  >
+                </label>
+              </template>
+
+              <div class="grid grid-cols-2 gap-2">
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Ukuran (px)
+                  <input
+                    type="number"
+                    min="20"
+                    max="600"
+                    :value="activeElement.size"
+                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                    @input="onElementSizeInput"
+                  >
+                </label>
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Putar (deg)
+                  <input
+                    type="number"
+                    min="-360"
+                    max="360"
+                    :value="activeElement.rotation"
+                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                    @input="onElementRotationInput"
+                  >
+                </label>
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Posisi X
+                  <input
+                    type="number"
+                    min="-500"
+                    max="1500"
+                    :value="activeElement.x"
+                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                    @input="onElementXInput"
+                  >
+                </label>
+                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                  Posisi Y
+                  <input
+                    type="number"
+                    min="-500"
+                    max="1500"
+                    :value="activeElement.y"
+                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                    @input="onElementYInput"
+                  >
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">4. Warna Aksen & Outline</h2>
+
+            <button
+              type="button"
+              class="mt-4 w-full rounded-xl bg-sumi px-3 py-2 text-xs font-extrabold tracking-widest text-washi uppercase shadow-md transition hover:bg-kuro"
+              @click="randomizeLayerColorsFromImage"
+            >
+              Random dari Palette Gambar
+            </button>
+
+            <div class="editor-scroll mt-4 max-h-70 space-y-3 overflow-y-auto pr-1">
+              <p v-if="layerIds.length === 0" class="rounded-xl border border-sakura/30 bg-sakura/10 px-3 py-2 text-xs font-semibold text-sakura">
+                Layer aksen tidak ditemukan pada model ini.
+              </p>
+
+              <article
+                v-for="id in layerIds"
+                :key="`layer-${id}`"
+                class="rounded-xl border border-sumi/12 bg-shironeri p-3"
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-bold text-sumi">Aksen {{ id }}</p>
+                  <input
+                    type="color"
+                    :value="layerColors[id] ?? '#ffffff'"
+                    class="h-8 w-8 cursor-pointer rounded-full border border-sumi/25"
+                    :aria-label="`Warna aksen ${id}`"
+                    @change="onLayerColorInput(id, $event)"
+                  >
+                </div>
+
+                <div class="mt-2 border-t border-sumi/10 pt-2">
+                  <label class="flex items-center gap-2 text-xs font-semibold text-usuzemi">
+                    <input
+                      type="checkbox"
+                      :checked="layerOutlines[id]?.active ?? false"
+                      @change="onLayerOutlineToggleInput(id, $event)"
+                    >
+                    Aktifkan outline aksen
+                  </label>
+
+                  <div v-if="layerOutlines[id]?.active" class="mt-2 grid grid-cols-2 gap-2">
+                    <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                      Warna
+                      <input
+                        type="color"
+                        :value="layerOutlines[id]?.color ?? '#000000'"
+                        class="mt-1 h-8 w-full cursor-pointer rounded-md border border-sumi/20"
+                        @change="onLayerOutlineColorInput(id, $event)"
+                      >
+                    </label>
+                    <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
+                      Tebal
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        :value="layerOutlines[id]?.size ?? 2"
+                        class="mt-1 h-8 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
+                        @input="onLayerOutlineSizeInput(id, $event)"
+                      >
+                    </label>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </article>
+
+          <article class="card-lift rounded-3xl border-2 border-matcha/45 bg-matcha/10 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">5. Konfirmasi & Export</h2>
+
+            <div class="mt-4 grid gap-3">
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Nama Lengkap
+                <input
+                  v-model="name"
+                  type="text"
+                  class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                  placeholder="Wajib diisi"
+                >
+              </label>
+
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Nomor WhatsApp
+                <input
+                  v-model="phone"
+                  type="text"
+                  inputmode="numeric"
+                  class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                  placeholder="Wajib diisi"
+                >
+              </label>
+
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Ukuran Sepatu
+                <select
+                  v-model="shoeSize"
+                  class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                >
+                  <option value="">Pilih ukuran</option>
+                  <option v-for="value in shoeSizes" :key="`size-${value}`" :value="String(value)">
+                    Size {{ value }}
+                  </option>
+                </select>
+              </label>
+
+              <div class="grid grid-cols-2 gap-2">
+                <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                  No Folder
+                  <input
+                    v-model="folderNo"
+                    type="text"
+                    class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                    placeholder="Wajib"
+                  >
+                </label>
+                <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                  Operator
+                  <input
+                    v-model="operatorName"
+                    type="text"
+                    class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                    placeholder="Wajib"
+                  >
+                </label>
+              </div>
+
+              <button
+                type="button"
+                class="mt-1 w-full rounded-xl bg-matcha px-4 py-3 text-xs font-extrabold tracking-[0.12em] text-washi uppercase shadow-md transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-55"
+                :disabled="isSaving || isSyncing"
+                @click="handleSave"
+              >
+                {{ isSaving ? 'Memproses File...' : 'Simpan dan Download' }}
+              </button>
+
+              <a
+                v-if="waLink"
+                :href="waLink"
+                target="_blank"
+                rel="noreferrer"
+                class="inline-flex w-full items-center justify-center rounded-xl bg-[#25D366] px-4 py-2.5 text-xs font-extrabold tracking-[0.12em] text-white uppercase"
+              >
+                Kirim Konfirmasi ke Pembeli
+              </a>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- CTA SECTION -->
-    <section class="py-24 px-6 lg:px-16 bg-sakura text-washi relative overflow-hidden">
-      <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-4xl lg:text-5xl font-heading font-bold mb-6">Siap Custom Sepat Impian?</h2>
-        <p class="text-lg text-washi/80 mb-8 max-w-2xl mx-auto">
-          Hubungi Dinda sekarang untuk berkonsultasi tentang design custom Anda. Kami siap mewujudkan imajinasi Anda.
-        </p>
-        <a
-          href="https://wa.me/6285511223344"
-          target="_blank"
-          class="inline-block px-10 py-4 bg-washi text-sakura rounded-full text-base font-bold tracking-wider hover:scale-105 transition-transform"
-        >
-          <i class="bi bi-whatsapp mr-2"></i>
-          Chat via WhatsApp
-        </a>
+    <input
+      ref="colorPickerRef"
+      type="color"
+      class="sr-only"
+      @change="onLayerPickerChange"
+    >
+
+    <input
+      ref="uploadInputRef"
+      type="file"
+      class="hidden"
+      accept="image/*"
+      multiple
+      @change="onUploadInputChange"
+    >
+
+    <transition name="toast-fade">
+      <div
+        v-if="toastMessage"
+        class="fixed bottom-24 left-1/2 z-60 -translate-x-1/2 rounded-full bg-sumi px-4 py-2 text-xs font-semibold text-washi shadow-xl"
+        role="status"
+        aria-live="polite"
+      >
+        {{ toastMessage }}
       </div>
-    </section>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch  } from 'vue'
+import type {CSSProperties} from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue'
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue'
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue'
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui'
 
-// State Management
+const CANVAS_SIZE = 1000
+const PREVIEW_OFFSET_Y = -25
+const WATERMARK_X = 1990
+const WATERMARK_Y = 3105
+const WATERMARK_ANGLE = 17.2
+
+const FALLBACK_PALETTE = ['#0f172a', '#ef4444', '#f8fafc', '#eab308', '#10b981', '#3b82f6']
+
+const WHATSAPP_TEMPLATE =
+  'hallo ka aku admin riview design dari bogorsneaker, mau riview orderan sepatu kaka ya, ini hasil nya, jika ada yg mau di revisi silahkan kamimasih beri kesempatan 3 kali ya ka, mohon balas nya di jam kerja ya di jam 8.00 - 17.00. aku tunggu ya, jika dalam 5 menit kaka ga balas, aku proses riview pembeli selanjut nya ya ka, terimakasih sebelum nya :)'
+
+type LayerId = number
+
+interface LayerOutline {
+  active: boolean
+  color: string
+  size: number
+}
+
+interface ElementBase {
+  id: string
+  x: number
+  y: number
+  size: number
+  rotation: number
+}
+
+interface TextElement extends ElementBase {
+  type: 'text'
+  text: string
+  color: string
+  strokeColor: string
+  strokeSize: number
+}
+
+interface ImageElement extends ElementBase {
+  type: 'image'
+  src: string
+  naturalWidth: number
+  naturalHeight: number
+  opacity: number
+  sourceId: string | null
+}
+
+type CustomElement = TextElement | ImageElement
+
+interface DragState {
+  id: string
+  startClientX: number
+  startClientY: number
+  initX: number
+  initY: number
+}
+
+interface StudioLayerFile {
+  id: number
+  file: string
+}
+
+interface StudioModelMeta {
+  id: number
+  label: string
+  preview_base_file: string | null
+  main_file: string | null
+  pattern_base_file: string | null
+  layers: StudioLayerFile[]
+  pattern_layers: StudioLayerFile[]
+}
+
+interface StudioFolderMeta {
+  key: string
+  label: string
+  model_count: number
+  models: StudioModelMeta[]
+}
+
+interface StudioCatalogResponse {
+  generated_at: string
+  folders: StudioFolderMeta[]
+}
+
+interface UploadedMedia {
+  id: string
+  name: string
+  src: string
+  naturalWidth: number
+  naturalHeight: number
+  palette: string[]
+}
+
 const contacts = ref<FloatingContact[]>([
-  { id: 1, name: 'Dinda - DIY Master', role: 'Kustom, Desain, Konsultasi', phone: '6285511223344', initial: 'D', color: 'bg-sakura/30 text-sakura' },
+  {
+    id: 1,
+    name: 'Dinda - DIY Master',
+    role: 'Kustom, Desain, Konsultasi',
+    phone: '6285511223344',
+    initial: 'D',
+    color: 'bg-sakura/30 text-sakura',
+  },
 ])
 
 const orders = ref<FloatingOrder[]>([
-  { id: '#BGS-2841', product: 'Nike Air Max 97 Silver', size: '42', status: 'Produksi', statusClass: 'px-2 py-1 rounded text-[10px] bg-amber-100 text-amber-700', progress: 55, progressClass: 'bg-sumi' },
-  { id: '#BGS-2790', product: 'Adidas Samba OG White', size: '40', status: 'Dikirim', statusClass: 'px-2 py-1 rounded text-[10px] bg-blue-100 text-blue-700', progress: 85, progressClass: 'bg-sumi' },
-  { id: '#BGS-2755', product: 'Jordan 1 Retro High Bred', size: '43', status: 'Selesai', statusClass: 'px-2 py-1 rounded text-[10px] bg-matcha/20 text-matcha', progress: 100, progressClass: 'bg-matcha' },
-])
-
-// Services Data
-const services = ref([
-  { 
-    title: 'Basic Customization',
-    description: 'Custom warna, logo sederhana, atau patch tambahan pada sepatu pilihan.',
-    price: 'Mulai Rp 200K',
-    icon: 'bi bi-palette',
-    bgColor: 'bg-indigo/10',
-    textColor: 'text-indigo',
-    priceColor: 'text-indigo'
+  {
+    id: '#BGS-2841',
+    product: 'Nike Air Max 97 Silver',
+    size: '42',
+    status: 'Produksi',
+    statusClass: 'px-2 py-1 rounded text-[10px] bg-amber-100 text-amber-700',
+    progress: 55,
+    progressClass: 'bg-sumi',
   },
-  { 
-    title: 'Hand-Painted Design',
-    description: 'Desain custom hand-painted profesional sesuai brand atau karakter kesukaan.',
-    price: 'Mulai Rp 500K',
-    icon: 'bi bi-brush',
-    bgColor: 'bg-sakura/20',
-    textColor: 'text-sakura',
-    priceColor: 'text-sakura'
+  {
+    id: '#BGS-2790',
+    product: 'Adidas Samba OG White',
+    size: '40',
+    status: 'Dikirim',
+    statusClass: 'px-2 py-1 rounded text-[10px] bg-blue-100 text-blue-700',
+    progress: 85,
+    progressClass: 'bg-sumi',
   },
-  { 
-    title: 'Premium Custom Pack',
-    description: 'Paket lengkap: desain custom, patch leather, perubahan warna, dan branding.',
-    price: 'Mulai Rp 1.2Jt',
-    icon: 'bi bi-star',
-    bgColor: 'bg-matcha/10',
-    textColor: 'text-matcha',
-    priceColor: 'text-matcha'
+  {
+    id: '#BGS-2755',
+    product: 'Jordan 1 Retro High Bred',
+    size: '43',
+    status: 'Selesai',
+    statusClass: 'px-2 py-1 rounded text-[10px] bg-matcha/20 text-matcha',
+    progress: 100,
+    progressClass: 'bg-matcha',
   },
 ])
 
-// Gallery Items
-const galleryItems = ref([
-  { title: 'Cherry Blossom Air Max', artist: 'Custom Sakura Edition', aspectClass: 'aspect-square' },
-  { title: 'Wave Painted Dunk', artist: 'Seigaiha Inspired', aspectClass: 'aspect-[3/4]' },
-  { title: 'Neon Street Vibe', artist: 'Urban Custom', aspectClass: 'aspect-[4/3]' },
-  { title: 'Minimalist Bred', artist: 'Clean Lines', aspectClass: 'aspect-[3/4]' },
-  { title: 'Dragon Design Jordan', artist: 'Asian Fusion', aspectClass: 'aspect-[4/5]' },
-  { title: 'Retro Color Swap', artist: 'Vintage Vibes', aspectClass: 'aspect-square' },
-])
+const shoeSizes = Array.from({ length: 10 }, (_, idx) => 36 + idx)
+
+const previewCanvasRef = ref<HTMLCanvasElement | null>(null)
+const viewerRef = ref<HTMLDivElement | null>(null)
+const colorPickerRef = ref<HTMLInputElement | null>(null)
+const uploadInputRef = ref<HTMLInputElement | null>(null)
+
+const imageCacheRef = ref<Map<string, HTMLImageElement | null>>(new Map())
+const baseImageRef = ref<HTMLImageElement | null>(null)
+const layerImagesRef = ref<Map<LayerId, HTMLImageElement>>(new Map())
+const patternLayerFilesRef = ref<Map<LayerId, string>>(new Map())
+const patternBaseFileRef = ref<string | null>(null)
+
+const drawFrameRef = ref<number | null>(null)
+const toastTimerRef = ref<number | null>(null)
+const dragRef = ref<DragState | null>(null)
+const pointerMovedRef = ref(false)
+const resizeObserverRef = ref<ResizeObserver | null>(null)
+const viewerObserverRef = ref<IntersectionObserver | null>(null)
+const uploadObjectUrlsRef = ref<Set<string>>(new Set())
+const loadRunRef = ref(0)
+const elementCounterRef = ref(0)
+const uploadCounterRef = ref(0)
+const lastLoadedModelRef = ref<string | null>(null)
+
+const catalogFolders = ref<StudioFolderMeta[]>([])
+const catalogLoading = ref(false)
+const catalogError = ref<string | null>(null)
+const catalogUpdatedAt = ref<string | null>(null)
+const activeFolderKey = ref('')
+const currentModel = ref<number | null>(null)
+const lazyCanvasReady = ref(false)
+
+const isSyncing = ref(false)
+const assetRevision = ref(0)
+
+const layerIds = ref<LayerId[]>([])
+const layerColors = ref<Record<LayerId, string>>({})
+const layerOutlines = ref<Record<LayerId, LayerOutline>>({})
+const activeLayerPickId = ref<LayerId | null>(null)
+
+const customElements = ref<CustomElement[]>([])
+const activeElementId = ref<string | null>(null)
+const uploadedMedia = ref<UploadedMedia[]>([])
+const selectedUploadId = ref<string | null>(null)
+
+const viewerWidth = ref(520)
+const isDropActive = ref(false)
+
+const name = ref('')
+const phone = ref('')
+const shoeSize = ref('')
+const folderNo = ref('')
+const operatorName = ref('')
+
+const isSaving = ref(false)
+const waLink = ref<string | null>(null)
+const toastMessage = ref<string | null>(null)
+
+const scale = computed(() => viewerWidth.value / CANVAS_SIZE)
+
+const activeFolder = computed(() => {
+  return catalogFolders.value.find((folder) => folder.key === activeFolderKey.value) ?? null
+})
+
+const availableModels = computed(() => {
+  return activeFolder.value?.models ?? []
+})
+
+const currentModelMeta = computed(() => {
+  if (currentModel.value === null) {
+    return null
+  }
+
+  return availableModels.value.find((item) => item.id === currentModel.value) ?? null
+})
+
+const activeElement = computed(() => {
+  return customElements.value.find((item) => item.id === activeElementId.value) ?? null
+})
+
+const randomPalette = computed(() => {
+  const selected = uploadedMedia.value.find((item) => item.id === selectedUploadId.value)
+
+  if (selected && selected.palette.length > 0) {
+    return selected.palette
+  }
+
+  if (activeElement.value && activeElement.value.type === 'image' && activeElement.value.sourceId) {
+    const activeSourceId = activeElement.value.sourceId
+    const fromActive = uploadedMedia.value.find((item) => item.id === activeSourceId)
+
+    if (fromActive && fromActive.palette.length > 0) {
+      return fromActive.palette
+    }
+  }
+
+  return FALLBACK_PALETTE
+})
+
+const selectedPaletteLabel = computed(() => {
+  const selected = uploadedMedia.value.find((item) => item.id === selectedUploadId.value)
+
+  if (selected) {
+    return selected.name
+  }
+
+  return 'Fallback palette'
+})
+
+const catalogTimeLabel = computed(() => {
+  if (!catalogUpdatedAt.value) {
+    return '-'
+  }
+
+  const date = new Date(catalogUpdatedAt.value)
+
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+})
+
+function buildAssetUrl(folder: string, model: number, fileName: string): string {
+  return `/shoes-svg/${encodeURIComponent(folder)}/${model}/${encodeURIComponent(fileName)}`
+}
+
+function sanitizeFileToken(value: string): string {
+  const cleaned = value.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '-')
+
+  return cleaned.length > 0 ? cleaned : 'UNKNOWN'
+}
+
+function normalizePhoneForWa(value: string): string {
+  const digits = value.replace(/\D/g, '')
+
+  if (digits.startsWith('0')) {
+    return `62${digits.slice(1)}`
+  }
+
+  if (digits.startsWith('8')) {
+    return `62${digits}`
+  }
+
+  return digits
+}
+
+function getTextDims(ctx: CanvasRenderingContext2D, text: string, fontSize: number): { width: number; height: number } {
+  ctx.font = `800 ${fontSize}px Hanken Grotesk, sans-serif`
+  const metrics = ctx.measureText(text || ' ')
+
+  return {
+    width: Math.max(metrics.width, fontSize * 0.5),
+    height: fontSize,
+  }
+}
+
+function drawFilledLayer(
+  image: HTMLImageElement,
+  color: string,
+  targetWidth: number,
+  targetHeight: number,
+): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = targetWidth
+  canvas.height = targetHeight
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    return canvas
+  }
+
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, targetWidth, targetHeight)
+  ctx.globalCompositeOperation = 'destination-in'
+  ctx.drawImage(image, 0, 0, targetWidth, targetHeight)
+  ctx.globalCompositeOperation = 'source-over'
+
+  return canvas
+}
+
+function drawOutlineLayer(
+  image: HTMLImageElement,
+  color: string,
+  thickness: number,
+  targetWidth: number,
+  targetHeight: number,
+): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = targetWidth
+  canvas.height = targetHeight
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    return canvas
+  }
+
+  const px = Math.max(1, thickness)
+  const offsets: Array<[number, number]> = [
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [-1, 0],
+    [1, 0],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+  ]
+
+  for (const [ox, oy] of offsets) {
+    ctx.drawImage(image, ox * px, oy * px, targetWidth, targetHeight)
+  }
+
+  ctx.globalCompositeOperation = 'source-in'
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, targetWidth, targetHeight)
+  ctx.globalCompositeOperation = 'source-over'
+
+  return canvas
+}
+
+function showToast(message: string): void {
+  toastMessage.value = message
+
+  if (toastTimerRef.value !== null) {
+    window.clearTimeout(toastTimerRef.value)
+  }
+
+  toastTimerRef.value = window.setTimeout(() => {
+    toastMessage.value = null
+    toastTimerRef.value = null
+  }, 2800)
+}
+
+async function loadImage(src: string): Promise<HTMLImageElement | null> {
+  const cache = imageCacheRef.value
+
+  if (cache.has(src)) {
+    return cache.get(src) ?? null
+  }
+
+  const result = await new Promise<HTMLImageElement | null>((resolve) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => resolve(null)
+    image.src = src
+  })
+
+  cache.set(src, result)
+
+  return result
+}
+
+function setInitialModelSelection(folders: StudioFolderMeta[]): void {
+  if (folders.length === 0) {
+    activeFolderKey.value = ''
+    currentModel.value = null
+
+    return
+  }
+
+  const matchedFolder = folders.find((folder) => folder.key === activeFolderKey.value) ?? folders[0]
+  activeFolderKey.value = matchedFolder.key
+
+  const stillExists = matchedFolder.models.some((item) => item.id === currentModel.value)
+  currentModel.value = stillExists ? currentModel.value : (matchedFolder.models[0]?.id ?? null)
+}
+
+async function fetchCatalog(refresh = false): Promise<void> {
+  catalogLoading.value = true
+  catalogError.value = null
+
+  try {
+    const endpoint = refresh ? '/api/studio-custom/catalog?refresh=1' : '/api/studio-custom/catalog'
+    const response = await fetch(endpoint, {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch studio catalog: ${response.status}`)
+    }
+
+    const data = (await response.json()) as StudioCatalogResponse
+
+    catalogFolders.value = Array.isArray(data.folders) ? data.folders : []
+    catalogUpdatedAt.value = data.generated_at
+    setInitialModelSelection(catalogFolders.value)
+
+    if (refresh) {
+      showToast('Katalog model berhasil disinkronkan.')
+    }
+  } catch (error) {
+    console.error('Failed to fetch model catalog:', error)
+    catalogError.value = 'Gagal memuat katalog model dari aset internal.'
+    showToast('Gagal memuat katalog model.')
+  } finally {
+    catalogLoading.value = false
+  }
+}
+
+function drawPreview(): void {
+  const canvas = previewCanvasRef.value
+
+  if (!canvas) {
+    return
+  }
+
+  const ctx = canvas.getContext('2d', { alpha: false })
+
+  if (!ctx) {
+    return
+  }
+
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE)
+
+  for (const id of layerIds.value) {
+    const image = layerImagesRef.value.get(id)
+
+    if (!image) {
+      continue
+    }
+
+    const outline = layerOutlines.value[id]
+
+    if (outline?.active) {
+      const outlineLayer = drawOutlineLayer(image, outline.color, outline.size, CANVAS_SIZE, CANVAS_SIZE)
+      ctx.drawImage(outlineLayer, 0, PREVIEW_OFFSET_Y)
+    }
+
+    const fillLayer = drawFilledLayer(image, layerColors.value[id] ?? '#ffffff', CANVAS_SIZE, CANVAS_SIZE)
+    ctx.drawImage(fillLayer, 0, PREVIEW_OFFSET_Y)
+  }
+
+  if (baseImageRef.value) {
+    ctx.globalCompositeOperation = 'multiply'
+    ctx.drawImage(baseImageRef.value, 0, PREVIEW_OFFSET_Y, CANVAS_SIZE, CANVAS_SIZE)
+    ctx.globalCompositeOperation = 'source-over'
+  }
+}
+
+function scheduleDraw(): void {
+  if (drawFrameRef.value !== null) {
+    return
+  }
+
+  drawFrameRef.value = window.requestAnimationFrame(() => {
+    drawFrameRef.value = null
+    drawPreview()
+  })
+}
+
+async function loadModelAssets(manualRefresh: boolean): Promise<void> {
+  const folder = activeFolder.value
+  const model = currentModelMeta.value
+
+  if (!folder || !model) {
+    return
+  }
+
+  isSyncing.value = true
+  waLink.value = null
+
+  const modelKey = `${folder.key}/${model.id}`
+  const shouldResetDesign = lastLoadedModelRef.value !== modelKey
+
+  if (shouldResetDesign) {
+    activeElementId.value = null
+    customElements.value = []
+  }
+
+  const runId = loadRunRef.value + 1
+  loadRunRef.value = runId
+
+  try {
+    let baseImage: HTMLImageElement | null = null
+
+    const baseCandidates = [model.preview_base_file, model.main_file].filter((item): item is string => Boolean(item))
+
+    for (const fileName of baseCandidates) {
+      const image = await loadImage(buildAssetUrl(folder.key, model.id, fileName))
+
+      if (image) {
+        baseImage = image
+        break
+      }
+    }
+
+    const loadedLayers = await Promise.all(
+      model.layers.map(async (layer) => {
+        const image = await loadImage(buildAssetUrl(folder.key, model.id, layer.file))
+
+        return {
+          layer,
+          image,
+        }
+      }),
+    )
+
+    if (runId !== loadRunRef.value) {
+      return
+    }
+
+    const nextLayerMap = new Map<LayerId, HTMLImageElement>()
+    const nextIds: LayerId[] = []
+    const nextColors: Record<LayerId, string> = {}
+    const nextOutlines: Record<LayerId, LayerOutline> = {}
+
+    for (const { layer, image } of loadedLayers) {
+      if (!image) {
+        continue
+      }
+
+      nextLayerMap.set(layer.id, image)
+      nextIds.push(layer.id)
+
+      nextColors[layer.id] = shouldResetDesign
+        ? '#ffffff'
+        : (layerColors.value[layer.id] ?? '#ffffff')
+
+      nextOutlines[layer.id] = shouldResetDesign
+        ? {
+            active: false,
+            color: '#000000',
+            size: 2,
+          }
+        : (layerOutlines.value[layer.id] ?? {
+            active: false,
+            color: '#000000',
+            size: 2,
+          })
+    }
+
+    baseImageRef.value = baseImage
+    layerImagesRef.value = nextLayerMap
+    layerIds.value = nextIds
+    layerColors.value = nextColors
+    layerOutlines.value = nextOutlines
+    activeLayerPickId.value = null
+
+    patternBaseFileRef.value = model.pattern_base_file
+    patternLayerFilesRef.value = new Map(model.pattern_layers.map((item) => [item.id, item.file]))
+
+    assetRevision.value += 1
+    lastLoadedModelRef.value = modelKey
+
+    if (!baseImage) {
+      showToast('Base SVG model tidak ditemukan.')
+    }
+
+    if (manualRefresh) {
+      showToast('Aset model berhasil disinkronkan.')
+    }
+  } catch (error) {
+    console.error('Failed to load model assets:', error)
+    showToast('Gagal memuat aset model.')
+  } finally {
+    if (runId === loadRunRef.value) {
+      isSyncing.value = false
+    }
+  }
+}
+
+function updateElement(id: string, updater: (item: CustomElement) => CustomElement): void {
+  customElements.value = customElements.value.map((item) => {
+    if (item.id !== id) {
+      return item
+    }
+
+    return updater(item)
+  })
+}
+
+function createElementId(): string {
+  elementCounterRef.value += 1
+
+  return `el_${elementCounterRef.value}`
+}
+
+function createUploadId(): string {
+  uploadCounterRef.value += 1
+
+  return `up_${uploadCounterRef.value}`
+}
+
+function addTextElement(): void {
+  const id = createElementId()
+  const item: TextElement = {
+    id,
+    type: 'text',
+    text: 'TEKS BARU',
+    color: '#111827',
+    strokeColor: '#ffffff',
+    strokeSize: 0,
+    size: 52,
+    rotation: 0,
+    x: 210,
+    y: 230,
+  }
+
+  customElements.value = [...customElements.value, item]
+  activeElementId.value = id
+}
+
+function triggerUpload(): void {
+  uploadInputRef.value?.click()
+}
+
+function removeUpload(id: string): void {
+  uploadedMedia.value = uploadedMedia.value.filter((item) => item.id !== id)
+
+  if (selectedUploadId.value === id) {
+    selectedUploadId.value = uploadedMedia.value[0]?.id ?? null
+  }
+
+  showToast('Item upload dihapus dari library sementara.')
+}
+
+function clearUploads(): void {
+  uploadedMedia.value = []
+  selectedUploadId.value = null
+  showToast('Library upload dibersihkan.')
+}
+
+function setSelectedUpload(id: string): void {
+  selectedUploadId.value = id
+  showToast('Palette source diperbarui.')
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const toHex = (value: number): string => value.toString(16).padStart(2, '0')
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+function extractPaletteFromImage(image: HTMLImageElement): string[] {
+  const canvas = document.createElement('canvas')
+
+  const maxDim = 180
+  const ratio = Math.min(1, maxDim / Math.max(image.naturalWidth, image.naturalHeight))
+
+  canvas.width = Math.max(16, Math.floor(image.naturalWidth * ratio))
+  canvas.height = Math.max(16, Math.floor(image.naturalHeight * ratio))
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+
+  if (!ctx) {
+    return []
+  }
+
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+  const bucket = new Map<string, number>()
+
+  for (let i = 0; i < data.length; i += 16) {
+    const alpha = data[i + 3]
+
+    if (alpha < 120) {
+      continue
+    }
+
+    let r = data[i]
+    let g = data[i + 1]
+    let b = data[i + 2]
+
+    if ((r > 246 && g > 246 && b > 246) || (r < 12 && g < 12 && b < 12)) {
+      continue
+    }
+
+    r = Math.min(255, Math.max(0, Math.round(r / 24) * 24))
+    g = Math.min(255, Math.max(0, Math.round(g / 24) * 24))
+    b = Math.min(255, Math.max(0, Math.round(b / 24) * 24))
+
+    const hex = rgbToHex(r, g, b)
+    bucket.set(hex, (bucket.get(hex) ?? 0) + 1)
+  }
+
+  const sorted = [...bucket.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([color]) => color)
+
+  return sorted.length > 0 ? sorted : FALLBACK_PALETTE
+}
+
+async function processUploadFiles(files: File[]): Promise<void> {
+  const accepted = files.filter((file) => file.type.startsWith('image/'))
+
+  if (accepted.length === 0) {
+    showToast('File harus berupa gambar.')
+
+    return
+  }
+
+  const nextUploads: UploadedMedia[] = []
+
+  for (const file of accepted) {
+    const src = URL.createObjectURL(file)
+    uploadObjectUrlsRef.value.add(src)
+
+    const image = await loadImage(src)
+
+    if (!image) {
+      URL.revokeObjectURL(src)
+      uploadObjectUrlsRef.value.delete(src)
+      continue
+    }
+
+    const palette = extractPaletteFromImage(image)
+
+    nextUploads.push({
+      id: createUploadId(),
+      name: file.name,
+      src,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      palette,
+    })
+  }
+
+  if (nextUploads.length === 0) {
+    showToast('Tidak ada gambar yang bisa diproses.')
+
+    return
+  }
+
+  uploadedMedia.value = [...nextUploads, ...uploadedMedia.value]
+  selectedUploadId.value = nextUploads[0]?.id ?? selectedUploadId.value
+
+  showToast(`${nextUploads.length} gambar berhasil ditambahkan sementara.`)
+}
+
+async function onUploadInputChange(event: Event): Promise<void> {
+  const target = event.target as HTMLInputElement
+  const files = target.files ? Array.from(target.files) : []
+
+  await processUploadFiles(files)
+  target.value = ''
+}
+
+async function handleDropUpload(event: DragEvent): Promise<void> {
+  isDropActive.value = false
+
+  const files = event.dataTransfer?.files ? Array.from(event.dataTransfer.files) : []
+  await processUploadFiles(files)
+}
+
+function addUploadAsElement(uploadId: string): void {
+  const media = uploadedMedia.value.find((item) => item.id === uploadId)
+
+  if (!media) {
+    return
+  }
+
+  const id = createElementId()
+  const item: ImageElement = {
+    id,
+    type: 'image',
+    src: media.src,
+    naturalWidth: media.naturalWidth,
+    naturalHeight: media.naturalHeight,
+    size: 210,
+    rotation: 0,
+    x: 170,
+    y: 180,
+    opacity: 1,
+    sourceId: media.id,
+  }
+
+  customElements.value = [...customElements.value, item]
+  activeElementId.value = id
+  selectedUploadId.value = media.id
+  showToast('Gambar ditambahkan ke canvas.')
+}
+
+function applyPaletteToLayers(palette: string[]): void {
+  if (palette.length === 0) {
+    showToast('Palette belum tersedia.')
+
+    return
+  }
+
+  layerColors.value = layerIds.value.reduce<Record<LayerId, string>>((carry, id) => {
+    const color = palette[Math.floor(Math.random() * palette.length)] ?? '#ffffff'
+    carry[id] = color
+
+    return carry
+  }, {})
+
+  showToast('Warna aksen di-generate dari palette gambar.')
+}
+
+function randomizeLayerColorsFromImage(): void {
+  applyPaletteToLayers(randomPalette.value)
+}
+
+async function syncPaletteFromActiveImage(): Promise<void> {
+  if (!activeElement.value || activeElement.value.type !== 'image') {
+    showToast('Pilih elemen gambar terlebih dahulu.')
+
+    return
+  }
+
+  const image = await loadImage(activeElement.value.src)
+
+  if (!image) {
+    showToast('Gambar aktif tidak bisa diproses.')
+
+    return
+  }
+
+  const palette = extractPaletteFromImage(image)
+  applyPaletteToLayers(palette)
+}
+
+function updateActiveText(patch: Partial<TextElement>): void {
+  if (!activeElement.value || activeElement.value.type !== 'text') {
+    return
+  }
+
+  updateElement(activeElement.value.id, (item) => {
+    if (item.type !== 'text') {
+      return item
+    }
+
+    return {
+      ...item,
+      ...patch,
+    }
+  })
+}
+
+function updateActiveImage(patch: Partial<ImageElement>): void {
+  if (!activeElement.value || activeElement.value.type !== 'image') {
+    return
+  }
+
+  updateElement(activeElement.value.id, (item) => {
+    if (item.type !== 'image') {
+      return item
+    }
+
+    return {
+      ...item,
+      ...patch,
+    }
+  })
+}
+
+function removeActiveElement(): void {
+  if (!activeElementId.value) {
+    return
+  }
+
+  customElements.value = customElements.value.filter((item) => item.id !== activeElementId.value)
+  activeElementId.value = null
+}
+
+function duplicateActiveElement(): void {
+  if (!activeElement.value) {
+    return
+  }
+
+  const id = createElementId()
+
+  if (activeElement.value.type === 'text') {
+    const clone: TextElement = {
+      ...activeElement.value,
+      id,
+      x: activeElement.value.x + 18,
+      y: activeElement.value.y + 18,
+    }
+
+    customElements.value = [...customElements.value, clone]
+    activeElementId.value = id
+
+    return
+  }
+
+  const clone: ImageElement = {
+    ...activeElement.value,
+    id,
+    x: activeElement.value.x + 18,
+    y: activeElement.value.y + 18,
+  }
+
+  customElements.value = [...customElements.value, clone]
+  activeElementId.value = id
+}
+
+async function removeActiveImageBackground(): Promise<void> {
+  if (!activeElement.value || activeElement.value.type !== 'image') {
+    return
+  }
+
+  const image = await loadImage(activeElement.value.src)
+
+  if (!image) {
+    showToast('Gambar tidak ditemukan.')
+
+    return
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth
+  canvas.height = image.naturalHeight
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+
+  if (!ctx) {
+    return
+  }
+
+  ctx.drawImage(image, 0, 0)
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+  for (let i = 0; i < data.data.length; i += 4) {
+    const r = data.data[i]
+    const g = data.data[i + 1]
+    const b = data.data[i + 2]
+
+    if (r > 220 && g > 220 && b > 220) {
+      data.data[i + 3] = 0
+    }
+  }
+
+  ctx.putImageData(data, 0, 0)
+  const nextSrc = canvas.toDataURL('image/png')
+  const nextImg = await loadImage(nextSrc)
+
+  updateActiveImage({
+    src: nextSrc,
+    naturalWidth: nextImg?.naturalWidth ?? activeElement.value.naturalWidth,
+    naturalHeight: nextImg?.naturalHeight ?? activeElement.value.naturalHeight,
+  })
+
+  showToast('Background putih gambar dihapus.')
+}
+
+async function addActiveImageOutline(): Promise<void> {
+  if (!activeElement.value || activeElement.value.type !== 'image') {
+    return
+  }
+
+  const image = await loadImage(activeElement.value.src)
+
+  if (!image) {
+    showToast('Gambar tidak ditemukan.')
+
+    return
+  }
+
+  const thickness = 4
+  const canvas = document.createElement('canvas')
+  canvas.width = image.naturalWidth + thickness * 2
+  canvas.height = image.naturalHeight + thickness * 2
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    return
+  }
+
+  const offsets: Array<[number, number]> = [
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [-1, 0],
+    [1, 0],
+    [-1, 1],
+    [0, 1],
+    [1, 1],
+  ]
+
+  for (const [ox, oy] of offsets) {
+    ctx.drawImage(
+      image,
+      thickness + ox * thickness,
+      thickness + oy * thickness,
+      image.naturalWidth,
+      image.naturalHeight,
+    )
+  }
+
+  ctx.globalCompositeOperation = 'source-in'
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.globalCompositeOperation = 'source-over'
+  ctx.drawImage(image, thickness, thickness, image.naturalWidth, image.naturalHeight)
+
+  const nextSrc = canvas.toDataURL('image/png')
+  const nextImg = await loadImage(nextSrc)
+
+  updateActiveImage({
+    src: nextSrc,
+    naturalWidth: nextImg?.naturalWidth ?? activeElement.value.naturalWidth,
+    naturalHeight: nextImg?.naturalHeight ?? activeElement.value.naturalHeight,
+  })
+
+  showToast('Outline putih berhasil ditambahkan.')
+}
+
+function updateLayerColor(id: LayerId, color: string): void {
+  layerColors.value = {
+    ...layerColors.value,
+    [id]: color,
+  }
+}
+
+function toggleLayerOutline(id: LayerId, enabled: boolean): void {
+  const current = layerOutlines.value[id] ?? {
+    active: false,
+    color: '#000000',
+    size: 2,
+  }
+
+  layerOutlines.value = {
+    ...layerOutlines.value,
+    [id]: {
+      ...current,
+      active: enabled,
+    },
+  }
+}
+
+function updateLayerOutlineColor(id: LayerId, color: string): void {
+  const current = layerOutlines.value[id] ?? {
+    active: false,
+    color: '#000000',
+    size: 2,
+  }
+
+  layerOutlines.value = {
+    ...layerOutlines.value,
+    [id]: {
+      ...current,
+      color,
+    },
+  }
+}
+
+function updateLayerOutlineSize(id: LayerId, size: number): void {
+  const current = layerOutlines.value[id] ?? {
+    active: false,
+    color: '#000000',
+    size: 2,
+  }
+
+  layerOutlines.value = {
+    ...layerOutlines.value,
+    [id]: {
+      ...current,
+      size: Number.isFinite(size) ? Math.max(1, Math.min(50, size)) : 2,
+    },
+  }
+}
+
+function getTextElementStyle(item: TextElement): CSSProperties {
+  const style: CSSProperties = {
+    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg)`,
+    fontSize: `${item.size * scale.value}px`,
+    color: item.color,
+    lineHeight: '1',
+    fontWeight: '900',
+  }
+
+  ;(style as Record<string, string>).WebkitTextStroke = `${item.strokeSize * scale.value}px ${item.strokeColor}`
+
+  return style
+}
+
+function getImageElementStyle(item: ImageElement): CSSProperties {
+  const ratio = item.naturalHeight / Math.max(1, item.naturalWidth)
+
+  return {
+    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg)`,
+    width: `${item.size * scale.value}px`,
+    height: `${item.size * ratio * scale.value}px`,
+    opacity: String(item.opacity),
+    filter: 'drop-shadow(0 3px 8px rgba(15, 23, 42, 0.24))',
+  }
+}
+
+function handleViewerKeydown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    activeElementId.value = null
+  }
+}
+
+function onLayerPickerChange(event: Event): void {
+  if (activeLayerPickId.value === null) {
+    return
+  }
+
+  const color = (event.target as HTMLInputElement).value
+  updateLayerColor(activeLayerPickId.value, color)
+}
+
+function onLayerColorInput(id: LayerId, event: Event): void {
+  const color = (event.target as HTMLInputElement).value
+  updateLayerColor(id, color)
+}
+
+function onLayerOutlineToggleInput(id: LayerId, event: Event): void {
+  const enabled = (event.target as HTMLInputElement).checked
+  toggleLayerOutline(id, enabled)
+}
+
+function onLayerOutlineColorInput(id: LayerId, event: Event): void {
+  const color = (event.target as HTMLInputElement).value
+  updateLayerOutlineColor(id, color)
+}
+
+function onLayerOutlineSizeInput(id: LayerId, event: Event): void {
+  const size = Number((event.target as HTMLInputElement).value)
+  updateLayerOutlineSize(id, size)
+}
+
+function handleViewerClick(event: MouseEvent): void {
+  if (pointerMovedRef.value) {
+    pointerMovedRef.value = false
+
+    return
+  }
+
+  const target = event.target as HTMLElement
+
+  if (target.closest('[data-draggable="true"]')) {
+    return
+  }
+
+  activeElementId.value = null
+
+  const viewer = viewerRef.value
+
+  if (!viewer) {
+    return
+  }
+
+  const rect = viewer.getBoundingClientRect()
+  const x = ((event.clientX - rect.left) * CANVAS_SIZE) / rect.width
+  const y = ((event.clientY - rect.top) * CANVAS_SIZE) / rect.height
+
+  const hitCanvas = document.createElement('canvas')
+  hitCanvas.width = 1
+  hitCanvas.height = 1
+  const hitCtx = hitCanvas.getContext('2d', { willReadFrequently: true })
+
+  if (!hitCtx) {
+    return
+  }
+
+  const reversedIds = [...layerIds.value].sort((a, b) => b - a)
+
+  for (const id of reversedIds) {
+    const image = layerImagesRef.value.get(id)
+
+    if (!image) {
+      continue
+    }
+
+    hitCtx.clearRect(0, 0, 1, 1)
+    hitCtx.drawImage(image, -x, PREVIEW_OFFSET_Y - y, CANVAS_SIZE, CANVAS_SIZE)
+    const alpha = hitCtx.getImageData(0, 0, 1, 1).data[3]
+
+    if (alpha > 20) {
+      activeLayerPickId.value = id
+
+      const picker = colorPickerRef.value
+
+      if (picker) {
+        picker.value = layerColors.value[id] ?? '#ffffff'
+        picker.click()
+      }
+
+      showToast(`Aksen ${id} dipilih.`)
+
+      return
+    }
+  }
+}
+
+function handlePointerMove(event: PointerEvent): void {
+  const drag = dragRef.value
+  const viewer = viewerRef.value
+
+  if (!drag || !viewer) {
+    return
+  }
+
+  const rect = viewer.getBoundingClientRect()
+  const dx = ((event.clientX - drag.startClientX) * CANVAS_SIZE) / rect.width
+  const dy = ((event.clientY - drag.startClientY) * CANVAS_SIZE) / rect.height
+
+  if (Math.abs(dx) > 0.3 || Math.abs(dy) > 0.3) {
+    pointerMovedRef.value = true
+  }
+
+  customElements.value = customElements.value.map((item) => {
+    if (item.id !== drag.id) {
+      return item
+    }
+
+    return {
+      ...item,
+      x: drag.initX + dx,
+      y: drag.initY + dy,
+    }
+  })
+}
+
+function handlePointerUp(): void {
+  dragRef.value = null
+  window.removeEventListener('pointermove', handlePointerMove)
+  window.removeEventListener('pointerup', handlePointerUp)
+}
+
+function startDragElement(event: PointerEvent, id: string): void {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const item = customElements.value.find((element) => element.id === id)
+
+  if (!item) {
+    return
+  }
+
+  activeElementId.value = id
+  pointerMovedRef.value = false
+
+  dragRef.value = {
+    id,
+    startClientX: event.clientX,
+    startClientY: event.clientY,
+    initX: item.x,
+    initY: item.y,
+  }
+
+  window.addEventListener('pointermove', handlePointerMove)
+  window.addEventListener('pointerup', handlePointerUp)
+}
+
+function onTextInput(event: Event): void {
+  updateActiveText({ text: (event.target as HTMLTextAreaElement).value })
+}
+
+function onTextColorInput(event: Event): void {
+  updateActiveText({ color: (event.target as HTMLInputElement).value })
+}
+
+function onTextStrokeColorInput(event: Event): void {
+  updateActiveText({ strokeColor: (event.target as HTMLInputElement).value })
+}
+
+function onTextStrokeSizeInput(event: Event): void {
+  updateActiveText({ strokeSize: Math.max(0, Number((event.target as HTMLInputElement).value)) })
+}
+
+function onImageOpacityInput(event: Event): void {
+  const opacity = Number((event.target as HTMLInputElement).value)
+  updateActiveImage({ opacity: Number.isFinite(opacity) ? Math.max(0.1, Math.min(1, opacity)) : 1 })
+}
+
+function onElementSizeInput(event: Event): void {
+  const size = Math.max(20, Number((event.target as HTMLInputElement).value))
+
+  if (activeElement.value?.type === 'text') {
+    updateActiveText({ size })
+
+    return
+  }
+
+  if (activeElement.value?.type === 'image') {
+    updateActiveImage({ size })
+  }
+}
+
+function onElementRotationInput(event: Event): void {
+  const rotation = Number((event.target as HTMLInputElement).value)
+
+  if (activeElement.value?.type === 'text') {
+    updateActiveText({ rotation })
+
+    return
+  }
+
+  if (activeElement.value?.type === 'image') {
+    updateActiveImage({ rotation })
+  }
+}
+
+function onElementXInput(event: Event): void {
+  const x = Number((event.target as HTMLInputElement).value)
+
+  if (activeElement.value?.type === 'text') {
+    updateActiveText({ x })
+
+    return
+  }
+
+  if (activeElement.value?.type === 'image') {
+    updateActiveImage({ x })
+  }
+}
+
+function onElementYInput(event: Event): void {
+  const y = Number((event.target as HTMLInputElement).value)
+
+  if (activeElement.value?.type === 'text') {
+    updateActiveText({ y })
+
+    return
+  }
+
+  if (activeElement.value?.type === 'image') {
+    updateActiveImage({ y })
+  }
+}
+
+async function drawElementsToCanvas(
+  ctx: CanvasRenderingContext2D,
+  targetWidth: number,
+  targetHeight: number,
+  mirror: boolean,
+): Promise<void> {
+  const ratioX = targetWidth / CANVAS_SIZE
+  const ratioY = targetHeight / CANVAS_SIZE
+
+  for (const element of customElements.value) {
+    if (element.type === 'image') {
+      const image = await loadImage(element.src)
+
+      if (!image) {
+        continue
+      }
+
+      const imageHeight = element.size * (element.naturalHeight / Math.max(1, element.naturalWidth))
+      const drawW = element.size * ratioX
+      const drawH = imageHeight * ratioY
+      const centerX = (element.x + element.size / 2) * ratioX
+      const centerY = (element.y + imageHeight / 2) * ratioY
+
+      const drawImageAt = (x: number, y: number, rotationDeg: number): void => {
+        ctx.save()
+        ctx.globalAlpha = element.opacity
+        ctx.translate(x, y)
+        ctx.rotate((rotationDeg * Math.PI) / 180)
+        ctx.drawImage(image, -drawW / 2, -drawH / 2, drawW, drawH)
+        ctx.restore()
+      }
+
+      drawImageAt(centerX, centerY, element.rotation)
+
+      if (mirror) {
+        drawImageAt(centerX, targetHeight - centerY, 180 - element.rotation)
+      }
+
+      continue
+    }
+
+    const fontSize = element.size * ratioX
+    const dims = getTextDims(ctx, element.text, fontSize)
+    const centerX = (element.x + dims.width / (2 * ratioX)) * ratioX
+    const centerY = (element.y + dims.height / (2 * ratioY)) * ratioY
+
+    const drawTextAt = (x: number, y: number, rotationDeg: number): void => {
+      ctx.save()
+      ctx.translate(x, y)
+      ctx.rotate((rotationDeg * Math.PI) / 180)
+      ctx.font = `800 ${fontSize}px Hanken Grotesk, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      if (element.strokeSize > 0) {
+        ctx.lineWidth = Math.max(1, element.strokeSize * ratioX * 2)
+        ctx.strokeStyle = element.strokeColor
+        ctx.lineJoin = 'round'
+        ctx.strokeText(element.text, 0, 0)
+      }
+
+      ctx.fillStyle = element.color
+      ctx.fillText(element.text, 0, 0)
+      ctx.restore()
+    }
+
+    drawTextAt(centerX, centerY, element.rotation)
+
+    if (mirror) {
+      drawTextAt(centerX, targetHeight - centerY, 180 - element.rotation)
+    }
+  }
+}
+
+async function createPreviewExportCanvas(): Promise<HTMLCanvasElement> {
+  const exportCanvas = document.createElement('canvas')
+  exportCanvas.width = CANVAS_SIZE
+  exportCanvas.height = CANVAS_SIZE
+
+  const ctx = exportCanvas.getContext('2d')
+
+  if (!ctx) {
+    return exportCanvas
+  }
+
+  if (previewCanvasRef.value) {
+    ctx.drawImage(previewCanvasRef.value, 0, 0)
+  }
+
+  await drawElementsToCanvas(ctx, CANVAS_SIZE, CANVAS_SIZE, false)
+
+  const rowOne = `ID/WA: ${phone.value || '-'} | Nama: ${name.value || '-'} | Size: ${shoeSize.value || '-'}`
+  const rowTwo = `Folder: ${folderNo.value || '-'} | OP: ${operatorName.value || '-'}`
+
+  ctx.save()
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
+  ctx.fillRect(16, CANVAS_SIZE - 92, 520, 64)
+  ctx.strokeStyle = '#7c8c5a'
+  ctx.lineWidth = 3
+  ctx.strokeRect(16, CANVAS_SIZE - 92, 520, 64)
+
+  ctx.font = '600 16px Hanken Grotesk, sans-serif'
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillText(rowOne, 26, CANVAS_SIZE - 64)
+  ctx.fillText(rowTwo, 26, CANVAS_SIZE - 38)
+  ctx.restore()
+
+  return exportCanvas
+}
+
+async function createPatternCanvas(): Promise<{ canvas: HTMLCanvasElement; watermarkLabel: string }> {
+  const folder = activeFolder.value
+  const model = currentModelMeta.value
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 2048
+  canvas.height = 2048
+
+  if (!folder || !model) {
+    return {
+      canvas,
+      watermarkLabel: 'POLA_UNKNOWN',
+    }
+  }
+
+  const patternBase = patternBaseFileRef.value
+    ? await loadImage(buildAssetUrl(folder.key, model.id, patternBaseFileRef.value))
+    : null
+
+  const patternImages = new Map<LayerId, HTMLImageElement>()
+
+  for (const id of layerIds.value) {
+    const fileName = patternLayerFilesRef.value.get(id)
+
+    if (fileName) {
+      const image = await loadImage(buildAssetUrl(folder.key, model.id, fileName))
+
+      if (image) {
+        patternImages.set(id, image)
+        continue
+      }
+    }
+
+    const fallback = layerImagesRef.value.get(id)
+
+    if (fallback) {
+      patternImages.set(id, fallback)
+    }
+  }
+
+  let targetWidth = patternBase?.naturalWidth ?? 2048
+  let targetHeight = patternBase?.naturalHeight ?? 2048
+
+  for (const image of patternImages.values()) {
+    targetWidth = Math.max(targetWidth, image.naturalWidth)
+    targetHeight = Math.max(targetHeight, image.naturalHeight)
+  }
+
+  canvas.width = targetWidth
+  canvas.height = targetHeight
+
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    return {
+      canvas,
+      watermarkLabel: 'POLA_UNKNOWN',
+    }
+  }
+
+  ctx.clearRect(0, 0, targetWidth, targetHeight)
+
+  if (patternBase) {
+    const cutlineOutline = drawOutlineLayer(patternBase, '#000000', 15, targetWidth, targetHeight)
+    ctx.drawImage(cutlineOutline, 0, 0)
+  }
+
+  const ratioX = targetWidth / CANVAS_SIZE
+
+  for (const id of layerIds.value) {
+    const image = patternImages.get(id)
+
+    if (!image) {
+      continue
+    }
+
+    const outline = layerOutlines.value[id]
+
+    if (outline?.active) {
+      const outlineCanvas = drawOutlineLayer(image, outline.color, outline.size * ratioX, targetWidth, targetHeight)
+      ctx.drawImage(outlineCanvas, 0, 0)
+    }
+
+    const fillCanvas = drawFilledLayer(image, layerColors.value[id] ?? '#ffffff', targetWidth, targetHeight)
+    ctx.drawImage(fillCanvas, 0, 0)
+  }
+
+  await drawElementsToCanvas(ctx, targetWidth, targetHeight, true)
+
+  const phoneLast4 = phone.value.replace(/\D/g, '').slice(-4) || '0000'
+  const safeName = sanitizeFileToken(name.value || 'NONAME')
+  const safeFolder = sanitizeFileToken(folderNo.value || 'NOFOLDER')
+  const safeOperator = sanitizeFileToken(operatorName.value || 'NOOP')
+  const watermarkLabel = `POLA_${safeName}_WA${phoneLast4}_F${safeFolder}_OP-${safeOperator}`
+
+  ctx.save()
+  const labelFontSize = Math.max(30, targetHeight * 0.015)
+  const wmX = Math.min(WATERMARK_X, targetWidth * 0.6)
+  const wmY = Math.min(WATERMARK_Y, targetHeight * 0.82)
+
+  ctx.font = `800 ${labelFontSize}px Hanken Grotesk, sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.translate(wmX, wmY)
+  ctx.rotate((WATERMARK_ANGLE * Math.PI) / 180)
+
+  ctx.lineWidth = 8
+  ctx.strokeStyle = '#000000'
+  ctx.strokeText(watermarkLabel, 0, 0)
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(watermarkLabel, 0, 0)
+  ctx.restore()
+
+  return {
+    canvas,
+    watermarkLabel,
+  }
+}
+
+function downloadCanvas(canvas: HTMLCanvasElement, fileName: string): void {
+  canvas.toBlob((blob) => {
+    if (!blob) {
+      return
+    }
+
+    const href = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.download = fileName
+    anchor.href = href
+    anchor.click()
+
+    window.setTimeout(() => {
+      URL.revokeObjectURL(href)
+    }, 1200)
+  }, 'image/png')
+}
+
+async function handleSave(): Promise<void> {
+  if (!name.value || !phone.value || !shoeSize.value || !folderNo.value || !operatorName.value) {
+    window.alert('Mohon isi semua data wajib: nama, WhatsApp, ukuran, folder, dan operator.')
+
+    return
+  }
+
+  isSaving.value = true
+
+  try {
+    const preview = await createPreviewExportCanvas()
+    const pattern = await createPatternCanvas()
+
+    const phoneLast4 = phone.value.replace(/\D/g, '').slice(-4) || '0000'
+    const safeName = sanitizeFileToken(name.value)
+    const safeFolder = sanitizeFileToken(folderNo.value)
+    const safeOperator = sanitizeFileToken(operatorName.value)
+
+    const previewName = `PREVIEW_${safeName}_WA${phoneLast4}_F${safeFolder}_OP-${safeOperator}.png`
+    const patternName = `${pattern.watermarkLabel}.png`
+
+    downloadCanvas(preview, previewName)
+    downloadCanvas(pattern.canvas, patternName)
+
+    const waTarget = normalizePhoneForWa(phone.value)
+    const waMessage = encodeURIComponent(WHATSAPP_TEMPLATE)
+
+    waLink.value = `https://wa.me/${waTarget}?text=${waMessage}`
+    showToast('Preview dan pola berhasil diunduh.')
+  } catch (error) {
+    console.error('Failed to save design:', error)
+    window.alert('Terjadi kesalahan saat memproses desain. Silakan coba lagi.')
+  } finally {
+    isSaving.value = false
+  }
+}
+
+async function refreshCatalogAndAssets(): Promise<void> {
+  await fetchCatalog(true)
+
+  if (lazyCanvasReady.value) {
+    await loadModelAssets(true)
+  }
+}
+
+watch(
+  [layerColors, layerOutlines, layerIds, assetRevision],
+  () => {
+    scheduleDraw()
+  },
+  {
+    deep: true,
+  },
+)
+
+watch(
+  [activeFolderKey, currentModel, lazyCanvasReady],
+  ([folderKey, modelId, lazy]) => {
+    if (!folderKey || modelId === null || !lazy) {
+      return
+    }
+
+    void loadModelAssets(false)
+  },
+  {
+    immediate: true,
+  },
+)
+
+watch(activeFolderKey, (nextFolder) => {
+  const folder = catalogFolders.value.find((item) => item.key === nextFolder)
+
+  if (!folder) {
+    currentModel.value = null
+
+    return
+  }
+
+  if (!folder.models.some((item) => item.id === currentModel.value)) {
+    currentModel.value = folder.models[0]?.id ?? null
+  }
+})
+
+onMounted(() => {
+  void fetchCatalog(false)
+
+  const viewer = viewerRef.value
+
+  if (!viewer) {
+    lazyCanvasReady.value = true
+
+    return
+  }
+
+  viewerWidth.value = Math.max(320, viewer.clientWidth)
+
+  resizeObserverRef.value = new ResizeObserver((entries) => {
+    const width = entries[0]?.contentRect.width
+
+    if (width && width > 0) {
+      viewerWidth.value = width
+    }
+  })
+
+  resizeObserverRef.value.observe(viewer)
+
+  if ('IntersectionObserver' in window) {
+    viewerObserverRef.value = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          lazyCanvasReady.value = true
+          viewerObserverRef.value?.disconnect()
+          viewerObserverRef.value = null
+        }
+      },
+      { rootMargin: '220px' },
+    )
+
+    viewerObserverRef.value.observe(viewer)
+  } else {
+    lazyCanvasReady.value = true
+  }
+})
+
+onUnmounted(() => {
+  if (drawFrameRef.value !== null) {
+    window.cancelAnimationFrame(drawFrameRef.value)
+  }
+
+  if (toastTimerRef.value !== null) {
+    window.clearTimeout(toastTimerRef.value)
+  }
+
+  window.removeEventListener('pointermove', handlePointerMove)
+  window.removeEventListener('pointerup', handlePointerUp)
+
+  resizeObserverRef.value?.disconnect()
+  viewerObserverRef.value?.disconnect()
+
+  for (const src of uploadObjectUrlsRef.value.values()) {
+    URL.revokeObjectURL(src)
+  }
+
+  uploadObjectUrlsRef.value.clear()
+})
 </script>
 
 <style scoped>
@@ -175,27 +2461,93 @@ const galleryItems = ref([
   box-sizing: border-box;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
+.pattern-wave {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.16' d='M0 30 Q 15 15 30 30 T 60 30 T 90 30 T 120 30'/%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.6' opacity='0.11' d='M0 40 Q 15 25 30 40 T 60 40 T 90 40 T 120 40'/%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.08' d='M0 50 Q 15 35 30 50 T 60 50 T 90 50 T 120 50'/%3E%3C/svg%3E");
+  background-size: 120px 60px;
+}
+
+.pattern-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='0.6' opacity='0.16' d='M0 0h50v50H0z M25 0v50 M0 25h50' /%3E%3Cpath fill='none' stroke='%237C8C5A' stroke-width='0.4' opacity='0.09' d='M10 10 L40 40 M40 10 L10 40' /%3E%3C/svg%3E");
+  background-size: 50px 50px;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.card-lift {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 2px 10px rgba(20, 20, 20, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 24px rgba(20, 20, 20, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.editor-scroll::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f7f5f0;
+.editor-scroll::-webkit-scrollbar-track {
+  background: rgba(26, 26, 26, 0.08);
+  border-radius: 999px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #4a4a4a;
-  border-radius: 3px;
+.editor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(26, 26, 26, 0.36);
+  border-radius: 999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #1a1a1a;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Japanese pattern backgrounds */
-.pattern-kumiko {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.8' opacity='0.2' d='M0 0h60v60H0z M15 0v60M30 0v60M45 0v60 M0 15h60M0 30h60M0 45h60' /%3E%3Cpath fill='none' stroke='%231A1A1A' stroke-width='0.5' opacity='0.1' d='M10 10 L50 50 M50 10 L10 50' /%3E%3C/svg%3E");
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.75s ease-out forwards;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 8px);
+}
+
+@media (max-width: 1024px) {
+  .vertical-text {
+    display: none;
+  }
 }
 </style>

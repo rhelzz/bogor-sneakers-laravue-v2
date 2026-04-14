@@ -5,6 +5,7 @@ use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\PreOrderHomeController;
+use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
     ->where('catalog', '^[a-z0-9-]+-[0-9a-hjkmnp-tv-z]{26}$')
     ->name('katalog.show');
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
+Route::get('/api/studio-custom/catalog', [StudioAssetController::class, 'catalog'])->name('studio-custom.catalog');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
 
 // Admin Carousel Routes
