@@ -118,6 +118,32 @@
                     draggable="false"
                   />
                 </div>
+
+                <div
+                  v-if="item.id === activeElementId"
+                  class="pointer-events-none absolute top-0 left-0 z-40 rounded-md border-2 border-matcha/85"
+                  :style="getActiveElementHandleStyle(item)"
+                >
+                  <div class="transform-handle-connector"></div>
+                  <button
+                    type="button"
+                    data-transform-handle="true"
+                    class="transform-handle transform-handle-rotate pointer-events-auto"
+                    aria-label="Putar elemen"
+                    @pointerdown.stop.prevent="startRotateTransform($event, item.id)"
+                  >
+                    ROT
+                  </button>
+                  <button
+                    type="button"
+                    data-transform-handle="true"
+                    class="transform-handle transform-handle-scale pointer-events-auto"
+                    aria-label="Ubah skala elemen"
+                    @pointerdown.stop.prevent="startScaleTransform($event, item.id)"
+                  >
+                    SCL
+                  </button>
+                </div>
               </template>
             </div>
 
@@ -493,7 +519,7 @@
           <article v-else-if="currentStep === 6" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
             <h2 class="font-heading text-base font-bold text-sumi">6. Kontrol Cepat Teks & Logo</h2>
             <p class="mt-1 text-xs leading-relaxed text-usuzemi">
-              Kontrol elemen aktif dengan tombol cepat seperti editor desain: geser, zoom, rotate, dan stretch.
+              Edit langsung di preview seperti Canva: drag elemen untuk geser, tarik handle pojok untuk scale, dan handle atas untuk rotate.
             </p>
 
             <div v-if="!activeElement" class="mt-4 rounded-xl border border-dashed border-sumi/20 bg-shironeri px-3 py-4 text-center text-xs font-semibold text-hai">
@@ -599,26 +625,9 @@
                 </label>
               </template>
 
-              <div class="rounded-xl border border-sumi/15 bg-white p-3">
-                <p class="text-[11px] font-bold tracking-widest text-usuzemi uppercase">Move</p>
-                <div class="mt-2 grid grid-cols-3 gap-2">
-                  <button type="button" class="control-icon-btn col-start-2" @click="nudgeActiveElement(0, -10)">UP</button>
-                  <button type="button" class="control-icon-btn" @click="nudgeActiveElement(-10, 0)">LEFT</button>
-                  <button type="button" class="control-icon-btn" @click="nudgeActiveElement(10, 0)">RIGHT</button>
-                  <button type="button" class="control-icon-btn col-start-2" @click="nudgeActiveElement(0, 10)">DOWN</button>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(0.06, 0.06)">ZOOM +</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(-0.06, -0.06)">ZOOM -</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveRotation(-5)">ROTATE L</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveRotation(5)">ROTATE R</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(0.06, 0)">WIDTH +</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(-0.06, 0)">WIDTH -</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(0, 0.06)">HEIGHT +</button>
-                <button type="button" class="control-action-btn" @click="adjustActiveScale(0, -0.06)">HEIGHT -</button>
-              </div>
+              <p class="rounded-xl border border-matcha/35 bg-matcha/10 px-3 py-2 text-xs font-semibold text-take">
+                Gunakan handle hijau di preview: handle kanan-bawah untuk memperbesar/mengecilkan, handle bulat atas untuk memutar elemen.
+              </p>
 
               <div class="grid grid-cols-2 gap-2">
                 <button type="button" class="rounded-lg border border-sumi/20 bg-shironeri px-2 py-2 text-[11px] font-bold tracking-[0.06em] text-usuzemi uppercase" @click="resetActiveTransform">
@@ -942,6 +951,18 @@ interface DragState {
   initY: number
 }
 
+interface TransformState {
+  id: string
+  mode: 'scale' | 'rotate'
+  centerClientX: number
+  centerClientY: number
+  startDistance: number
+  startAngle: number
+  initialScaleX: number
+  initialScaleY: number
+  initialRotation: number
+}
+
 interface StudioLayerFile {
   id: number
   file: string
@@ -1021,7 +1042,7 @@ const wizardSteps: WizardStep[] = [
   {
     id: 6,
     title: 'Kontrol Cepat Teks & Logo',
-    subtitle: 'Atur rotate, zoom, width, dan height elemen dengan kontrol cepat.',
+    subtitle: 'Edit elemen langsung di preview dengan drag, rotate handle, dan scale handle.',
   },
   {
     id: 7,
@@ -1178,6 +1199,7 @@ const patternBaseFileRef = ref<string | null>(null)
 const drawFrameRef = ref<number | null>(null)
 const toastTimerRef = ref<number | null>(null)
 const dragRef = ref<DragState | null>(null)
+const transformRef = ref<TransformState | null>(null)
 const pointerMovedRef = ref(false)
 const resizeObserverRef = ref<ResizeObserver | null>(null)
 const viewerObserverRef = ref<IntersectionObserver | null>(null)
@@ -1186,6 +1208,8 @@ const loadRunRef = ref(0)
 const elementCounterRef = ref(0)
 const uploadCounterRef = ref(0)
 const lastLoadedModelRef = ref<string | null>(null)
+const textMeasureCanvasRef = ref<HTMLCanvasElement | null>(null)
+const textMeasureContextRef = ref<CanvasRenderingContext2D | null>(null)
 
 const catalogFolders = ref<StudioFolderMeta[]>([])
 const catalogLoading = ref(false)
@@ -1433,6 +1457,54 @@ function getTextDims(ctx: CanvasRenderingContext2D, text: string, fontSize: numb
   return {
     width: Math.max(metrics.width, fontSize * 0.5),
     height: fontSize,
+  }
+}
+
+function getTextMeasureContext(): CanvasRenderingContext2D | null {
+  if (textMeasureContextRef.value) {
+    return textMeasureContextRef.value
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 2
+  canvas.height = 2
+
+  textMeasureCanvasRef.value = canvas
+  textMeasureContextRef.value = canvas.getContext('2d')
+
+  return textMeasureContextRef.value
+}
+
+function getElementBaseSize(item: CustomElement): { width: number; height: number } {
+  if (item.type === 'image') {
+    const ratio = item.naturalHeight / Math.max(1, item.naturalWidth)
+
+    return {
+      width: item.size,
+      height: item.size * ratio,
+    }
+  }
+
+  const measureContext = getTextMeasureContext()
+
+  if (!measureContext) {
+    return {
+      width: Math.max(item.size * 1.8, 20),
+      height: Math.max(item.size, 16),
+    }
+  }
+
+  return getTextDims(measureContext, item.text, item.size)
+}
+
+function getElementScaledSize(item: CustomElement): { width: number; height: number } {
+  const base = getElementBaseSize(item)
+  const scaleX = Math.abs(item.scaleX ?? 1)
+  const scaleY = Math.abs(item.scaleY ?? 1)
+
+  return {
+    width: Math.max(base.width * scaleX, 12),
+    height: Math.max(base.height * scaleY, 12),
   }
 }
 
@@ -2251,7 +2323,9 @@ function getTextElementStyle(item: TextElement): CSSProperties {
 
   const style: CSSProperties = {
     transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg) scale(${scaleX}, ${scaleY})`,
+    transformOrigin: 'top left',
     fontSize: `${item.size * scale.value}px`,
+    fontFamily: 'Hanken Grotesk, sans-serif',
     color: item.color,
     lineHeight: '1',
     fontWeight: '900',
@@ -2269,10 +2343,24 @@ function getImageElementStyle(item: ImageElement): CSSProperties {
 
   return {
     transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg) scale(${scaleX}, ${scaleY})`,
+    transformOrigin: 'top left',
     width: `${item.size * scale.value}px`,
     height: `${item.size * ratio * scale.value}px`,
     opacity: String(item.opacity),
     filter: 'drop-shadow(0 3px 8px rgba(15, 23, 42, 0.24))',
+  }
+}
+
+function getActiveElementHandleStyle(item: CustomElement): CSSProperties {
+  const dims = getElementScaledSize(item)
+
+  return {
+    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg)`,
+    width: `${dims.width * scale.value}px`,
+    height: `${dims.height * scale.value}px`,
+    transformOrigin: 'top left',
+    boxShadow: '0 0 0 1px rgba(18, 94, 64, 0.32)',
+    background: 'rgba(124, 140, 90, 0.04)',
   }
 }
 
@@ -2319,6 +2407,10 @@ function handleViewerClick(event: MouseEvent): void {
   }
 
   const target = event.target as HTMLElement
+
+  if (target.closest('[data-transform-handle="true"]')) {
+    return
+  }
 
   if (target.closest('[data-draggable="true"]')) {
     return
@@ -2413,6 +2505,7 @@ function handlePointerUp(): void {
 function startDragElement(event: PointerEvent, id: string): void {
   event.preventDefault()
   event.stopPropagation()
+  stopTransformInteraction()
 
   const item = customElements.value.find((element) => element.id === id)
 
@@ -2433,6 +2526,101 @@ function startDragElement(event: PointerEvent, id: string): void {
 
   window.addEventListener('pointermove', handlePointerMove)
   window.addEventListener('pointerup', handlePointerUp)
+}
+
+function beginTransformInteraction(event: PointerEvent, id: string, mode: 'scale' | 'rotate'): void {
+  const viewer = viewerRef.value
+  const element = customElements.value.find((item) => item.id === id)
+
+  if (!viewer || !element) {
+    return
+  }
+
+  pointerMovedRef.value = true
+  activeElementId.value = id
+
+  const rect = viewer.getBoundingClientRect()
+  const dims = getElementScaledSize(element)
+  const centerCanvasX = element.x + dims.width / 2
+  const centerCanvasY = element.y + dims.height / 2
+  const centerClientX = rect.left + (centerCanvasX * rect.width) / CANVAS_SIZE
+  const centerClientY = rect.top + (centerCanvasY * rect.height) / CANVAS_SIZE
+  const dx = event.clientX - centerClientX
+  const dy = event.clientY - centerClientY
+
+  transformRef.value = {
+    id,
+    mode,
+    centerClientX,
+    centerClientY,
+    startDistance: Math.max(1, Math.hypot(dx, dy)),
+    startAngle: Math.atan2(dy, dx),
+    initialScaleX: element.scaleX ?? 1,
+    initialScaleY: element.scaleY ?? 1,
+    initialRotation: element.rotation,
+  }
+
+  window.addEventListener('pointermove', handleTransformPointerMove)
+  window.addEventListener('pointerup', stopTransformInteraction)
+}
+
+function handleTransformPointerMove(event: PointerEvent): void {
+  const state = transformRef.value
+
+  if (!state) {
+    return
+  }
+
+  const dx = event.clientX - state.centerClientX
+  const dy = event.clientY - state.centerClientY
+
+  if (state.mode === 'scale') {
+    const ratio = clampValue(Math.hypot(dx, dy) / state.startDistance, 0.2, 3.2)
+    const nextScaleX = clampValue(state.initialScaleX * ratio, 0.2, 3)
+    const nextScaleY = clampValue(state.initialScaleY * ratio, 0.2, 3)
+
+    updateElement(state.id, (item) => {
+      return {
+        ...item,
+        scaleX: nextScaleX,
+        scaleY: nextScaleY,
+      }
+    })
+
+    return
+  }
+
+  const angle = Math.atan2(dy, dx)
+  let delta = ((angle - state.startAngle) * 180) / Math.PI
+
+  if (delta > 180) {
+    delta -= 360
+  }
+
+  if (delta < -180) {
+    delta += 360
+  }
+
+  updateElement(state.id, (item) => {
+    return {
+      ...item,
+      rotation: state.initialRotation + delta,
+    }
+  })
+}
+
+function stopTransformInteraction(): void {
+  transformRef.value = null
+  window.removeEventListener('pointermove', handleTransformPointerMove)
+  window.removeEventListener('pointerup', stopTransformInteraction)
+}
+
+function startScaleTransform(event: PointerEvent, id: string): void {
+  beginTransformInteraction(event, id, 'scale')
+}
+
+function startRotateTransform(event: PointerEvent, id: string): void {
+  beginTransformInteraction(event, id, 'rotate')
 }
 
 function onTextInput(event: Event): void {
@@ -2474,41 +2662,6 @@ function updateActiveTransform(patch: Partial<ElementBase>): void {
   updateActiveImage(patch)
 }
 
-function nudgeActiveElement(dx: number, dy: number): void {
-  if (!activeElement.value) {
-    return
-  }
-
-  updateActiveTransform({
-    x: activeElement.value.x + dx,
-    y: activeElement.value.y + dy,
-  })
-}
-
-function adjustActiveRotation(delta: number): void {
-  if (!activeElement.value) {
-    return
-  }
-
-  updateActiveTransform({
-    rotation: activeElement.value.rotation + delta,
-  })
-}
-
-function adjustActiveScale(deltaX: number, deltaY: number): void {
-  if (!activeElement.value) {
-    return
-  }
-
-  const nextScaleX = clampValue((activeElement.value.scaleX ?? 1) + deltaX, 0.2, 3)
-  const nextScaleY = clampValue((activeElement.value.scaleY ?? 1) + deltaY, 0.2, 3)
-
-  updateActiveTransform({
-    scaleX: nextScaleX,
-    scaleY: nextScaleY,
-  })
-}
-
 function resetActiveTransform(): void {
   if (!activeElement.value) {
     return
@@ -2530,6 +2683,33 @@ async function drawElementsToCanvas(
   const ratioX = targetWidth / CANVAS_SIZE
   const ratioY = targetHeight / CANVAS_SIZE
 
+  const getMirrorTopLeft = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    rotation: number,
+    scaleX: number,
+    scaleY: number,
+  ): { x: number; y: number; rotation: number } => {
+    const mirroredRotation = 180 - rotation
+    const theta = (mirroredRotation * Math.PI) / 180
+    const centerX = x + width / 2
+    const centerY = y + height / 2
+    const mirroredCenterY = targetHeight - centerY
+
+    const vx = -(width / 2) * scaleX
+    const vy = -(height / 2) * scaleY
+    const offsetX = vx * Math.cos(theta) - vy * Math.sin(theta)
+    const offsetY = vx * Math.sin(theta) + vy * Math.cos(theta)
+
+    return {
+      x: centerX + offsetX,
+      y: mirroredCenterY + offsetY,
+      rotation: mirroredRotation,
+    }
+  }
+
   for (const element of customElements.value) {
     if (element.type === 'image') {
       const image = await loadImage(element.src)
@@ -2541,46 +2721,53 @@ async function drawElementsToCanvas(
       const imageHeight = element.size * (element.naturalHeight / Math.max(1, element.naturalWidth))
       const drawW = element.size * ratioX
       const drawH = imageHeight * ratioY
-      const centerX = (element.x + element.size / 2) * ratioX
-      const centerY = (element.y + imageHeight / 2) * ratioY
+      const x = element.x * ratioX
+      const y = element.y * ratioY
+      const sx = element.scaleX ?? 1
+      const sy = element.scaleY ?? 1
 
-      const drawImageAt = (x: number, y: number, rotationDeg: number): void => {
+      const drawImageAt = (xPos: number, yPos: number, rotationDeg: number): void => {
         ctx.save()
         ctx.globalAlpha = element.opacity
-        ctx.translate(x, y)
+        ctx.translate(xPos, yPos)
         ctx.rotate((rotationDeg * Math.PI) / 180)
-        ctx.scale(element.scaleX ?? 1, element.scaleY ?? 1)
-        ctx.drawImage(image, -drawW / 2, -drawH / 2, drawW, drawH)
+        ctx.scale(sx, sy)
+        ctx.drawImage(image, 0, 0, drawW, drawH)
         ctx.restore()
       }
 
-      drawImageAt(centerX, centerY, element.rotation)
+      drawImageAt(x, y, element.rotation)
 
       if (mirror) {
-        drawImageAt(centerX, targetHeight - centerY, 180 - element.rotation)
+        const mirrored = getMirrorTopLeft(x, y, drawW, drawH, element.rotation, sx, sy)
+        drawImageAt(mirrored.x, mirrored.y, mirrored.rotation)
       }
 
       continue
     }
 
     const fontSize = element.size * ratioX
-    const dims = getTextDims(ctx, element.text, fontSize)
-    const centerX = (element.x + dims.width / (2 * ratioX)) * ratioX
-    const centerY = (element.y + dims.height / (2 * ratioY)) * ratioY
+    const drawW = getTextDims(ctx, element.text, fontSize).width
+    const drawH = fontSize
+    const x = element.x * ratioX
+    const y = element.y * ratioY
+    const sx = element.scaleX ?? 1
+    const sy = element.scaleY ?? 1
 
-    const drawTextAt = (x: number, y: number, rotationDeg: number): void => {
+    const drawTextAt = (xPos: number, yPos: number, rotationDeg: number): void => {
       ctx.save()
-      ctx.translate(x, y)
+      ctx.translate(xPos, yPos)
       ctx.rotate((rotationDeg * Math.PI) / 180)
-      ctx.scale(element.scaleX ?? 1, element.scaleY ?? 1)
-      ctx.font = `800 ${fontSize}px Hanken Grotesk, sans-serif`
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
+      ctx.scale(sx, sy)
+      ctx.font = `900 ${fontSize}px Hanken Grotesk, sans-serif`
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
 
       if (element.strokeSize > 0) {
-        ctx.lineWidth = Math.max(1, element.strokeSize * ratioX * 2)
+        ctx.lineWidth = Math.max(0.5, element.strokeSize * ratioX)
         ctx.strokeStyle = element.strokeColor
         ctx.lineJoin = 'round'
+        ctx.miterLimit = 2
         ctx.strokeText(element.text, 0, 0)
       }
 
@@ -2589,10 +2776,11 @@ async function drawElementsToCanvas(
       ctx.restore()
     }
 
-    drawTextAt(centerX, centerY, element.rotation)
+    drawTextAt(x, y, element.rotation)
 
     if (mirror) {
-      drawTextAt(centerX, targetHeight - centerY, 180 - element.rotation)
+      const mirrored = getMirrorTopLeft(x, y, drawW, drawH, element.rotation, sx, sy)
+      drawTextAt(mirrored.x, mirrored.y, mirrored.rotation)
     }
   }
 }
@@ -2932,6 +3120,8 @@ onUnmounted(() => {
 
   window.removeEventListener('pointermove', handlePointerMove)
   window.removeEventListener('pointerup', handlePointerUp)
+  window.removeEventListener('pointermove', handleTransformPointerMove)
+  window.removeEventListener('pointerup', stopTransformInteraction)
 
   resizeObserverRef.value?.disconnect()
   viewerObserverRef.value?.disconnect()
@@ -3012,6 +3202,62 @@ onUnmounted(() => {
   border-color: rgba(20, 20, 20, 0.34);
   background: #f4f4ef;
   color: #111;
+}
+
+.transform-handle {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: #125e40;
+  color: #f6f5f0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.transform-handle:hover {
+  background: #0d4a32;
+}
+
+.transform-handle-rotate {
+  top: -1.95rem;
+  left: 50%;
+  width: 1.65rem;
+  height: 1.65rem;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+
+.transform-handle-rotate:active {
+  cursor: grabbing;
+  transform: translateX(-50%) scale(0.94);
+}
+
+.transform-handle-scale {
+  right: -0.78rem;
+  bottom: -0.78rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  cursor: nwse-resize;
+}
+
+.transform-handle-scale:active {
+  transform: scale(0.94);
+}
+
+.transform-handle-connector {
+  position: absolute;
+  top: -1.15rem;
+  left: 50%;
+  width: 2px;
+  height: 1.15rem;
+  transform: translateX(-50%);
+  background: rgba(18, 94, 64, 0.72);
 }
 
 .editor-scroll::-webkit-scrollbar {
