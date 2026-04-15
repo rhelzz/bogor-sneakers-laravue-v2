@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class StudioAssetController extends Controller
 {
-    private const CACHE_KEY = 'studio-custom:asset-catalog:v1';
+    private const CACHE_KEY = 'studio-custom:asset-catalog:v2';
 
     public function catalog(Request $request): JsonResponse
     {
@@ -119,12 +119,15 @@ class StudioAssetController extends Controller
                 continue;
             }
 
-            if (! preg_match('/_aksen(\d+)\.svg$/i', $file, $matches)) {
+            if (! preg_match('/_aksen\s*(\d+)(?:\s*\(\d+\))?\.svg$/i', $file, $matches)) {
                 continue;
             }
 
             $id = (int) $matches[1];
-            $layerMap[$id] = $file;
+
+            if (! isset($layerMap[$id])) {
+                $layerMap[$id] = $file;
+            }
         }
 
         ksort($layerMap);
@@ -147,12 +150,15 @@ class StudioAssetController extends Controller
         $layerMap = [];
 
         foreach ($files as $file) {
-            if (! preg_match('/_pola\s+aksen(\d+)(?:\.png)?\.svg$/i', $file, $matches)) {
+            if (! preg_match('/_pola\s+aksen\s*(\d+)(?:\s*\(\d+\))?(?:\.png)?\.svg$/i', $file, $matches)) {
                 continue;
             }
 
             $id = (int) $matches[1];
-            $layerMap[$id] = $file;
+
+            if (! isset($layerMap[$id])) {
+                $layerMap[$id] = $file;
+            }
         }
 
         ksort($layerMap);

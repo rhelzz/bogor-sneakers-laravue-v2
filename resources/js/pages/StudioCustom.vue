@@ -17,22 +17,22 @@
           <div>
             <div class="mb-5 flex items-center gap-3 animate-slide-up">
               <span class="h-2 w-2 animate-pulse-soft rounded-full bg-matcha"></span>
-              <span class="text-xs tracking-[0.28em] text-hai">BOGORSNEAKER CUSTOM STUDIO</span>
+              <span class="text-xs tracking-[0.28em] text-hai">BOGORSNEAKER GUEST ORDER</span>
             </div>
             <h1 class="font-heading animate-slide-up text-4xl leading-[0.95] font-bold tracking-tight text-sumi lg:text-6xl" style="animation-delay: 0.1s">
-              Custom Studio
-              <span class="block text-matcha">Japanese Craft Interface</span>
+              Custom Model
+              <span class="block text-matcha">Guest Order</span>
             </h1>
             <p class="mt-5 max-w-2xl animate-slide-up leading-relaxed text-usuzemi" style="animation-delay: 0.2s">
-              Editor ini membaca aset langsung dari katalog SVG internal, mendukung multi model,
-              upload gambar sementara, dan generator warna berbasis palet visual gambar Anda.
+              Halaman ini difokuskan untuk guest order custom model: pilih model, atur material,
+              personalisasi artwork, lalu lanjutkan checkout tanpa akun.
             </p>
             <div class="mt-7 flex animate-slide-up flex-wrap items-center gap-3" style="animation-delay: 0.3s">
               <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
                 LIVE SVG RENDER
               </span>
               <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
-                TEMP IMAGE UPLOAD
+                PREMIUM ARTWORK UPLOAD
               </span>
               <span class="rounded-full border border-sumi/15 bg-washi/90 px-4 py-2 text-[11px] font-semibold tracking-[0.12em] text-usuzemi">
                 EXPORT PREVIEW + POLA
@@ -44,9 +44,9 @@
             <div class="pointer-events-none absolute right-3 bottom-3 text-[78px] leading-none text-washi/8">和</div>
             <p class="vertical-text absolute top-5 right-4 text-[11px] tracking-[0.2em] text-washi/30">スタジオ カスタム</p>
             <p class="text-xs tracking-[0.18em] text-washi/60">STATUS</p>
-            <p class="mt-2 text-2xl font-bold text-matcha">Production Ready</p>
+            <p class="mt-2 text-2xl font-bold text-matcha">Custom Model Guest Order</p>
             <p class="mt-4 text-sm leading-relaxed text-washi/75">
-              Pilih model, pasang elemen desain, sesuaikan aksen, lalu ekspor file siap kirim ke buyer.
+              Pilih model, sesuaikan desain, lalu lanjutkan guest checkout untuk proses order pembeli.
             </p>
             <div class="mt-6 flex items-center gap-2 text-xs text-washi/70">
               <span class="h-2 w-2 animate-pulse rounded-full bg-matcha"></span>
@@ -126,7 +126,7 @@
                 ID/WA: <span>{{ phone || '-' }}</span> | Nama: <span>{{ name || '-' }}</span> | Size: <span>{{ shoeSize || '-' }}</span>
               </p>
               <p class="mt-0.5">
-                Folder: <span>{{ folderNo || '-' }}</span> | OP: <span>{{ operatorName || '-' }}</span>
+                O: <span>{{ selectedOutsoleShort }}</span> | M: <span>{{ selectedMidsoleShort }}</span> | I: <span>{{ selectedInsoleShort }}</span>
               </p>
             </div>
 
@@ -153,6 +153,63 @@
 
         <div class="space-y-5">
           <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[11px] font-black tracking-[0.14em] text-hai uppercase">Wizard Guest Checkout</p>
+                <h2 class="mt-1 font-heading text-xl leading-tight font-bold text-sumi">{{ currentStepMeta.title }}</h2>
+                <p class="mt-1 text-xs leading-relaxed text-usuzemi">{{ currentStepMeta.subtitle }}</p>
+              </div>
+              <div class="flex flex-col items-end gap-2">
+                <p class="rounded-full border border-sumi/15 bg-shironeri px-3 py-1 text-[11px] font-bold tracking-[0.08em] text-usuzemi">
+                  Langkah {{ currentStep }} / {{ TOTAL_STEPS }}
+                </p>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="rounded-full border border-sumi/20 px-3 py-1.5 text-[11px] font-black tracking-widest text-usuzemi uppercase transition disabled:cursor-not-allowed disabled:opacity-40"
+                    :disabled="currentStep === 1"
+                    @click="goToPreviousStep"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    v-if="currentStep < TOTAL_STEPS"
+                    type="button"
+                    class="rounded-full bg-sumi px-3 py-1.5 text-[11px] font-black tracking-widest text-washi uppercase transition hover:bg-kuro"
+                    @click="goToNextStep"
+                  >
+                    Next
+                  </button>
+
+                  <span v-else class="text-[11px] font-semibold tracking-[0.06em] text-usuzemi uppercase">
+                    Final
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-sumi/10">
+              <div class="h-full rounded-full bg-matcha transition-all duration-300" :style="{ width: `${wizardProgress}%` }"></div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-4 gap-1 sm:grid-cols-8">
+              <div
+                v-for="step in wizardSteps"
+                :key="`wizard-step-${step.id}`"
+                class="rounded-lg border px-1 py-1.5 text-center text-[10px] font-bold"
+                :class="step.id === currentStep
+                  ? 'border-matcha bg-matcha/20 text-take'
+                  : (step.id < currentStep
+                    ? 'border-sumi/20 bg-shironeri text-sumi'
+                    : 'border-sumi/10 bg-white text-hai')"
+              >
+                {{ step.id }}
+              </div>
+            </div>
+          </article>
+
+          <article v-if="currentStep === 1" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
             <div class="mb-4 flex items-center justify-between gap-3">
               <h2 class="font-heading text-base font-bold text-sumi">1. Pilih Family Model</h2>
               <button
@@ -211,10 +268,82 @@
             </div>
           </article>
 
-          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
-            <h2 class="font-heading text-base font-bold text-sumi">2. Tambah Teks & Gambar Sementara</h2>
+          <article v-else-if="currentStep === 2" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">2. Pilih Outsole (Sol Luar)</h2>
             <p class="mt-1 text-xs leading-relaxed text-usuzemi">
-              Upload hanya diproses di browser, tidak disimpan ke database.
+              Outsole menentukan grip, ketahanan abrasi, dan karakter pijakan saat dipakai harian.
+            </p>
+
+            <div class="mt-4 grid gap-2">
+              <button
+                v-for="option in outsoleOptions"
+                :key="`outsole-${option.key}`"
+                type="button"
+                class="rounded-2xl border p-3 text-left transition"
+                :class="selectedOutsole === option.key
+                  ? 'border-matcha bg-matcha/15 shadow-sm'
+                  : 'border-sumi/15 bg-shironeri hover:border-sumi/35'"
+                @click="selectedOutsole = option.key"
+              >
+                <p class="text-sm font-black text-sumi">{{ option.title }}</p>
+                <p class="mt-1 text-xs leading-relaxed text-usuzemi">{{ option.description }}</p>
+                <p class="mt-1 text-[11px] font-semibold text-take">{{ option.highlight }}</p>
+              </button>
+            </div>
+          </article>
+
+          <article v-else-if="currentStep === 3" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">3. Pilih Midsole (Sol Tengah)</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Midsole menentukan tingkat bantalan, respons pijakan, dan stabilitas kaki.
+            </p>
+
+            <div class="mt-4 grid gap-2">
+              <button
+                v-for="option in midsoleOptions"
+                :key="`midsole-${option.key}`"
+                type="button"
+                class="rounded-2xl border p-3 text-left transition"
+                :class="selectedMidsole === option.key
+                  ? 'border-matcha bg-matcha/15 shadow-sm'
+                  : 'border-sumi/15 bg-shironeri hover:border-sumi/35'"
+                @click="selectedMidsole = option.key"
+              >
+                <p class="text-sm font-black text-sumi">{{ option.title }}</p>
+                <p class="mt-1 text-xs leading-relaxed text-usuzemi">{{ option.description }}</p>
+                <p class="mt-1 text-[11px] font-semibold text-take">{{ option.highlight }}</p>
+              </button>
+            </div>
+          </article>
+
+          <article v-else-if="currentStep === 4" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">4. Pilih Insole (Sol Dalam)</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Insole berpengaruh besar ke kenyamanan, hygiene, dan dukungan telapak kaki.
+            </p>
+
+            <div class="mt-4 grid gap-2">
+              <button
+                v-for="option in insoleOptions"
+                :key="`insole-${option.key}`"
+                type="button"
+                class="rounded-2xl border p-3 text-left transition"
+                :class="selectedInsole === option.key
+                  ? 'border-matcha bg-matcha/15 shadow-sm'
+                  : 'border-sumi/15 bg-shironeri hover:border-sumi/35'"
+                @click="selectedInsole = option.key"
+              >
+                <p class="text-sm font-black text-sumi">{{ option.title }}</p>
+                <p class="mt-1 text-xs leading-relaxed text-usuzemi">{{ option.description }}</p>
+                <p class="mt-1 text-[11px] font-semibold text-take">{{ option.highlight }}</p>
+              </button>
+            </div>
+          </article>
+
+          <article v-else-if="currentStep === 5" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">5. Personalisasi Teks & Artwork</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Tambahkan teks identitas, logo, atau artwork favorit untuk menyesuaikan karakter pesanan.
             </p>
 
             <div class="mt-4 grid grid-cols-2 gap-2">
@@ -230,7 +359,7 @@
                 class="rounded-xl border border-sumi/25 bg-shironeri px-3 py-2 text-xs font-extrabold tracking-[0.08em] text-usuzemi uppercase transition hover:border-sumi/45 hover:text-sumi"
                 @click="triggerUpload"
               >
-                Upload Gambar
+                Upload Artwork
               </button>
             </div>
 
@@ -242,7 +371,7 @@
               @dragleave.prevent="isDropActive = false"
               @drop.prevent="handleDropUpload"
             >
-              <p class="text-sm font-semibold text-sumi">Drop image ke sini</p>
+              <p class="text-sm font-semibold text-sumi">Drop artwork ke sini</p>
               <p class="mt-1 text-xs text-usuzemi">PNG, JPG, WEBP. Bisa upload banyak sekaligus.</p>
               <button
                 type="button"
@@ -255,7 +384,7 @@
 
             <div class="mt-4">
               <div class="mb-2 flex items-center justify-between">
-                <p class="text-[11px] font-bold tracking-[0.12em] text-hai uppercase">Library Upload Sementara</p>
+                <p class="text-[11px] font-bold tracking-[0.12em] text-hai uppercase">Koleksi Artwork</p>
                 <button
                   v-if="uploadedMedia.length > 0"
                   type="button"
@@ -267,7 +396,7 @@
               </div>
 
               <div v-if="uploadedMedia.length === 0" class="rounded-xl border border-sumi/10 bg-shironeri px-3 py-4 text-center text-xs font-semibold text-hai">
-                Belum ada gambar diupload.
+                Belum ada artwork yang dipilih.
               </div>
 
               <div v-else class="editor-scroll max-h-54 space-y-2 overflow-y-auto pr-1">
@@ -304,7 +433,7 @@
                           class="rounded-md bg-sumi px-2 py-1 text-[10px] font-bold tracking-[0.06em] text-washi uppercase"
                           @click="addUploadAsElement(media.id)"
                         >
-                          Pakai
+                          Pasang
                         </button>
                         <button
                           type="button"
@@ -329,7 +458,7 @@
 
             <div class="mt-4 rounded-xl border border-matcha/30 bg-matcha/10 p-3">
               <div class="flex items-center justify-between gap-2">
-                <p class="text-[11px] font-bold tracking-[0.12em] text-take uppercase">Palette Source</p>
+                <p class="text-[11px] font-bold tracking-[0.12em] text-take uppercase">Sumber Palet</p>
                 <p class="text-xs font-semibold text-usuzemi">{{ selectedPaletteLabel }}</p>
               </div>
               <div class="mt-2 flex flex-wrap gap-1.5">
@@ -361,15 +490,18 @@
             </div>
           </article>
 
-          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
-            <h2 class="font-heading text-base font-bold text-sumi">3. Edit Elemen Aktif</h2>
+          <article v-else-if="currentStep === 6" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">6. Kontrol Cepat Teks & Logo</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Kontrol elemen aktif dengan tombol cepat seperti editor desain: geser, zoom, rotate, dan stretch.
+            </p>
 
             <div v-if="!activeElement" class="mt-4 rounded-xl border border-dashed border-sumi/20 bg-shironeri px-3 py-4 text-center text-xs font-semibold text-hai">
               Pilih elemen teks atau gambar di preview untuk mulai edit.
             </div>
 
             <div v-else class="mt-4 space-y-3">
-              <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center justify-between gap-2 rounded-xl border border-sumi/15 bg-shironeri px-3 py-2">
                 <p class="text-xs font-black tracking-[0.16em] text-usuzemi uppercase">
                   {{ activeElement.type === 'text' ? 'Mode Teks' : 'Mode Gambar' }}
                 </p>
@@ -467,57 +599,40 @@
                 </label>
               </template>
 
+              <div class="rounded-xl border border-sumi/15 bg-white p-3">
+                <p class="text-[11px] font-bold tracking-widest text-usuzemi uppercase">Move</p>
+                <div class="mt-2 grid grid-cols-3 gap-2">
+                  <button type="button" class="control-icon-btn col-start-2" @click="nudgeActiveElement(0, -10)">UP</button>
+                  <button type="button" class="control-icon-btn" @click="nudgeActiveElement(-10, 0)">LEFT</button>
+                  <button type="button" class="control-icon-btn" @click="nudgeActiveElement(10, 0)">RIGHT</button>
+                  <button type="button" class="control-icon-btn col-start-2" @click="nudgeActiveElement(0, 10)">DOWN</button>
+                </div>
+              </div>
+
               <div class="grid grid-cols-2 gap-2">
-                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
-                  Ukuran (px)
-                  <input
-                    type="number"
-                    min="20"
-                    max="600"
-                    :value="activeElement.size"
-                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
-                    @input="onElementSizeInput"
-                  >
-                </label>
-                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
-                  Putar (deg)
-                  <input
-                    type="number"
-                    min="-360"
-                    max="360"
-                    :value="activeElement.rotation"
-                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
-                    @input="onElementRotationInput"
-                  >
-                </label>
-                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
-                  Posisi X
-                  <input
-                    type="number"
-                    min="-500"
-                    max="1500"
-                    :value="activeElement.x"
-                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
-                    @input="onElementXInput"
-                  >
-                </label>
-                <label class="text-[10px] font-bold tracking-[0.08em] text-hai uppercase">
-                  Posisi Y
-                  <input
-                    type="number"
-                    min="-500"
-                    max="1500"
-                    :value="activeElement.y"
-                    class="mt-1 h-9 w-full rounded-md border border-sumi/20 bg-white px-2 text-xs"
-                    @input="onElementYInput"
-                  >
-                </label>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(0.06, 0.06)">ZOOM +</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(-0.06, -0.06)">ZOOM -</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveRotation(-5)">ROTATE L</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveRotation(5)">ROTATE R</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(0.06, 0)">WIDTH +</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(-0.06, 0)">WIDTH -</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(0, 0.06)">HEIGHT +</button>
+                <button type="button" class="control-action-btn" @click="adjustActiveScale(0, -0.06)">HEIGHT -</button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" class="rounded-lg border border-sumi/20 bg-shironeri px-2 py-2 text-[11px] font-bold tracking-[0.06em] text-usuzemi uppercase" @click="resetActiveTransform">
+                  Reset Transform
+                </button>
+                <button type="button" class="rounded-lg border border-sumi/20 bg-shironeri px-2 py-2 text-[11px] font-bold tracking-[0.06em] text-usuzemi uppercase" @click="duplicateActiveElement">
+                  Duplicate
+                </button>
               </div>
             </div>
           </article>
 
-          <article class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
-            <h2 class="font-heading text-base font-bold text-sumi">4. Warna Aksen & Outline</h2>
+          <article v-else-if="currentStep === 7" class="card-lift rounded-3xl border border-sumi/10 bg-washi/95 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">7. Warna Aksen & Outline</h2>
 
             <button
               type="button"
@@ -585,8 +700,11 @@
             </div>
           </article>
 
-          <article class="card-lift rounded-3xl border-2 border-matcha/45 bg-matcha/10 p-5 shadow-sm">
-            <h2 class="font-heading text-base font-bold text-sumi">5. Konfirmasi & Export</h2>
+          <article v-else class="card-lift rounded-3xl border-2 border-matcha/45 bg-matcha/10 p-5 shadow-sm">
+            <h2 class="font-heading text-base font-bold text-sumi">8. Guest Checkout & Export</h2>
+            <p class="mt-1 text-xs leading-relaxed text-usuzemi">
+              Lengkapi data pembeli, aktifkan add-on layanan, lalu proses file checkout untuk konfirmasi pesanan.
+            </p>
 
             <div class="mt-4 grid gap-3">
               <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
@@ -611,6 +729,16 @@
               </label>
 
               <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Email
+                <input
+                  v-model="guestEmail"
+                  type="email"
+                  class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
+                  placeholder="Wajib diisi"
+                >
+              </label>
+
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
                 Ukuran Sepatu
                 <select
                   v-model="shoeSize"
@@ -623,25 +751,74 @@
                 </select>
               </label>
 
-              <div class="grid grid-cols-2 gap-2">
-                <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
-                  No Folder
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Alamat Pengiriman
+                <textarea
+                  v-model="guestAddress"
+                  rows="3"
+                  class="mt-1 w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm font-semibold text-sumi"
+                  placeholder="Wajib diisi"
+                ></textarea>
+              </label>
+
+              <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
+                Catatan Tambahan
+                <textarea
+                  v-model="guestNotes"
+                  rows="2"
+                  class="mt-1 w-full rounded-xl border border-sumi/20 bg-white px-3 py-2 text-sm font-semibold text-sumi"
+                  placeholder="Opsional"
+                ></textarea>
+              </label>
+
+              <div class="space-y-2 rounded-xl border border-sumi/15 bg-shironeri p-3">
+                <label class="flex items-start gap-3 text-sm font-semibold text-sumi">
                   <input
-                    v-model="folderNo"
-                    type="text"
-                    class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
-                    placeholder="Wajib"
+                    v-model="fastTrackEnabled"
+                    type="checkbox"
+                    class="mt-1 h-4 w-4 rounded border-sumi/40"
                   >
+                  <span>
+                    Fast Track Production
+                    <span class="mt-0.5 block text-xs font-semibold text-usuzemi">Prioritas antrean produksi (+{{ formatCurrency(FAST_TRACK_FEE) }})</span>
+                  </span>
                 </label>
-                <label class="text-xs font-bold tracking-[0.08em] text-usuzemi uppercase">
-                  Operator
+
+                <label class="flex items-start gap-3 text-sm font-semibold text-sumi">
                   <input
-                    v-model="operatorName"
-                    type="text"
-                    class="mt-1 h-11 w-full rounded-xl border border-sumi/20 bg-white px-3 text-sm font-semibold text-sumi"
-                    placeholder="Wajib"
+                    v-model="customBoxEnabled"
+                    type="checkbox"
+                    class="mt-1 h-4 w-4 rounded border-sumi/40"
                   >
+                  <span>
+                    Custom Box Premium
+                    <span class="mt-0.5 block text-xs font-semibold text-usuzemi">Box eksklusif untuk gift-ready delivery (+{{ formatCurrency(CUSTOM_BOX_FEE) }})</span>
+                  </span>
                 </label>
+              </div>
+
+              <div class="rounded-xl border border-sumi/15 bg-white p-3">
+                <p class="text-[11px] font-bold tracking-[0.12em] text-hai uppercase">Ringkasan Biaya (Dummy)</p>
+                <div class="mt-2 space-y-1 text-sm text-usuzemi">
+                  <p class="flex items-center justify-between gap-2">
+                    <span>Base Custom Pair</span>
+                    <span class="font-semibold text-sumi">{{ formatCurrency(BASE_PRODUCT_PRICE) }}</span>
+                  </p>
+                  <p class="flex items-center justify-between gap-2">
+                    <span>Fast Track</span>
+                    <span class="font-semibold text-sumi">{{ fastTrackEnabled ? formatCurrency(FAST_TRACK_FEE) : formatCurrency(0) }}</span>
+                  </p>
+                  <p class="flex items-center justify-between gap-2">
+                    <span>Custom Box</span>
+                    <span class="font-semibold text-sumi">{{ customBoxEnabled ? formatCurrency(CUSTOM_BOX_FEE) : formatCurrency(0) }}</span>
+                  </p>
+                </div>
+                <div class="mt-3 border-t border-sumi/15 pt-3">
+                  <p class="flex items-center justify-between gap-2 text-sm font-black text-sumi">
+                    <span>Total Estimasi</span>
+                    <span>{{ formatCurrency(guestCheckoutTotal) }}</span>
+                  </p>
+                </div>
               </div>
 
               <button
@@ -650,7 +827,7 @@
                 :disabled="isSaving || isSyncing"
                 @click="handleSave"
               >
-                {{ isSaving ? 'Memproses File...' : 'Simpan dan Download' }}
+                {{ isSaving ? 'Memproses Checkout...' : 'Proses Guest Checkout & Download' }}
               </button>
 
               <a
@@ -660,10 +837,11 @@
                 rel="noreferrer"
                 class="inline-flex w-full items-center justify-center rounded-xl bg-[#25D366] px-4 py-2.5 text-xs font-extrabold tracking-[0.12em] text-white uppercase"
               >
-                Kirim Konfirmasi ke Pembeli
+                Kirim Ringkasan ke WhatsApp Pembeli
               </a>
             </div>
           </article>
+
         </div>
       </div>
     </section>
@@ -698,8 +876,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch  } from 'vue'
-import type {CSSProperties} from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { CSSProperties } from 'vue'
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue'
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue'
@@ -711,11 +889,13 @@ const PREVIEW_OFFSET_Y = -25
 const WATERMARK_X = 1990
 const WATERMARK_Y = 3105
 const WATERMARK_ANGLE = 17.2
+const TOTAL_STEPS = 8
+const BASE_PRODUCT_PRICE = 899000
+const FAST_TRACK_FEE = 125000
+const CUSTOM_BOX_FEE = 65000
 
 const FALLBACK_PALETTE = ['#0f172a', '#ef4444', '#f8fafc', '#eab308', '#10b981', '#3b82f6']
-
-const WHATSAPP_TEMPLATE =
-  'hallo ka aku admin riview design dari bogorsneaker, mau riview orderan sepatu kaka ya, ini hasil nya, jika ada yg mau di revisi silahkan kamimasih beri kesempatan 3 kali ya ka, mohon balas nya di jam kerja ya di jam 8.00 - 17.00. aku tunggu ya, jika dalam 5 menit kaka ga balas, aku proses riview pembeli selanjut nya ya ka, terimakasih sebelum nya :)'
+const WHATSAPP_INTRO = 'Halo kak, berikut ringkasan guest checkout BogorSneaker:'
 
 type LayerId = number
 
@@ -731,6 +911,8 @@ interface ElementBase {
   y: number
   size: number
   rotation: number
+  scaleX: number
+  scaleY: number
 }
 
 interface TextElement extends ElementBase {
@@ -795,6 +977,149 @@ interface UploadedMedia {
   naturalHeight: number
   palette: string[]
 }
+
+interface MaterialOption {
+  key: string
+  title: string
+  shortLabel: string
+  description: string
+  highlight: string
+}
+
+interface WizardStep {
+  id: number
+  title: string
+  subtitle: string
+}
+
+const wizardSteps: WizardStep[] = [
+  {
+    id: 1,
+    title: 'Pilih Family Model',
+    subtitle: 'Pilih siluet sepatu dan nomor model yang ingin dikustom.',
+  },
+  {
+    id: 2,
+    title: 'Pilih Outsole',
+    subtitle: 'Tentukan karakter grip dan ketahanan sol luar.',
+  },
+  {
+    id: 3,
+    title: 'Pilih Midsole',
+    subtitle: 'Atur tingkat bantalan dan respons pijakan.',
+  },
+  {
+    id: 4,
+    title: 'Pilih Insole',
+    subtitle: 'Optimalkan kenyamanan dan dukungan telapak kaki.',
+  },
+  {
+    id: 5,
+    title: 'Personalisasi Artwork',
+    subtitle: 'Tambah teks atau artwork untuk identitas desain.',
+  },
+  {
+    id: 6,
+    title: 'Kontrol Cepat Teks & Logo',
+    subtitle: 'Atur rotate, zoom, width, dan height elemen dengan kontrol cepat.',
+  },
+  {
+    id: 7,
+    title: 'Warna Aksen & Outline',
+    subtitle: 'Kustom warna layer aksen langsung dari palette pilihan.',
+  },
+  {
+    id: 8,
+    title: 'Guest Checkout & Export',
+    subtitle: 'Finalisasi data buyer, add-on layanan, lalu proses checkout.',
+  },
+]
+
+const outsoleOptions: MaterialOption[] = [
+  {
+    key: 'rubber',
+    title: 'Rubber (Karet)',
+    shortLabel: 'Rubber',
+    description: 'Paling populer karena awet, antiselip, dan tahan air untuk pemakaian harian.',
+    highlight: 'Durabilitas tinggi dan cengkeram kuat.',
+  },
+  {
+    key: 'tpu',
+    title: 'TPU (Thermoplastic Polyurethane)',
+    shortLabel: 'TPU',
+    description: 'Material polimer yang lebih ringan dari karet namun tetap kuat dan stabil.',
+    highlight: 'Ringan dengan struktur tetap solid.',
+  },
+  {
+    key: 'tpr',
+    title: 'TPR (Thermoplastic Rubber)',
+    shortLabel: 'TPR',
+    description: 'Kombinasi karet mentah dan plastik dengan traksi yang baik untuk area outdoor.',
+    highlight: 'Traksi bagus untuk pemakaian aktif.',
+  },
+  {
+    key: 'pvc',
+    title: 'PVC',
+    shortLabel: 'PVC',
+    description: 'Efisien untuk produksi massal, cocok untuk kebutuhan value-oriented.',
+    highlight: 'Biaya efisien dengan tampilan rapi.',
+  },
+]
+
+const midsoleOptions: MaterialOption[] = [
+  {
+    key: 'eva',
+    title: 'EVA (Ethylene Vinyl Acetate)',
+    shortLabel: 'EVA',
+    description: 'Busa sangat ringan, lembut, dan fleksibel. Populer untuk sepatu lari serta kasual.',
+    highlight: 'Bobot ringan dan nyaman dipakai lama.',
+  },
+  {
+    key: 'pu',
+    title: 'PU (Polyurethane)',
+    shortLabel: 'PU',
+    description: 'Lebih padat dan stabil dibanding EVA dengan ketahanan bentuk yang baik.',
+    highlight: 'Support kuat dan stabil.',
+  },
+  {
+    key: 'phylon',
+    title: 'Phylon',
+    shortLabel: 'Phylon',
+    description: 'Versi EVA yang lebih padat dengan respons bantalan lebih baik.',
+    highlight: 'Bantalan responsif untuk mobilitas tinggi.',
+  },
+]
+
+const insoleOptions: MaterialOption[] = [
+  {
+    key: 'lateks',
+    title: 'Lateks',
+    shortLabel: 'Lateks',
+    description: 'Memberikan keempukan maksimal dan dikenal sebagai bahan premium anti pegal.',
+    highlight: 'Empuk dan nyaman untuk pemakaian lama.',
+  },
+  {
+    key: 'memory-foam',
+    title: 'Memory Foam',
+    shortLabel: 'Memory Foam',
+    description: 'Mengikuti bentuk telapak kaki untuk distribusi tekanan yang lebih merata.',
+    highlight: 'Menyesuaikan kontur kaki pengguna.',
+  },
+  {
+    key: 'silicone-gel',
+    title: 'Silikon / Gel',
+    shortLabel: 'Gel',
+    description: 'Mendukung area arch support dan tumit untuk menurunkan impact titik tekan.',
+    highlight: 'Support ekstra pada area sensitif telapak.',
+  },
+  {
+    key: 'recycled-poly-pu',
+    title: 'Recycled Polyester & PU Sheet',
+    shortLabel: 'Recycled PU',
+    description: 'Kombinasi modern yang lebih ramah lingkungan serta memiliki sifat antibakteri.',
+    highlight: 'Sustainability dengan fitur hygiene lebih baik.',
+  },
+]
 
 const contacts = ref<FloatingContact[]>([
   {
@@ -882,6 +1207,11 @@ const customElements = ref<CustomElement[]>([])
 const activeElementId = ref<string | null>(null)
 const uploadedMedia = ref<UploadedMedia[]>([])
 const selectedUploadId = ref<string | null>(null)
+const currentStep = ref(1)
+
+const selectedOutsole = ref('')
+const selectedMidsole = ref('')
+const selectedInsole = ref('')
 
 const viewerWidth = ref(520)
 const isDropActive = ref(false)
@@ -889,8 +1219,11 @@ const isDropActive = ref(false)
 const name = ref('')
 const phone = ref('')
 const shoeSize = ref('')
-const folderNo = ref('')
-const operatorName = ref('')
+const guestEmail = ref('')
+const guestAddress = ref('')
+const guestNotes = ref('')
+const fastTrackEnabled = ref(false)
+const customBoxEnabled = ref(false)
 
 const isSaving = ref(false)
 const waLink = ref<string | null>(null)
@@ -916,6 +1249,52 @@ const currentModelMeta = computed(() => {
 
 const activeElement = computed(() => {
   return customElements.value.find((item) => item.id === activeElementId.value) ?? null
+})
+
+const selectedOutsoleMeta = computed(() => {
+  return outsoleOptions.find((item) => item.key === selectedOutsole.value) ?? null
+})
+
+const selectedMidsoleMeta = computed(() => {
+  return midsoleOptions.find((item) => item.key === selectedMidsole.value) ?? null
+})
+
+const selectedInsoleMeta = computed(() => {
+  return insoleOptions.find((item) => item.key === selectedInsole.value) ?? null
+})
+
+const selectedOutsoleShort = computed(() => {
+  return selectedOutsoleMeta.value?.shortLabel ?? '-'
+})
+
+const selectedMidsoleShort = computed(() => {
+  return selectedMidsoleMeta.value?.shortLabel ?? '-'
+})
+
+const selectedInsoleShort = computed(() => {
+  return selectedInsoleMeta.value?.shortLabel ?? '-'
+})
+
+const wizardProgress = computed(() => {
+  return Math.round((currentStep.value / TOTAL_STEPS) * 100)
+})
+
+const currentStepMeta = computed(() => {
+  return wizardSteps.find((item) => item.id === currentStep.value) ?? wizardSteps[0]
+})
+
+const guestCheckoutTotal = computed(() => {
+  let total = BASE_PRODUCT_PRICE
+
+  if (fastTrackEnabled.value) {
+    total += FAST_TRACK_FEE
+  }
+
+  if (customBoxEnabled.value) {
+    total += CUSTOM_BOX_FEE
+  }
+
+  return total
 })
 
 const randomPalette = computed(() => {
@@ -944,7 +1323,7 @@ const selectedPaletteLabel = computed(() => {
     return selected.name
   }
 
-  return 'Fallback palette'
+  return 'Palet Kurasi BogorSneaker'
 })
 
 const catalogTimeLabel = computed(() => {
@@ -983,6 +1362,68 @@ function normalizePhoneForWa(value: string): string {
   }
 
   return digits
+}
+
+const rupiahFormatter = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  maximumFractionDigits: 0,
+})
+
+function formatCurrency(value: number): string {
+  return rupiahFormatter.format(value)
+}
+
+function canContinueFromStep(step: number): boolean {
+  if (step === 1) {
+    if (!activeFolderKey.value || !currentModelMeta.value) {
+      showToast('Pilih family dan model terlebih dahulu.')
+
+      return false
+    }
+
+    if (isSyncing.value) {
+      showToast('Tunggu sinkronisasi model selesai dulu.')
+
+      return false
+    }
+  }
+
+  if (step === 2 && !selectedOutsole.value) {
+    showToast('Pilih material outsole terlebih dahulu.')
+
+    return false
+  }
+
+  if (step === 3 && !selectedMidsole.value) {
+    showToast('Pilih material midsole terlebih dahulu.')
+
+    return false
+  }
+
+  if (step === 4 && !selectedInsole.value) {
+    showToast('Pilih material insole terlebih dahulu.')
+
+    return false
+  }
+
+  return true
+}
+
+function goToNextStep(): void {
+  if (currentStep.value >= TOTAL_STEPS) {
+    return
+  }
+
+  if (!canContinueFromStep(currentStep.value)) {
+    return
+  }
+
+  currentStep.value += 1
+}
+
+function goToPreviousStep(): void {
+  currentStep.value = Math.max(1, currentStep.value - 1)
 }
 
 function getTextDims(ctx: CanvasRenderingContext2D, text: string, fontSize: number): { width: number; height: number } {
@@ -1338,6 +1779,8 @@ function addTextElement(): void {
     strokeSize: 0,
     size: 52,
     rotation: 0,
+    scaleX: 1,
+    scaleY: 1,
     x: 210,
     y: 230,
   }
@@ -1357,13 +1800,13 @@ function removeUpload(id: string): void {
     selectedUploadId.value = uploadedMedia.value[0]?.id ?? null
   }
 
-  showToast('Item upload dihapus dari library sementara.')
+  showToast('Artwork dihapus dari koleksi.')
 }
 
 function clearUploads(): void {
   uploadedMedia.value = []
   selectedUploadId.value = null
-  showToast('Library upload dibersihkan.')
+  showToast('Koleksi artwork dibersihkan.')
 }
 
 function setSelectedUpload(id: string): void {
@@ -1472,7 +1915,7 @@ async function processUploadFiles(files: File[]): Promise<void> {
   uploadedMedia.value = [...nextUploads, ...uploadedMedia.value]
   selectedUploadId.value = nextUploads[0]?.id ?? selectedUploadId.value
 
-  showToast(`${nextUploads.length} gambar berhasil ditambahkan sementara.`)
+  showToast(`${nextUploads.length} artwork berhasil ditambahkan.`)
 }
 
 async function onUploadInputChange(event: Event): Promise<void> {
@@ -1506,6 +1949,8 @@ function addUploadAsElement(uploadId: string): void {
     naturalHeight: media.naturalHeight,
     size: 210,
     rotation: 0,
+    scaleX: 1,
+    scaleY: 1,
     x: 170,
     y: 180,
     opacity: 1,
@@ -1801,8 +2246,11 @@ function updateLayerOutlineSize(id: LayerId, size: number): void {
 }
 
 function getTextElementStyle(item: TextElement): CSSProperties {
+  const scaleX = item.scaleX ?? 1
+  const scaleY = item.scaleY ?? 1
+
   const style: CSSProperties = {
-    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg)`,
+    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg) scale(${scaleX}, ${scaleY})`,
     fontSize: `${item.size * scale.value}px`,
     color: item.color,
     lineHeight: '1',
@@ -1816,9 +2264,11 @@ function getTextElementStyle(item: TextElement): CSSProperties {
 
 function getImageElementStyle(item: ImageElement): CSSProperties {
   const ratio = item.naturalHeight / Math.max(1, item.naturalWidth)
+  const scaleX = item.scaleX ?? 1
+  const scaleY = item.scaleY ?? 1
 
   return {
-    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg)`,
+    transform: `translate(${item.x * scale.value}px, ${item.y * scale.value}px) rotate(${item.rotation}deg) scale(${scaleX}, ${scaleY})`,
     width: `${item.size * scale.value}px`,
     height: `${item.size * ratio * scale.value}px`,
     opacity: String(item.opacity),
@@ -2006,60 +2456,69 @@ function onImageOpacityInput(event: Event): void {
   updateActiveImage({ opacity: Number.isFinite(opacity) ? Math.max(0.1, Math.min(1, opacity)) : 1 })
 }
 
-function onElementSizeInput(event: Event): void {
-  const size = Math.max(20, Number((event.target as HTMLInputElement).value))
-
-  if (activeElement.value?.type === 'text') {
-    updateActiveText({ size })
-
-    return
-  }
-
-  if (activeElement.value?.type === 'image') {
-    updateActiveImage({ size })
-  }
+function clampValue(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value))
 }
 
-function onElementRotationInput(event: Event): void {
-  const rotation = Number((event.target as HTMLInputElement).value)
+function updateActiveTransform(patch: Partial<ElementBase>): void {
+  if (!activeElement.value) {
+    return
+  }
 
-  if (activeElement.value?.type === 'text') {
-    updateActiveText({ rotation })
+  if (activeElement.value.type === 'text') {
+    updateActiveText(patch)
 
     return
   }
 
-  if (activeElement.value?.type === 'image') {
-    updateActiveImage({ rotation })
-  }
+  updateActiveImage(patch)
 }
 
-function onElementXInput(event: Event): void {
-  const x = Number((event.target as HTMLInputElement).value)
-
-  if (activeElement.value?.type === 'text') {
-    updateActiveText({ x })
-
+function nudgeActiveElement(dx: number, dy: number): void {
+  if (!activeElement.value) {
     return
   }
 
-  if (activeElement.value?.type === 'image') {
-    updateActiveImage({ x })
-  }
+  updateActiveTransform({
+    x: activeElement.value.x + dx,
+    y: activeElement.value.y + dy,
+  })
 }
 
-function onElementYInput(event: Event): void {
-  const y = Number((event.target as HTMLInputElement).value)
-
-  if (activeElement.value?.type === 'text') {
-    updateActiveText({ y })
-
+function adjustActiveRotation(delta: number): void {
+  if (!activeElement.value) {
     return
   }
 
-  if (activeElement.value?.type === 'image') {
-    updateActiveImage({ y })
+  updateActiveTransform({
+    rotation: activeElement.value.rotation + delta,
+  })
+}
+
+function adjustActiveScale(deltaX: number, deltaY: number): void {
+  if (!activeElement.value) {
+    return
   }
+
+  const nextScaleX = clampValue((activeElement.value.scaleX ?? 1) + deltaX, 0.2, 3)
+  const nextScaleY = clampValue((activeElement.value.scaleY ?? 1) + deltaY, 0.2, 3)
+
+  updateActiveTransform({
+    scaleX: nextScaleX,
+    scaleY: nextScaleY,
+  })
+}
+
+function resetActiveTransform(): void {
+  if (!activeElement.value) {
+    return
+  }
+
+  updateActiveTransform({
+    rotation: 0,
+    scaleX: 1,
+    scaleY: 1,
+  })
 }
 
 async function drawElementsToCanvas(
@@ -2090,6 +2549,7 @@ async function drawElementsToCanvas(
         ctx.globalAlpha = element.opacity
         ctx.translate(x, y)
         ctx.rotate((rotationDeg * Math.PI) / 180)
+        ctx.scale(element.scaleX ?? 1, element.scaleY ?? 1)
         ctx.drawImage(image, -drawW / 2, -drawH / 2, drawW, drawH)
         ctx.restore()
       }
@@ -2112,6 +2572,7 @@ async function drawElementsToCanvas(
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate((rotationDeg * Math.PI) / 180)
+      ctx.scale(element.scaleX ?? 1, element.scaleY ?? 1)
       ctx.font = `800 ${fontSize}px Hanken Grotesk, sans-serif`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
@@ -2154,7 +2615,7 @@ async function createPreviewExportCanvas(): Promise<HTMLCanvasElement> {
   await drawElementsToCanvas(ctx, CANVAS_SIZE, CANVAS_SIZE, false)
 
   const rowOne = `ID/WA: ${phone.value || '-'} | Nama: ${name.value || '-'} | Size: ${shoeSize.value || '-'}`
-  const rowTwo = `Folder: ${folderNo.value || '-'} | OP: ${operatorName.value || '-'}`
+  const rowTwo = `O: ${selectedOutsoleShort.value} | M: ${selectedMidsoleShort.value} | I: ${selectedInsoleShort.value}`
 
   ctx.save()
   ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
@@ -2263,9 +2724,13 @@ async function createPatternCanvas(): Promise<{ canvas: HTMLCanvasElement; water
 
   const phoneLast4 = phone.value.replace(/\D/g, '').slice(-4) || '0000'
   const safeName = sanitizeFileToken(name.value || 'NONAME')
-  const safeFolder = sanitizeFileToken(folderNo.value || 'NOFOLDER')
-  const safeOperator = sanitizeFileToken(operatorName.value || 'NOOP')
-  const watermarkLabel = `POLA_${safeName}_WA${phoneLast4}_F${safeFolder}_OP-${safeOperator}`
+  const safeSize = sanitizeFileToken(shoeSize.value || 'NOSIZE')
+  const safeOutsole = sanitizeFileToken(selectedOutsoleShort.value)
+  const safeMidsole = sanitizeFileToken(selectedMidsoleShort.value)
+  const safeInsole = sanitizeFileToken(selectedInsoleShort.value)
+  const fastTrackTag = fastTrackEnabled.value ? 'FAST' : 'REG'
+  const boxTag = customBoxEnabled.value ? 'BOX' : 'STD'
+  const watermarkLabel = `POLA_${safeName}_WA${phoneLast4}_SZ${safeSize}_${safeOutsole}_${safeMidsole}_${safeInsole}_${fastTrackTag}_${boxTag}`
 
   ctx.save()
   const labelFontSize = Math.max(30, targetHeight * 0.015)
@@ -2310,8 +2775,16 @@ function downloadCanvas(canvas: HTMLCanvasElement, fileName: string): void {
 }
 
 async function handleSave(): Promise<void> {
-  if (!name.value || !phone.value || !shoeSize.value || !folderNo.value || !operatorName.value) {
-    window.alert('Mohon isi semua data wajib: nama, WhatsApp, ukuran, folder, dan operator.')
+  if (!selectedOutsole.value || !selectedMidsole.value || !selectedInsole.value) {
+    currentStep.value = 1
+    window.alert('Mohon pilih material outsole, midsole, dan insole sebelum checkout.')
+
+    return
+  }
+
+  if (!name.value || !phone.value || !guestEmail.value || !guestAddress.value || !shoeSize.value) {
+    currentStep.value = TOTAL_STEPS
+    window.alert('Mohon isi data wajib guest checkout: nama, WhatsApp, email, ukuran, dan alamat.')
 
     return
   }
@@ -2324,20 +2797,35 @@ async function handleSave(): Promise<void> {
 
     const phoneLast4 = phone.value.replace(/\D/g, '').slice(-4) || '0000'
     const safeName = sanitizeFileToken(name.value)
-    const safeFolder = sanitizeFileToken(folderNo.value)
-    const safeOperator = sanitizeFileToken(operatorName.value)
+    const safeSize = sanitizeFileToken(shoeSize.value)
+    const fastTrackTag = fastTrackEnabled.value ? 'FAST' : 'REG'
+    const boxTag = customBoxEnabled.value ? 'BOX' : 'STD'
 
-    const previewName = `PREVIEW_${safeName}_WA${phoneLast4}_F${safeFolder}_OP-${safeOperator}.png`
+    const previewName = `PREVIEW_${safeName}_WA${phoneLast4}_SZ${safeSize}_${fastTrackTag}_${boxTag}.png`
     const patternName = `${pattern.watermarkLabel}.png`
 
     downloadCanvas(preview, previewName)
     downloadCanvas(pattern.canvas, patternName)
 
     const waTarget = normalizePhoneForWa(phone.value)
-    const waMessage = encodeURIComponent(WHATSAPP_TEMPLATE)
+    const waMessage = encodeURIComponent([
+      WHATSAPP_INTRO,
+      `Nama: ${name.value}`,
+      `WA: ${phone.value}`,
+      `Email: ${guestEmail.value}`,
+      `Ukuran: ${shoeSize.value}`,
+      `Outsole: ${selectedOutsoleMeta.value?.title ?? '-'}`,
+      `Midsole: ${selectedMidsoleMeta.value?.title ?? '-'}`,
+      `Insole: ${selectedInsoleMeta.value?.title ?? '-'}`,
+      `Fast Track: ${fastTrackEnabled.value ? `Ya (+${formatCurrency(FAST_TRACK_FEE)})` : 'Tidak'}`,
+      `Custom Box: ${customBoxEnabled.value ? `Ya (+${formatCurrency(CUSTOM_BOX_FEE)})` : 'Tidak'}`,
+      `Total Estimasi: ${formatCurrency(guestCheckoutTotal.value)}`,
+      `Alamat: ${guestAddress.value}`,
+      `Catatan: ${guestNotes.value || '-'}`,
+    ].join('\n'))
 
     waLink.value = `https://wa.me/${waTarget}?text=${waMessage}`
-    showToast('Preview dan pola berhasil diunduh.')
+    showToast('Guest checkout berhasil diproses. File preview dan pola telah diunduh.')
   } catch (error) {
     console.error('Failed to save design:', error)
     window.alert('Terjadi kesalahan saat memproses desain. Silakan coba lagi.')
@@ -2488,6 +2976,42 @@ onUnmounted(() => {
   box-shadow:
     0 14px 24px rgba(20, 20, 20, 0.13),
     inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.control-icon-btn {
+  border: 1px solid rgba(20, 20, 20, 0.15);
+  border-radius: 0.65rem;
+  background: #f6f5f0;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #3a3a3a;
+  transition: all 0.18s ease;
+}
+
+.control-icon-btn:hover {
+  border-color: rgba(20, 20, 20, 0.28);
+  color: #111;
+  background: #ece9de;
+}
+
+.control-action-btn {
+  border: 1px solid rgba(20, 20, 20, 0.16);
+  border-radius: 0.7rem;
+  background: #fff;
+  padding: 0.55rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #3a3a3a;
+  transition: all 0.18s ease;
+}
+
+.control-action-btn:hover {
+  border-color: rgba(20, 20, 20, 0.34);
+  background: #f4f4ef;
+  color: #111;
 }
 
 .editor-scroll::-webkit-scrollbar {
