@@ -1,59 +1,35 @@
 <template>
     <AdminLayout>
-        <div class="mx-auto max-w-6xl">
-            <!-- Page Header -->
-            <div class="accent-left mb-6">
-                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
-                    Kelola Carousel Home
-                </h2>
-                <p class="text-sm text-hai">
-                    Upload dan kelola slide carousel di halaman utama website
-                </p>
-            </div>
+        <div class="admin-page">
+            <AdminPageHeader
+                title="Kelola Carousel Home"
+                description="Upload dan kelola slide carousel di halaman utama website."
+            />
 
-            <!-- Alerts -->
-            <div
-                v-if="successMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-            </div>
-            <div
-                v-if="errorMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
-            </div>
+            <AdminAlert :message="successMessage" variant="success" />
+            <AdminAlert :message="errorMessage" variant="error" />
 
             <!-- Main Grid: Upload Form + Gallery -->
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <!-- Upload Form Card -->
                 <div class="lg:col-span-1">
-                    <div
-                        class="card-lift sticky top-6 rounded-2xl border border-sumi/5 bg-washi p-6"
-                    >
+                    <div class="admin-card admin-card-sticky">
                         <h3
-                            class="font-heading mb-5 flex items-center gap-2 text-lg font-bold"
+                            class="admin-section-title mb-4 flex items-center gap-2"
                         >
-                            <i
-                                class="bi bi-cloud-arrow-up text-2xl text-matcha"
-                            ></i>
+                            <i class="bi bi-cloud-arrow-up text-base"></i>
                             Upload Image
                         </h3>
 
                         <!-- File Drop Zone -->
                         <div
-                            class="mb-5 cursor-pointer rounded-xl border-2 border-dashed border-sumi/30 p-6 text-center transition-all hover:border-matcha hover:bg-matcha/5"
+                            class="mb-4 cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center transition-all hover:border-slate-400"
                             @dragover.prevent="isDragging = true"
                             @dragleave.prevent="isDragging = false"
                             @drop.prevent="handleFileDrop"
-                            :class="{ 'border-matcha bg-matcha/5': isDragging }"
+                            :class="{
+                                'border-slate-500 bg-slate-100': isDragging,
+                            }"
                         >
                             <input
                                 ref="fileInput"
@@ -64,16 +40,18 @@
                             />
                             <div @click="openFilePicker">
                                 <i
-                                    class="bi bi-image mb-2 block text-3xl text-hai/50"
+                                    class="bi bi-image mb-2 block text-2xl text-slate-400"
                                 ></i>
-                                <p class="mb-1 text-xs font-medium">
+                                <p
+                                    class="mb-1 text-xs font-semibold text-slate-700"
+                                >
                                     {{
                                         form.image
                                             ? '✓ ' + form.image.name
                                             : 'Pilih atau Drag Image'
                                     }}
                                 </p>
-                                <p class="text-[11px] text-hai">
+                                <p class="text-[11px] text-slate-500">
                                     JPEG atau PNG, max 5MB
                                 </p>
                             </div>
@@ -83,7 +61,7 @@
                         <button
                             @click="uploadSlide"
                             :disabled="isSubmitting || !form.image"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-matcha px-4 py-2.5 text-sm font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
+                            class="admin-btn admin-btn-primary admin-btn-block"
                         >
                             <i v-if="!isSubmitting" class="bi bi-upload"></i>
                             <i
@@ -96,16 +74,14 @@
                         <!-- Reset Button -->
                         <button
                             @click="resetForm"
-                            class="mt-2.5 w-full rounded-lg bg-sumi/10 px-4 py-2.5 text-sm font-medium text-sumi transition-all hover:bg-sumi/20"
+                            class="admin-btn admin-btn-soft admin-btn-block mt-2"
                         >
                             Reset
                         </button>
 
                         <!-- Info Box -->
-                        <div
-                            class="mt-5 rounded-lg border border-sumi/10 bg-sumi/5 p-3"
-                        >
-                            <p class="text-xs leading-relaxed text-hai/70">
+                        <div class="admin-card-muted mt-4">
+                            <p class="admin-muted-text leading-relaxed">
                                 <strong>Tips:</strong> Upload hanya gambar saja.
                                 Dimensi ideal 16:9 atau landscape untuk hasil
                                 optimal.
@@ -117,46 +93,44 @@
                 <!-- Gallery Section -->
                 <div class="lg:col-span-2">
                     <div class="mb-4 flex items-center justify-between">
-                        <h3
-                            class="font-heading flex items-center gap-2 text-xl font-bold"
-                        >
-                            <i class="bi bi-gallery text-xl text-matcha"></i>
+                        <h3 class="admin-section-title flex items-center gap-2">
+                            <i class="bi bi-gallery text-sm"></i>
                             Slides ({{ slides.length }})
                         </h3>
                         <span
                             v-if="activeSlides > 0"
-                            class="rounded-full bg-matcha/20 px-3 py-1 text-xs font-medium text-matcha"
+                            class="admin-chip admin-chip-primary"
                         >
                             {{ activeSlides }} aktif
                         </span>
                     </div>
 
                     <!-- Empty State -->
-                    <div
-                        v-if="slides.length === 0"
-                        class="rounded-2xl border border-sumi/5 bg-washi p-8 text-center"
-                    >
+                    <div v-if="slides.length === 0" class="admin-empty-state">
                         <i
-                            class="bi bi-inbox mb-3 block text-5xl text-hai/30"
+                            class="bi bi-inbox mb-2 block text-4xl text-slate-400"
                         ></i>
-                        <p class="mb-1 text-base font-bold text-hai">
+                        <p class="mb-1 text-sm font-semibold text-slate-700">
                             Belum ada slide carousel
                         </p>
-                        <p class="text-sm text-hai/60">
+                        <p class="admin-muted-text">
                             Mulai dengan upload image pertama di form sebelahnya
                         </p>
                     </div>
 
                     <!-- Gallery Grid -->
-                    <div v-else class="grid grid-cols-2 gap-4 lg:grid-cols-3">
+                    <div
+                        v-else
+                        class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
+                    >
                         <div
                             v-for="(slide, idx) in slides"
                             :key="slide.id"
-                            class="group card-lift relative overflow-hidden rounded-2xl border border-sumi/10 transition-all hover:shadow-xl"
+                            class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-md"
                         >
                             <!-- Image Container -->
                             <div
-                                class="relative aspect-video overflow-hidden bg-sumi/5"
+                                class="relative aspect-video overflow-hidden bg-slate-100"
                             >
                                 <img
                                     v-if="getImageUrl(slide.image_path)"
@@ -169,13 +143,13 @@
                                     class="flex h-full w-full items-center justify-center"
                                 >
                                     <i
-                                        class="bi bi-image text-2xl text-hai/30"
+                                        class="bi bi-image text-2xl text-slate-300"
                                     ></i>
                                 </div>
 
                                 <!-- Overlay -->
                                 <div
-                                    class="absolute inset-0 flex items-end bg-linear-to-b from-transparent via-transparent to-sumi/60 p-4 opacity-0 transition-opacity group-hover:opacity-100"
+                                    class="admin-image-overlay absolute inset-0 flex items-end p-3 opacity-0 transition-opacity group-hover:opacity-100"
                                 >
                                     <div class="w-full">
                                         <!-- Order Badge -->
@@ -183,7 +157,7 @@
                                             class="flex items-center justify-between"
                                         >
                                             <span
-                                                class="text-sm font-bold text-washi"
+                                                class="text-xs font-bold text-white"
                                             >
                                                 <i
                                                     class="bi bi-sort-numeric-up mr-1"
@@ -194,8 +168,8 @@
                                                 :class="[
                                                     'rounded px-2 py-1 text-[10px] font-bold',
                                                     slide.is_active
-                                                        ? 'bg-matcha/30 text-matcha'
-                                                        : 'bg-sumi/30 text-washi/60',
+                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                        : 'bg-slate-100 text-slate-600',
                                                 ]"
                                             >
                                                 {{
@@ -218,10 +192,10 @@
                                     @click="toggleActive(slide.id)"
                                     :disabled="isUpdating === slide.id"
                                     :class="[
-                                        'flex h-9 w-9 items-center justify-center rounded-lg font-bold transition-all',
+                                        'flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-bold transition-all',
                                         slide.is_active
-                                            ? 'bg-matcha/80 text-washi hover:bg-matcha'
-                                            : 'bg-sumi/80 text-washi/60 hover:bg-sumi',
+                                            ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                            : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-100',
                                         isUpdating === slide.id &&
                                             'cursor-not-allowed opacity-60',
                                     ]"
@@ -239,7 +213,7 @@
                                 <button
                                     @click="deleteSlide(slide.id)"
                                     :disabled="isDeleting === slide.id"
-                                    class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/80 font-bold text-washi transition-all hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-rose-300 bg-rose-50 text-xs font-bold text-rose-700 transition-all hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -254,6 +228,9 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
+
+import AdminAlert from '@/components/admin/AdminAlert.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import type { CarouselSlide } from '@/types/carousel';
 
@@ -537,25 +514,3 @@ const getImageUrl = (imagePath: string) => {
     return `/storage/${imagePath}`;
 };
 </script>
-
-<style scoped>
-.accent-left {
-    border-left: 4px solid #7c8c5a;
-    padding-left: 1rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-</style>

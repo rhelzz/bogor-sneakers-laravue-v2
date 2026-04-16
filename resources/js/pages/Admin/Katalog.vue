@@ -1,66 +1,39 @@
 <template>
     <AdminLayout>
-        <div class="mx-auto max-w-7xl">
-            <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
-                <div class="accent-left">
-                    <h2
-                        class="font-heading mb-1 text-2xl font-bold lg:text-3xl"
+        <div class="admin-page">
+            <AdminPageHeader
+                title="Kelola Katalog"
+                description="Data katalog dikelola penuh dari backend Laravel + Inertia."
+            >
+                <template #actions>
+                    <button
+                        class="admin-btn admin-btn-primary"
+                        @click="openCreateModal"
                     >
-                        Kelola Katalog
-                    </h2>
-                    <p class="text-sm text-hai">
-                        Data katalog dikelola penuh dari backend Laravel +
-                        Inertia.
-                    </p>
-                </div>
+                        <i class="bi bi-plus-circle"></i>
+                        Tambah Produk
+                    </button>
+                </template>
+            </AdminPageHeader>
 
-                <button
-                    class="inline-flex items-center gap-2 rounded-xl bg-matcha px-4 py-2 text-sm font-bold text-washi transition-all hover:bg-matcha/85"
-                    @click="openCreateModal"
-                >
-                    <i class="bi bi-plus-circle"></i>
-                    Tambah Produk
-                </button>
-            </div>
-
-            <div
-                v-if="successMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-            </div>
-
-            <div
-                v-if="errorMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
-            </div>
+            <AdminAlert :message="successMessage" variant="success" />
+            <AdminAlert :message="errorMessage" variant="error" />
 
             <div class="mb-4 flex items-center justify-between">
-                <h3
-                    class="font-heading flex items-center gap-2 text-xl font-bold lg:text-2xl"
-                >
-                    <i class="bi bi-grid text-lg text-matcha"></i>
+                <h3 class="admin-section-title flex items-center gap-2">
+                    <i class="bi bi-grid text-sm"></i>
                     Produk ({{ catalogs.length }})
                 </h3>
             </div>
 
-            <div
-                v-if="catalogs.length === 0"
-                class="rounded-2xl border border-sumi/10 bg-washi p-10 text-center"
-            >
-                <i class="bi bi-box-seam mb-3 block text-5xl text-hai/30"></i>
-                <p class="mb-1 text-base font-bold text-hai">
+            <div v-if="catalogs.length === 0" class="admin-empty-state">
+                <i
+                    class="bi bi-box-seam mb-2 block text-4xl text-slate-400"
+                ></i>
+                <p class="mb-1 text-sm font-semibold text-slate-700">
                     Belum ada data katalog
                 </p>
-                <p class="text-sm text-hai/60">
+                <p class="admin-muted-text">
                     Klik tombol Tambah Produk untuk memulai.
                 </p>
             </div>
@@ -72,9 +45,11 @@
                 <article
                     v-for="catalog in sortedCatalogs"
                     :key="catalog.id"
-                    class="card-lift overflow-hidden rounded-2xl border border-sumi/10 bg-washi"
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
-                    <div class="relative aspect-4/3 overflow-hidden bg-sumi/5">
+                    <div
+                        class="relative aspect-4/3 overflow-hidden bg-slate-100"
+                    >
                         <img
                             v-if="catalog.images[0]?.image_url"
                             :src="catalog.images[0].image_url"
@@ -84,7 +59,7 @@
                         />
                         <div
                             v-else
-                            class="flex h-full w-full items-center justify-center text-hai/40"
+                            class="flex h-full w-full items-center justify-center text-slate-400"
                         >
                             <i class="bi bi-image text-4xl"></i>
                         </div>
@@ -97,7 +72,7 @@
                         </span>
 
                         <span
-                            class="absolute top-2.5 right-2.5 rounded-full bg-sumi/75 px-2.5 py-1 text-[10px] text-washi"
+                            class="absolute top-2.5 right-2.5 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[10px] text-slate-700"
                         >
                             #{{ catalog.sort_order }}
                         </span>
@@ -123,24 +98,22 @@
                             <span
                                 v-for="size in catalog.sizes"
                                 :key="`${catalog.id}-${size}`"
-                                class="rounded bg-sumi/10 px-2 py-1 text-[10px] text-sumi"
+                                class="rounded border border-slate-200 bg-slate-100 px-2 py-1 text-[10px] text-slate-700"
                             >
                                 EU {{ size }}
                             </span>
                         </div>
 
-                        <div
-                            class="rounded-xl border border-sumi/10 bg-shironeri p-2.5"
-                        >
+                        <div class="admin-card-muted">
                             <div class="mb-2 flex items-center justify-between">
-                                <p class="text-xs font-bold text-sumi">
+                                <p class="text-xs font-bold text-slate-700">
                                     Gambar ({{ catalog.images.length }}/{{
                                         maxImages
                                     }})
                                 </p>
                                 <label
                                     v-if="catalog.images.length < maxImages"
-                                    class="cursor-pointer rounded bg-matcha px-2 py-1 text-[10px] font-bold text-washi"
+                                    class="admin-btn admin-btn-primary px-2 py-1 text-[10px]"
                                 >
                                     + Upload
                                     <input
@@ -156,7 +129,7 @@
 
                             <div
                                 v-if="catalog.images.length === 0"
-                                class="rounded-lg border border-dashed border-sumi/20 p-3 text-center text-[11px] text-hai"
+                                class="rounded-lg border border-dashed border-slate-300 p-3 text-center text-[11px] text-slate-500"
                             >
                                 Belum ada gambar.
                             </div>
@@ -165,7 +138,7 @@
                                 <div
                                     v-for="image in orderedImages(catalog)"
                                     :key="image.id"
-                                    class="flex items-center gap-2 rounded-lg border border-sumi/10 bg-washi p-2"
+                                    class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2"
                                 >
                                     <img
                                         :src="image.image_url"
@@ -174,19 +147,19 @@
                                     />
                                     <div class="min-w-0 flex-1">
                                         <p
-                                            class="text-[10px] font-semibold text-sumi"
+                                            class="text-[10px] font-semibold text-slate-700"
                                         >
                                             Posisi {{ image.position }}
                                         </p>
                                         <p
-                                            class="truncate text-[10px] text-hai"
+                                            class="truncate text-[10px] text-slate-500"
                                         >
                                             {{ image.image_path }}
                                         </p>
                                     </div>
                                     <div class="flex items-center gap-1">
                                         <button
-                                            class="rounded bg-sumi/10 px-2 py-1 text-[10px] text-sumi hover:bg-sumi/20"
+                                            class="admin-btn admin-btn-soft px-2 py-1 text-[10px]"
                                             :disabled="image.position === 1"
                                             @click="
                                                 moveImage(
@@ -199,7 +172,7 @@
                                             <i class="bi bi-chevron-up"></i>
                                         </button>
                                         <button
-                                            class="rounded bg-sumi/10 px-2 py-1 text-[10px] text-sumi hover:bg-sumi/20"
+                                            class="admin-btn admin-btn-soft px-2 py-1 text-[10px]"
                                             :disabled="
                                                 image.position ===
                                                 catalog.images.length
@@ -215,7 +188,7 @@
                                             <i class="bi bi-chevron-down"></i>
                                         </button>
                                         <button
-                                            class="rounded bg-red-500/15 px-2 py-1 text-[10px] text-red-600 hover:bg-red-500/25"
+                                            class="admin-btn admin-btn-danger px-2 py-1 text-[10px]"
                                             @click="
                                                 deleteImage(catalog, image.id)
                                             "
@@ -229,7 +202,7 @@
 
                         <div class="flex items-center gap-2 pt-1">
                             <button
-                                class="flex-1 rounded-lg bg-indigo/15 px-3 py-2 text-xs font-bold text-indigo transition-all hover:bg-indigo/25"
+                                class="admin-btn admin-btn-secondary flex-1"
                                 @click="startEdit(catalog)"
                             >
                                 Edit
@@ -237,12 +210,12 @@
                             <a
                                 :href="`/katalog/${catalog.route_key}`"
                                 target="_blank"
-                                class="rounded-lg bg-matcha/20 px-3 py-2 text-xs font-bold text-matcha transition-all hover:bg-matcha/30"
+                                class="admin-btn admin-btn-soft"
                             >
                                 Detail
                             </a>
                             <button
-                                class="rounded-lg bg-red-500/15 px-3 py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-500/25"
+                                class="admin-btn admin-btn-danger"
                                 @click="deleteCatalog(catalog)"
                             >
                                 Hapus
@@ -617,6 +590,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 
+import AdminAlert from '@/components/admin/AdminAlert.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import type {
     CatalogAdminItem,

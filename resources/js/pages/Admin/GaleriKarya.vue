@@ -1,38 +1,16 @@
 <template>
     <AdminLayout>
-        <div class="mx-auto max-w-6xl">
-            <div class="accent-left mb-6">
-                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
-                    Kelola Galeri Karya
-                </h2>
-                <p class="text-sm text-hai">
-                    Galeri homepage selalu 8 slot tetap. Admin dapat mengganti
-                    gambar, judul, dan author tiap slot.
-                </p>
-            </div>
+        <div class="admin-page">
+            <AdminPageHeader
+                title="Kelola Galeri Karya"
+                description="Galeri homepage selalu 8 slot tetap. Admin dapat mengganti gambar, judul, dan author tiap slot."
+            />
 
-            <div
-                v-if="successMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-            </div>
+            <AdminAlert :message="successMessage" variant="success" />
+            <AdminAlert :message="errorMessage" variant="error" />
 
-            <div
-                v-if="errorMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
-            </div>
-
-            <div class="mb-6 rounded-2xl border border-sumi/10 bg-washi p-4">
-                <p class="text-xs text-hai">
+            <div class="admin-card-muted mb-5">
+                <p class="admin-muted-text">
                     Format upload: JPEG/PNG, maksimal 5MB. Setelah memilih file,
                     preview slot langsung muncul lalu otomatis diunggah ke
                     server. Judul dan author bisa diubah lalu disimpan per slot.
@@ -43,10 +21,10 @@
                 <article
                     v-for="slot in slots"
                     :key="slot.id"
-                    class="card-lift overflow-hidden rounded-2xl border border-sumi/10 bg-washi"
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-white"
                 >
                     <div
-                        :class="`relative overflow-hidden bg-sumi/5 ${getAspectClass(slot.slot)}`"
+                        :class="`relative overflow-hidden bg-slate-100 ${getAspectClass(slot.slot)}`"
                     >
                         <img
                             v-if="getDisplayImage(slot)"
@@ -58,7 +36,7 @@
                         />
                         <div
                             v-else
-                            class="flex h-full w-full flex-col items-center justify-center gap-2 text-hai/50"
+                            class="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-400"
                         >
                             <i class="bi bi-image text-4xl"></i>
                             <p class="text-xs">Belum ada gambar</p>
@@ -66,7 +44,7 @@
 
                         <div class="absolute top-3 left-3">
                             <span
-                                class="rounded-full bg-sumi px-2.5 py-1 text-[11px] font-bold tracking-wide text-washi"
+                                class="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-bold tracking-wide text-slate-700"
                             >
                                 SLOT {{ slot.slot }}
                             </span>
@@ -74,10 +52,10 @@
 
                         <div
                             v-if="uploadingSlot === slot.slot"
-                            class="absolute inset-0 flex items-center justify-center bg-sumi/50 text-washi"
+                            class="admin-image-overlay absolute inset-0 flex items-center justify-center text-white"
                         >
                             <div
-                                class="flex items-center gap-2 text-sm font-bold"
+                                class="flex items-center gap-2 text-xs font-bold"
                             >
                                 <i class="bi bi-arrow-repeat animate-spin"></i>
                                 Uploading...
@@ -88,7 +66,7 @@
                     <div class="space-y-2.5 p-3">
                         <label
                             :for="fileInputId(slot.slot)"
-                            class="block w-full cursor-pointer rounded-lg bg-matcha px-3 py-2.5 text-center text-xs font-bold text-washi transition-all hover:bg-matcha/80"
+                            class="admin-btn admin-btn-primary admin-btn-block"
                             :class="{
                                 'cursor-not-allowed opacity-50':
                                     uploadingSlot === slot.slot,
@@ -110,33 +88,29 @@
                         />
 
                         <div class="space-y-1">
-                            <label class="block text-xs font-bold text-sumi/70"
-                                >Judul</label
-                            >
+                            <label class="admin-label">Judul</label>
                             <input
                                 v-model="metadataForms[slot.id].title"
                                 type="text"
                                 maxlength="120"
-                                class="w-full rounded-lg border border-sumi/20 bg-white px-3 py-2 text-xs text-sumi focus:border-matcha focus:outline-none"
+                                class="admin-input"
                                 :disabled="savingMetadataSlot === slot.slot"
                             />
                         </div>
 
                         <div class="space-y-1">
-                            <label class="block text-xs font-bold text-sumi/70"
-                                >Author</label
-                            >
+                            <label class="admin-label">Author</label>
                             <input
                                 v-model="metadataForms[slot.id].author"
                                 type="text"
                                 maxlength="80"
-                                class="w-full rounded-lg border border-sumi/20 bg-white px-3 py-2 text-xs text-sumi focus:border-matcha focus:outline-none"
+                                class="admin-input"
                                 :disabled="savingMetadataSlot === slot.slot"
                             />
                         </div>
 
                         <button
-                            class="w-full rounded-lg bg-sumi px-4 py-2 text-xs font-bold text-washi transition-all hover:bg-sumi/85 disabled:cursor-not-allowed disabled:opacity-50"
+                            class="admin-btn admin-btn-secondary admin-btn-block"
                             :disabled="
                                 savingMetadataSlot === slot.slot ||
                                 uploadingSlot === slot.slot
@@ -164,6 +138,8 @@
 <script setup lang="ts">
 import { onUnmounted, ref } from 'vue';
 
+import AdminAlert from '@/components/admin/AdminAlert.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import type { GallerySlot } from '@/types/gallery';
 
@@ -483,25 +459,3 @@ onUnmounted(() => {
     });
 });
 </script>
-
-<style scoped>
-.accent-left {
-    border-left: 4px solid #7c8c5a;
-    padding-left: 1rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-</style>

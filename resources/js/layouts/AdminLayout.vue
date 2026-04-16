@@ -1,118 +1,82 @@
 <template>
-    <div class="h-screen overflow-hidden bg-shironeri text-[13px] text-sumi/90">
-        <!-- Header -->
-        <header
-            class="fixed inset-x-0 top-0 z-40 border-b border-sumi/20 bg-sumi text-washi"
-        >
-            <div class="flex h-16 items-center justify-between px-4 lg:px-6">
-                <!-- Logo -->
-                <div class="flex items-center gap-2.5">
-                    <i class="bi bi-image text-xl text-matcha"></i>
-                    <div>
-                        <h1 class="font-heading text-base font-bold">
-                            Bogor Sneakers
-                        </h1>
-                        <p class="text-[11px] text-washi/60">Dashboard Admin</p>
-                    </div>
+    <div class="admin-shell">
+        <header class="admin-topbar">
+            <div class="admin-topbar-inner">
+                <div class="flex items-center gap-2 lg:gap-3">
+                    <button
+                        type="button"
+                        class="admin-icon-button lg:hidden"
+                        @click="toggleSidebar"
+                    >
+                        <i class="bi bi-list text-lg"></i>
+                    </button>
+
+                    <a href="/admin/carousel-home" class="admin-brand">
+                        <span class="admin-brand-mark">
+                            <i class="bi bi-grid-1x2-fill"></i>
+                        </span>
+                        <span>
+                            <strong>Bogor Sneakers</strong>
+                            <small>Admin Dashboard</small>
+                        </span>
+                    </a>
                 </div>
 
-                <!-- Header Actions -->
                 <div class="flex items-center gap-2">
-                    <button
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-washi/10 text-sm transition-all hover:bg-washi/20"
+                    <a
+                        href="/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="admin-topbar-link"
                     >
-                        <i class="bi bi-bell text-washi"></i>
-                    </button>
-                    <button
-                        class="flex h-8 w-8 items-center justify-center rounded-full bg-matcha text-xs font-bold text-sumi transition-all hover:bg-matcha/80"
-                    >
-                        A
-                    </button>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                        <span>Lihat Website</span>
+                    </a>
+                    <span class="admin-avatar">A</span>
                 </div>
             </div>
         </header>
 
-        <!-- Sidebar -->
+        <button
+            v-if="isSidebarOpen"
+            type="button"
+            class="admin-sidebar-backdrop lg:hidden"
+            @click="closeSidebar"
+            aria-label="Tutup sidebar"
+        ></button>
+
         <aside
-            class="fixed top-16 bottom-0 left-0 z-30 w-60 border-r border-sumi/20 bg-sumi text-washi"
+            :class="[
+                'admin-sidebar',
+                isSidebarOpen ? 'admin-sidebar-open' : '',
+            ]"
         >
-            <nav class="space-y-1.5 p-4">
+            <nav class="admin-sidebar-nav">
                 <a
-                    href="/admin/carousel-home"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
+                    v-for="item in navItems"
+                    :key="item.href"
+                    :href="item.href"
+                    class="admin-nav-item"
                     :class="{
-                        'bg-matcha/20 text-matcha': isActive('carousel-home'),
+                        'admin-nav-item-active': isActive(item.match),
                     }"
+                    @click="closeSidebar"
                 >
-                    <i class="bi bi-images text-base"></i>
-                    <span>Carousel Home</span>
-                </a>
-
-                <a
-                    href="/admin/tiktok-feed"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
-                    :class="{
-                        'bg-matcha/20 text-matcha': isActive('tiktok-feed'),
-                    }"
-                >
-                    <i class="bi bi-tiktok text-base"></i>
-                    <span>TikTok Feed</span>
-                </a>
-
-                <a
-                    href="/admin/galeri-karya"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
-                    :class="{
-                        'bg-matcha/20 text-matcha': isActive('galeri-karya'),
-                    }"
-                >
-                    <i class="bi bi-grid-3x3-gap text-base"></i>
-                    <span>Galeri Karya</span>
-                </a>
-
-                <a
-                    href="/admin/katalog"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
-                    :class="{
-                        'bg-matcha/20 text-matcha': isActive('admin/katalog'),
-                    }"
-                >
-                    <i class="bi bi-shop text-base"></i>
-                    <span>Katalog</span>
-                </a>
-
-                <a
-                    href="/admin/pre-order-home"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
-                    :class="{
-                        'bg-matcha/20 text-matcha': isActive('pre-order-home'),
-                    }"
-                >
-                    <i class="bi bi-hourglass-split text-base"></i>
-                    <span>Pre-Order Home</span>
-                </a>
-
-                <a
-                    href="/"
-                    target="_blank"
-                    class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-washi/80 transition-all hover:bg-washi/10 hover:text-washi"
-                >
-                    <i class="bi bi-house text-base"></i>
-                    <span>Lihat Website</span>
+                    <i :class="item.icon"></i>
+                    <span>{{ item.label }}</span>
                 </a>
             </nav>
 
-            <div class="absolute right-4 bottom-4 left-4">
-                <div class="rounded-lg bg-washi/10 p-3 text-center">
-                    <p class="mb-1 text-[11px] text-washi/60">Bogor Sneakers</p>
-                    <p class="text-[11px] text-washi/40">Est. 2019</p>
-                </div>
+            <div class="admin-sidebar-footer">
+                <p class="text-xs font-semibold text-slate-400">
+                    Bogor Sneakers
+                </p>
+                <p class="text-xs text-slate-500">Admin Panel 2026</p>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="ml-60 pt-16">
-            <div class="h-[calc(100vh-64px)] overflow-y-auto p-4 lg:p-6">
+        <main class="admin-main">
+            <div class="admin-main-scroll">
                 <slot />
             </div>
         </main>
@@ -121,17 +85,74 @@
 
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref } from 'vue';
+
+type NavigationItem = {
+    href: string;
+    match: string;
+    label: string;
+    icon: string;
+};
 
 const page = usePage();
+const isSidebarOpen = ref(false);
+
+const navItems: NavigationItem[] = [
+    {
+        href: '/admin/carousel-home',
+        match: 'carousel-home',
+        label: 'Carousel Home',
+        icon: 'bi bi-images',
+    },
+    {
+        href: '/admin/tiktok-feed',
+        match: 'tiktok-feed',
+        label: 'TikTok Feed',
+        icon: 'bi bi-tiktok',
+    },
+    {
+        href: '/admin/galeri-karya',
+        match: 'galeri-karya',
+        label: 'Galeri Karya',
+        icon: 'bi bi-grid-3x3-gap',
+    },
+    {
+        href: '/admin/katalog',
+        match: '/admin/katalog',
+        label: 'Katalog',
+        icon: 'bi bi-shop',
+    },
+    {
+        href: '/admin/pre-order-home',
+        match: 'pre-order-home',
+        label: 'Pre-Order Home',
+        icon: 'bi bi-hourglass-split',
+    },
+];
 
 const isActive = (route: string) => {
     return page.url.includes(route);
 };
-</script>
 
-<style scoped>
-/* Smooth transitions */
-a {
-    text-decoration: none;
-}
-</style>
+const closeSidebar = () => {
+    isSidebarOpen.value = false;
+};
+
+const toggleSidebar = () => {
+    isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+const handleWindowResize = () => {
+    if (window.innerWidth >= 1024) {
+        isSidebarOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('resize', handleWindowResize);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', handleWindowResize);
+});
+</script>

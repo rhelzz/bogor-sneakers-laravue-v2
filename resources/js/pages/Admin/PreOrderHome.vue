@@ -1,46 +1,21 @@
 <template>
     <AdminLayout>
-        <div class="mx-auto max-w-7xl">
-            <div class="accent-left mb-6">
-                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
-                    Kelola Pre-Order Home
-                </h2>
-                <p class="text-sm text-hai">
-                    Pilih produk PO dari katalog, atur slot, status, dan
-                    countdown. Maksimal {{ visibleLimit }} produk bisa visible
-                    di Home.
-                </p>
-            </div>
+        <div class="admin-page">
+            <AdminPageHeader
+                title="Kelola Pre-Order Home"
+                :description="`Pilih produk PO dari katalog, atur slot, status, dan countdown. Maksimal ${visibleLimit} produk bisa visible di Home.`"
+            />
 
-            <div
-                v-if="successMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-            </div>
-
-            <div
-                v-if="errorMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
-            </div>
+            <AdminAlert :message="successMessage" variant="success" />
+            <AdminAlert :message="errorMessage" variant="error" />
 
             <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
                 <div class="xl:col-span-1">
-                    <div
-                        class="card-lift sticky top-6 rounded-2xl border border-sumi/10 bg-washi p-5"
-                    >
+                    <div class="admin-card admin-card-sticky">
                         <h3
-                            class="font-heading mb-4 flex items-center gap-2 text-lg font-bold"
+                            class="admin-section-title mb-4 flex items-center gap-2"
                         >
-                            <i class="bi bi-hourglass-split text-matcha"></i>
+                            <i class="bi bi-hourglass-split text-sm"></i>
                             {{
                                 form.id === null
                                     ? 'Tambah Pre-Order'
@@ -49,13 +24,10 @@
                         </h3>
 
                         <div class="mb-3">
-                            <label
-                                class="mb-1 block text-xs tracking-wider text-hai"
-                                >PRODUK KATALOG PO</label
-                            >
+                            <label class="admin-label">Produk Katalog PO</label>
                             <select
                                 v-model="form.catalog_id"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-select"
                                 :disabled="isSubmitting"
                             >
                                 <option :value="null">Pilih produk</option>
@@ -77,7 +49,7 @@
 
                         <div
                             v-if="selectedCatalog"
-                            class="mb-3 rounded-xl border border-sumi/10 bg-shironeri p-3"
+                            class="admin-card-muted mb-3"
                         >
                             <div class="flex items-center gap-3">
                                 <img
@@ -89,7 +61,7 @@
                                 />
                                 <div
                                     v-else
-                                    class="flex h-12 w-12 items-center justify-center rounded-lg bg-sumi/10 text-hai/60"
+                                    class="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-200 text-slate-500"
                                 >
                                     <i class="bi bi-image"></i>
                                 </div>
@@ -97,11 +69,11 @@
                                     <p class="truncate text-sm font-bold">
                                         {{ selectedCatalog.name }}
                                     </p>
-                                    <p class="text-[11px] text-hai">
+                                    <p class="text-[11px] text-slate-500">
                                         {{ selectedCatalog.brand }} ·
                                         {{ selectedCatalog.collection }}
                                     </p>
-                                    <p class="text-[11px] text-hai">
+                                    <p class="text-[11px] text-slate-500">
                                         Size {{ selectedCatalog.size_range }}
                                     </p>
                                 </div>
@@ -110,13 +82,10 @@
 
                         <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label
-                                    class="mb-1 block text-xs tracking-wider text-hai"
-                                    >STATUS</label
-                                >
+                                <label class="admin-label">Status</label>
                                 <select
                                     v-model="form.status"
-                                    class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                    class="admin-select"
                                     :disabled="isSubmitting"
                                 >
                                     <option value="buka">BUKA</option>
@@ -128,10 +97,10 @@
                             </div>
                             <div>
                                 <label
-                                    class="mb-1 flex items-center justify-between text-xs tracking-wider text-hai"
+                                    class="mb-1 flex items-center justify-between text-xs tracking-wider text-slate-500"
                                 >
                                     <span>BATCH</span>
-                                    <span class="text-[10px] text-hai/60"
+                                    <span class="text-[10px] text-slate-400"
                                         >(Opsional)</span
                                     >
                                 </label>
@@ -139,7 +108,7 @@
                                     v-model.trim="form.batch_label"
                                     type="text"
                                     maxlength="40"
-                                    class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                    class="admin-input"
                                     placeholder="Kosongkan jika tidak perlu"
                                     :disabled="isSubmitting"
                                 />
@@ -148,73 +117,62 @@
 
                         <div class="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <label
-                                    class="mb-1 block text-xs tracking-wider text-hai"
-                                    >MAX SLOTS</label
-                                >
+                                <label class="admin-label">Max Slots</label>
                                 <input
                                     v-model.number="form.max_slots"
                                     type="number"
                                     min="1"
                                     max="9999"
-                                    class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                    class="admin-input"
                                     :disabled="isSubmitting"
                                 />
                             </div>
                             <div>
-                                <label
-                                    class="mb-1 block text-xs tracking-wider text-hai"
-                                    >FILLED SLOTS</label
-                                >
+                                <label class="admin-label">Filled Slots</label>
                                 <input
                                     v-model.number="form.filled_slots"
                                     type="number"
                                     min="0"
                                     :max="Math.max(form.max_slots, 0)"
-                                    class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                    class="admin-input"
                                     :disabled="isSubmitting"
                                 />
                             </div>
                         </div>
 
-                        <div
-                            class="mb-3 rounded-lg border border-sumi/10 bg-shironeri p-3"
-                        >
+                        <div class="admin-card-muted mb-3">
                             <div class="mb-1 flex items-center justify-between">
-                                <p class="text-xs font-bold text-sumi">
+                                <p class="text-xs font-bold text-slate-700">
                                     Progress Slot
                                 </p>
-                                <p class="text-xs text-hai">
+                                <p class="text-xs text-slate-500">
                                     {{ formProgress }}%
                                 </p>
                             </div>
                             <div
-                                class="h-2 overflow-hidden rounded-full bg-sumi/10"
+                                class="h-2 overflow-hidden rounded-full bg-slate-200"
                             >
                                 <div
-                                    class="h-full rounded-full bg-matcha transition-all"
+                                    class="h-full rounded-full bg-emerald-600 transition-all"
                                     :style="{ width: `${formProgress}%` }"
                                 ></div>
                             </div>
-                            <p class="mt-1 text-[11px] text-hai">
+                            <p class="mt-1 text-[11px] text-slate-500">
                                 Sisa slot: {{ formRemainingSlots }}
                             </p>
                         </div>
 
                         <div class="mb-3">
-                            <label
-                                class="mb-1 block text-xs tracking-wider text-hai"
-                                >WAKTU TUTUP PO</label
-                            >
+                            <label class="admin-label">Waktu Tutup PO</label>
                             <input
                                 v-model="form.countdown_ends_at"
                                 type="datetime-local"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-input"
                                 :disabled="isSubmitting"
                             />
                             <div class="mt-2 flex flex-wrap gap-1.5">
                                 <button
-                                    class="rounded-full border border-sumi/15 px-2.5 py-1 text-[11px] text-hai transition-all hover:bg-sumi/5"
+                                    class="admin-btn admin-btn-soft rounded-full px-2.5 py-1 text-[11px]"
                                     type="button"
                                     :disabled="isSubmitting"
                                     @click="applyQuickOffset(1)"
@@ -222,7 +180,7 @@
                                     +1 jam
                                 </button>
                                 <button
-                                    class="rounded-full border border-sumi/15 px-2.5 py-1 text-[11px] text-hai transition-all hover:bg-sumi/5"
+                                    class="admin-btn admin-btn-soft rounded-full px-2.5 py-1 text-[11px]"
                                     type="button"
                                     :disabled="isSubmitting"
                                     @click="applyQuickOffset(6)"
@@ -230,7 +188,7 @@
                                     +6 jam
                                 </button>
                                 <button
-                                    class="rounded-full border border-sumi/15 px-2.5 py-1 text-[11px] text-hai transition-all hover:bg-sumi/5"
+                                    class="admin-btn admin-btn-soft rounded-full px-2.5 py-1 text-[11px]"
                                     type="button"
                                     :disabled="isSubmitting"
                                     @click="applyQuickOffset(24)"
@@ -238,7 +196,7 @@
                                     +1 hari
                                 </button>
                                 <button
-                                    class="rounded-full border border-sumi/15 px-2.5 py-1 text-[11px] text-hai transition-all hover:bg-sumi/5"
+                                    class="admin-btn admin-btn-soft rounded-full px-2.5 py-1 text-[11px]"
                                     type="button"
                                     :disabled="isSubmitting"
                                     @click="applyQuickOffset(72)"
@@ -246,7 +204,7 @@
                                     +3 hari
                                 </button>
                                 <button
-                                    class="rounded-full border border-sumi/15 px-2.5 py-1 text-[11px] text-hai transition-all hover:bg-sumi/5"
+                                    class="admin-btn admin-btn-soft rounded-full px-2.5 py-1 text-[11px]"
                                     type="button"
                                     :disabled="isSubmitting"
                                     @click="applyQuickOffset(168)"
@@ -257,13 +215,10 @@
                         </div>
 
                         <div class="mb-4">
-                            <label
-                                class="mb-1 block text-xs tracking-wider text-hai"
-                                >URUTAN</label
-                            >
+                            <label class="admin-label">Urutan</label>
                             <select
                                 v-model.number="form.urutan"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-select"
                                 :disabled="isSubmitting"
                             >
                                 <option :value="null">Pilih urutan</option>
@@ -282,7 +237,7 @@
                         </div>
 
                         <button
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-matcha px-4 py-2.5 text-sm font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/45"
+                            class="admin-btn admin-btn-primary admin-btn-block"
                             :disabled="isSubmitting"
                             @click="submitForm"
                         >
@@ -310,7 +265,7 @@
 
                         <button
                             v-if="form.id !== null"
-                            class="mt-2.5 w-full rounded-lg bg-sumi/10 px-4 py-2.5 text-sm font-medium text-sumi transition-all hover:bg-sumi/20"
+                            class="admin-btn admin-btn-soft admin-btn-block mt-2"
                             :disabled="isSubmitting"
                             @click="resetForm"
                         >
@@ -321,25 +276,23 @@
 
                 <div class="xl:col-span-2">
                     <div class="mb-4 flex items-center justify-between">
-                        <h3
-                            class="font-heading flex items-center gap-2 text-xl font-bold lg:text-2xl"
-                        >
-                            <i class="bi bi-grid text-lg text-matcha"></i>
+                        <h3 class="admin-section-title flex items-center gap-2">
+                            <i class="bi bi-grid text-sm"></i>
                             Daftar Pre-Order ({{ assignments.length }})
                         </h3>
                     </div>
 
                     <div
                         v-if="assignments.length === 0"
-                        class="rounded-2xl border border-sumi/10 bg-washi p-10 text-center"
+                        class="admin-empty-state"
                     >
                         <i
-                            class="bi bi-hourglass mb-3 block text-5xl text-hai/30"
+                            class="bi bi-hourglass mb-2 block text-4xl text-slate-400"
                         ></i>
-                        <p class="mb-1 text-base font-bold text-hai">
+                        <p class="mb-1 text-sm font-semibold text-slate-700">
                             Belum ada produk pre-order untuk Home
                         </p>
-                        <p class="text-sm text-hai/60">
+                        <p class="admin-muted-text">
                             Tambahkan produk PO dari form di sebelah kiri.
                         </p>
                     </div>
@@ -348,10 +301,10 @@
                         <article
                             v-for="assignment in sortedAssignments"
                             :key="assignment.id"
-                            class="card-lift rounded-2xl border border-sumi/10 bg-washi"
+                            class="rounded-xl border border-slate-200 bg-white"
                         >
                             <div
-                                class="relative aspect-16/11 overflow-hidden rounded-t-xl bg-sumi/5"
+                                class="relative aspect-16/11 overflow-hidden rounded-t-xl bg-slate-100"
                             >
                                 <img
                                     v-if="assignment.catalog?.image_url"
@@ -362,7 +315,7 @@
                                 />
                                 <div
                                     v-else
-                                    class="flex h-full w-full items-center justify-center text-hai/40"
+                                    class="flex h-full w-full items-center justify-center text-slate-400"
                                 >
                                     <i class="bi bi-image text-4xl"></i>
                                 </div>
@@ -381,8 +334,8 @@
                                     class="absolute top-2.5 right-2.5 z-10 rounded-full px-3 py-1.5 text-xs font-bold transition-all disabled:cursor-not-allowed disabled:opacity-60"
                                     :class="
                                         assignment.is_visible
-                                            ? 'cursor-pointer bg-matcha/90 text-washi hover:bg-matcha/80'
-                                            : 'cursor-pointer bg-sumi/70 text-washi hover:bg-sumi/60'
+                                            ? 'cursor-pointer bg-emerald-600 text-white hover:bg-emerald-500'
+                                            : 'cursor-pointer bg-slate-600 text-white hover:bg-slate-500'
                                     "
                                 >
                                     {{
@@ -417,28 +370,28 @@
                                     </p>
                                 </div>
 
-                                <div
-                                    class="rounded-xl border border-sumi/10 bg-shironeri p-2.5"
-                                >
+                                <div class="admin-card-muted">
                                     <div
                                         class="mb-1 flex items-center justify-between"
                                     >
-                                        <p class="text-xs font-bold text-sumi">
+                                        <p
+                                            class="text-xs font-bold text-slate-700"
+                                        >
                                             Slot Progress
                                         </p>
-                                        <p class="text-xs text-hai">
+                                        <p class="text-xs text-slate-500">
                                             {{ assignment.progress }}%
                                         </p>
                                     </div>
                                     <div
-                                        class="h-2 overflow-hidden rounded-full bg-sumi/10"
+                                        class="h-2 overflow-hidden rounded-full bg-slate-200"
                                     >
                                         <div
                                             class="h-full rounded-full transition-all"
                                             :class="
                                                 assignment.progress >= 90
                                                     ? 'bg-amber-500'
-                                                    : 'bg-matcha'
+                                                    : 'bg-emerald-600'
                                             "
                                             :style="{
                                                 width: `${assignment.progress}%`,
@@ -446,7 +399,7 @@
                                         ></div>
                                     </div>
                                     <div
-                                        class="mt-1 flex items-center justify-between text-[11px] text-hai"
+                                        class="mt-1 flex items-center justify-between text-[11px] text-slate-500"
                                     >
                                         <span>
                                             Filled
@@ -464,43 +417,43 @@
                                 </div>
 
                                 <div
-                                    class="grid grid-cols-3 gap-2 text-xs text-hai"
+                                    class="grid grid-cols-3 gap-2 text-xs text-slate-500"
                                 >
                                     <div
-                                        class="rounded-lg border border-sumi/10 bg-shironeri p-2"
+                                        class="rounded-lg border border-slate-200 bg-slate-50 p-2"
                                     >
                                         <p
                                             class="mb-1 text-[10px] tracking-wider text-hai/80 uppercase"
                                         >
                                             Urutan
                                         </p>
-                                        <p class="font-bold text-sumi">
+                                        <p class="font-bold text-slate-700">
                                             #{{
                                                 toSafeUrutan(assignment.urutan)
                                             }}
                                         </p>
                                     </div>
                                     <div
-                                        class="rounded-lg border border-sumi/10 bg-shironeri p-2"
+                                        class="rounded-lg border border-slate-200 bg-slate-50 p-2"
                                     >
                                         <p
                                             class="mb-1 text-[10px] tracking-wider text-hai/80 uppercase"
                                         >
                                             Batch
                                         </p>
-                                        <p class="font-bold text-sumi">
+                                        <p class="font-bold text-slate-700">
                                             {{ assignment.batch_label || '-' }}
                                         </p>
                                     </div>
                                     <div
-                                        class="rounded-lg border border-sumi/10 bg-shironeri p-2"
+                                        class="rounded-lg border border-slate-200 bg-slate-50 p-2"
                                     >
                                         <p
                                             class="mb-1 text-[10px] tracking-wider text-hai/80 uppercase"
                                         >
                                             Tutup PO
                                         </p>
-                                        <p class="font-bold text-sumi">
+                                        <p class="font-bold text-slate-700">
                                             {{
                                                 formatDateTime(
                                                     assignment.countdown_ends_at,
@@ -512,7 +465,7 @@
 
                                 <div class="flex items-center gap-2">
                                     <button
-                                        class="flex-1 rounded-lg bg-indigo/15 px-3 py-2 text-xs font-bold text-indigo transition-all hover:bg-indigo/25"
+                                        class="admin-btn admin-btn-secondary flex-1"
                                         :disabled="busyRowId === assignment.id"
                                         @click="startEdit(assignment)"
                                     >
@@ -522,12 +475,12 @@
                                         v-if="assignment.catalog?.route_key"
                                         :href="`/katalog/${assignment.catalog.route_key}`"
                                         target="_blank"
-                                        class="rounded-lg bg-matcha/20 px-3 py-2 text-xs font-bold text-matcha transition-all hover:bg-matcha/30"
+                                        class="admin-btn admin-btn-soft"
                                     >
                                         Detail
                                     </a>
                                     <button
-                                        class="rounded-lg bg-red-500/15 px-3 py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+                                        class="admin-btn admin-btn-danger disabled:cursor-not-allowed disabled:opacity-60"
                                         :disabled="busyRowId === assignment.id"
                                         @click="deleteAssignment(assignment)"
                                     >
@@ -546,6 +499,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 
+import AdminAlert from '@/components/admin/AdminAlert.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 
 type PreOrderStatus = 'buka' | 'hampir_habis' | 'habis';
