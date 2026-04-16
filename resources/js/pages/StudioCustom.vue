@@ -846,7 +846,7 @@
                 rel="noreferrer"
                 class="inline-flex w-full items-center justify-center rounded-xl bg-[#25D366] px-4 py-2.5 text-xs font-extrabold tracking-[0.12em] text-white uppercase"
               >
-                Kirim Ringkasan ke WhatsApp Pembeli
+                Kirim Ringkasan ke WhatsApp Penjual
               </a>
             </div>
           </article>
