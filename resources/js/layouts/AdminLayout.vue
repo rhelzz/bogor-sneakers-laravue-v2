@@ -183,14 +183,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref } from 'vue';
-
-type NavigationItem = {
-    href: string;
-    match: string;
-    label: string;
-    icon: string;
-};
 
 const page = usePage();
 const sidebarCollapsed = ref(false);
@@ -245,6 +237,7 @@ const isActive = (route: string) => {
     if (!route) return false;
     return page.url.includes(route);
 };
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&display=swap');
