@@ -1,45 +1,21 @@
 <template>
     <AdminLayout>
-        <div class="mx-auto max-w-6xl">
-            <div class="accent-left mb-6">
-                <h2 class="font-heading mb-1 text-2xl font-bold lg:text-3xl">
-                    Kelola TikTok Feed
-                </h2>
-                <p class="text-sm text-hai">
-                    Maksimal 4 link TikTok untuk ditampilkan di Home dengan
-                    filter kategori.
-                </p>
-            </div>
+        <div class="admin-page">
+            <AdminPageHeader
+                title="Kelola TikTok Feed"
+                description="Maksimal 4 link TikTok untuk ditampilkan di Home dengan filter kategori."
+            />
 
-            <div
-                v-if="successMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-matcha bg-matcha/20 p-3 text-sm text-matcha"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-check-circle"></i>
-                    {{ successMessage }}
-                </div>
-            </div>
-
-            <div
-                v-if="errorMessage"
-                class="animate-fade-in mb-4 rounded-xl border border-red-500 bg-red-200/20 p-3 text-sm text-red-600"
-            >
-                <div class="flex items-center gap-2">
-                    <i class="bi bi-exclamation-circle"></i>
-                    {{ errorMessage }}
-                </div>
-            </div>
+            <AdminAlert :message="successMessage" variant="success" />
+            <AdminAlert :message="errorMessage" variant="error" />
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-1">
-                    <div
-                        class="card-lift sticky top-6 rounded-2xl border border-sumi/5 bg-washi p-6"
-                    >
+                    <div class="admin-card admin-card-sticky">
                         <h3
-                            class="font-heading mb-5 flex items-center gap-2 text-lg font-bold"
+                            class="admin-section-title mb-4 flex items-center gap-2"
                         >
-                            <i class="bi bi-tiktok text-xl text-matcha"></i>
+                            <i class="bi bi-tiktok text-base"></i>
                             {{
                                 editId
                                     ? 'Edit Link TikTok'
@@ -48,26 +24,20 @@
                         </h3>
 
                         <div class="mb-4">
-                            <label
-                                class="mb-2 block text-xs tracking-wider text-hai"
-                                >LINK VIDEO</label
-                            >
+                            <label class="admin-label">Link Video</label>
                             <input
                                 v-model.trim="form.url"
                                 type="url"
                                 placeholder="https://www.tiktok.com/@username/video/123"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-input"
                             />
                         </div>
 
                         <div class="mb-4">
-                            <label
-                                class="mb-2 block text-xs tracking-wider text-hai"
-                                >KATEGORI</label
-                            >
+                            <label class="admin-label">Kategori</label>
                             <select
                                 v-model="form.category"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-select"
                             >
                                 <option value="">Pilih kategori</option>
                                 <option
@@ -84,38 +54,37 @@
                         </div>
 
                         <div v-if="form.category === '__new'" class="mb-4">
-                            <label
-                                class="mb-2 block text-xs tracking-wider text-hai"
-                                >KATEGORI BARU</label
-                            >
+                            <label class="admin-label">Kategori Baru</label>
                             <input
                                 v-model.trim="form.category_new"
                                 type="text"
                                 maxlength="64"
                                 placeholder="Contoh: unboxing"
-                                class="w-full rounded-lg border border-sumi/20 bg-shironeri px-3 py-2.5 text-sm transition-all outline-none focus:border-matcha"
+                                class="admin-input"
                             />
                         </div>
 
                         <div
-                            class="mb-4 flex items-center justify-between rounded-lg bg-sumi/5 p-2.5"
+                            class="admin-card-muted mb-4 flex items-center justify-between"
                         >
-                            <span class="text-xs text-hai"
+                            <span class="admin-muted-text"
                                 >Tampilkan di Home</span
                             >
                             <button
                                 type="button"
                                 @click="form.is_active = !form.is_active"
                                 :class="[
-                                    'flex h-8 w-14 items-center rounded-full px-1 transition-all',
-                                    form.is_active ? 'bg-matcha' : 'bg-sumi/20',
+                                    'flex h-7 w-12 items-center rounded-full px-1 transition-all',
+                                    form.is_active
+                                        ? 'bg-emerald-600'
+                                        : 'bg-slate-300',
                                 ]"
                             >
                                 <span
                                     :class="[
-                                        'h-6 w-6 rounded-full bg-washi transition-all',
+                                        'h-5 w-5 rounded-full bg-white transition-all',
                                         form.is_active
-                                            ? 'translate-x-6'
+                                            ? 'translate-x-5'
                                             : 'translate-x-0',
                                     ]"
                                 ></span>
@@ -125,7 +94,7 @@
                         <button
                             @click="submitForm"
                             :disabled="isSubmitting || isMaxReached"
-                            class="flex w-full items-center justify-center gap-2 rounded-lg bg-matcha px-4 py-2.5 text-sm font-bold text-washi transition-all hover:bg-matcha/80 disabled:cursor-not-allowed disabled:bg-matcha/40"
+                            class="admin-btn admin-btn-primary admin-btn-block"
                         >
                             <i v-if="!isSubmitting" class="bi bi-save"></i>
                             <i
@@ -144,15 +113,13 @@
                         <button
                             v-if="editId"
                             @click="resetForm"
-                            class="mt-2.5 w-full rounded-lg bg-sumi/10 px-4 py-2.5 text-sm font-medium text-sumi transition-all hover:bg-sumi/20"
+                            class="admin-btn admin-btn-soft admin-btn-block mt-2"
                         >
                             Batal Edit
                         </button>
 
-                        <div
-                            class="mt-5 rounded-lg border border-sumi/10 bg-sumi/5 p-3"
-                        >
-                            <p class="text-xs leading-relaxed text-hai/70">
+                        <div class="admin-card-muted mt-4">
+                            <p class="admin-muted-text leading-relaxed">
                                 <strong>Catatan:</strong> Slot terpakai
                                 {{ feeds.length }}/4. Data preview (judul,
                                 thumbnail, author) otomatis diambil dari TikTok.
@@ -163,27 +130,20 @@
 
                 <div class="lg:col-span-2">
                     <div class="mb-4 flex items-center justify-between">
-                        <h3
-                            class="font-heading flex items-center gap-2 text-xl font-bold"
-                        >
-                            <i
-                                class="bi bi-grid-3x3-gap text-xl text-matcha"
-                            ></i>
+                        <h3 class="admin-section-title flex items-center gap-2">
+                            <i class="bi bi-grid-3x3-gap text-sm"></i>
                             Video Aktif ({{ feeds.length }})
                         </h3>
                     </div>
 
-                    <div
-                        v-if="feeds.length === 0"
-                        class="rounded-2xl border border-sumi/5 bg-washi p-8 text-center"
-                    >
+                    <div v-if="feeds.length === 0" class="admin-empty-state">
                         <i
-                            class="bi bi-collection-play mb-3 block text-5xl text-hai/30"
+                            class="bi bi-collection-play mb-2 block text-4xl text-slate-400"
                         ></i>
-                        <p class="mb-1 text-base font-bold text-hai">
+                        <p class="mb-1 text-sm font-semibold text-slate-700">
                             Belum ada link TikTok
                         </p>
-                        <p class="text-sm text-hai/60">
+                        <p class="admin-muted-text">
                             Tambahkan link pertama lewat form di sebelah kiri.
                         </p>
                     </div>
@@ -192,10 +152,10 @@
                         <div
                             v-for="feed in sortedFeeds"
                             :key="feed.id"
-                            class="card-lift overflow-hidden rounded-2xl border border-sumi/10 bg-washi"
+                            class="overflow-hidden rounded-xl border border-slate-200 bg-white"
                         >
                             <div
-                                class="relative aspect-9/16 overflow-hidden bg-sumi/10"
+                                class="relative aspect-9/16 overflow-hidden bg-slate-100"
                             >
                                 <img
                                     v-if="feed.thumbnail_url"
@@ -209,12 +169,12 @@
                                     class="flex h-full w-full items-center justify-center"
                                 >
                                     <i
-                                        class="bi bi-image text-4xl text-hai/30"
+                                        class="bi bi-image text-4xl text-slate-300"
                                     ></i>
                                 </div>
 
                                 <div
-                                    class="absolute inset-x-0 bottom-0 bg-linear-to-t from-kuro/80 via-kuro/20 to-transparent p-4 text-washi"
+                                    class="admin-image-overlay absolute inset-x-0 bottom-0 p-3 text-white"
                                 >
                                     <p class="line-clamp-2 text-sm font-medium">
                                         {{ feed.title ?? 'Video TikTok' }}
@@ -225,7 +185,7 @@
                                 </div>
 
                                 <span
-                                    class="absolute top-3 left-3 rounded-full bg-sumi/70 px-3 py-1 text-[11px] tracking-wide text-washi"
+                                    class="absolute top-3 left-3 rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] tracking-wide text-slate-700"
                                 >
                                     {{ toCategoryLabel(feed.category) }}
                                 </span>
@@ -236,7 +196,7 @@
                                     :href="feed.url"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    class="line-clamp-1 block text-xs text-hai hover:text-sumi"
+                                    class="line-clamp-1 block text-xs text-slate-500 hover:text-slate-800"
                                 >
                                     {{ feed.url }}
                                 </a>
@@ -248,8 +208,8 @@
                                         :class="[
                                             'flex-1 rounded-lg px-3 py-2 text-xs font-bold transition-all disabled:cursor-not-allowed disabled:opacity-60',
                                             feed.is_active
-                                                ? 'bg-matcha/20 text-matcha hover:bg-matcha/30'
-                                                : 'bg-sumi/10 text-hai hover:bg-sumi/20',
+                                                ? 'border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                                : 'border border-slate-300 bg-slate-100 text-slate-600 hover:bg-slate-200',
                                         ]"
                                     >
                                         {{
@@ -261,7 +221,7 @@
 
                                     <button
                                         @click="startEdit(feed)"
-                                        class="rounded-lg bg-indigo/15 px-3 py-2 text-xs font-bold text-indigo transition-all hover:bg-indigo/25"
+                                        class="admin-btn admin-btn-secondary"
                                     >
                                         Edit
                                     </button>
@@ -269,7 +229,7 @@
                                     <button
                                         @click="removeFeed(feed)"
                                         :disabled="busyRowId === feed.id"
-                                        class="rounded-lg bg-red-500/15 px-3 py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+                                        class="admin-btn admin-btn-danger disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         Hapus
                                     </button>
@@ -286,6 +246,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 
+import AdminAlert from '@/components/admin/AdminAlert.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import type { TikTokFeedItem } from '@/types/tiktok';
 
@@ -599,25 +561,3 @@ if (feeds.value.length > 0) {
     form.sort_order = feeds.value.length;
 }
 </script>
-
-<style scoped>
-.accent-left {
-    border-left: 4px solid #7c8c5a;
-    padding-left: 1rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-</style>
