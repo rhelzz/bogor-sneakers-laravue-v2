@@ -10,7 +10,7 @@
         >
             <!-- Brand -->
             <div
-                class="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800/60 px-[14px]"
+                class="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800/60 px-3.5"
             >
                 <div
                     class="overflow-hidden"
@@ -68,7 +68,7 @@
                         v-for="item in navItemsKonten"
                         :key="item.href"
                         :href="item.href"
-                        class="group relative mb-0.5 flex h-9 items-center gap-3 overflow-hidden rounded-sm px-[11px] transition-colors duration-150"
+                        class="group relative mb-0.5 flex h-9 items-center gap-3 overflow-hidden rounded-sm px-2.75 transition-colors duration-150"
                         :class="
                             isActive(item.route)
                                 ? 'bg-zinc-800 text-zinc-100'
@@ -78,14 +78,14 @@
                         <!-- Active left indicator -->
                         <span
                             v-if="isActive(item.route)"
-                            class="absolute inset-y-1.5 left-0 w-[2px] rounded-r-full bg-zinc-300"
+                            class="absolute inset-y-1.5 left-0 w-0.5 rounded-r-full bg-zinc-300"
                         ></span>
 
                         <i
                             :class="[
                                 'bi',
                                 item.icon,
-                                'w-[18px] shrink-0 text-center text-[15px]',
+                                'w-4.5 shrink-0 text-center text-[15px]',
                             ]"
                         ></i>
                         <span
@@ -106,10 +106,10 @@
                     <a
                         href="/"
                         target="_blank"
-                        class="flex h-9 items-center gap-3 overflow-hidden rounded-sm px-[11px] text-zinc-600 transition-colors duration-150 hover:bg-zinc-800/50 hover:text-zinc-400"
+                        class="flex h-9 items-center gap-3 overflow-hidden rounded-sm px-2.75 text-zinc-600 transition-colors duration-150 hover:bg-zinc-800/50 hover:text-zinc-400"
                     >
                         <i
-                            class="bi bi-arrow-up-right-circle w-[18px] shrink-0 text-center text-[15px]"
+                            class="bi bi-arrow-up-right-circle w-4.5 shrink-0 text-center text-[15px]"
                         ></i>
                         <span
                             class="overflow-hidden text-[13px] font-medium whitespace-nowrap"
@@ -181,8 +181,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { ref, onMounted, watch } from 'vue';
 
 const page = usePage();
 const sidebarCollapsed = ref(false);
@@ -190,6 +190,7 @@ const sidebarCollapsed = ref(false);
 // Load sidebar state from localStorage
 onMounted(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
+
     if (saved !== null) {
         sidebarCollapsed.value = JSON.parse(saved);
     }
@@ -234,7 +235,10 @@ const navItemsKonten = [
 ];
 
 const isActive = (route: string) => {
-    if (!route) return false;
+    if (!route) {
+        return false;
+    }
+
     return page.url.includes(route);
 };
 </script>
