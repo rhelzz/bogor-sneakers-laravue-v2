@@ -1,0 +1,1 @@
+export { useAdminCatalogManager } from './useAdminCatalogManager';
