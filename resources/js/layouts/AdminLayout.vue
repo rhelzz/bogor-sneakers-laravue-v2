@@ -13,7 +13,7 @@
                 class="flex h-14 shrink-0 items-center justify-between border-b border-zinc-800/60 px-3.5"
             >
                 <div
-                    class="overflow-hidden"
+                    class="flex items-center gap-2 overflow-hidden"
                     :style="{
                         width: sidebarCollapsed ? '0px' : '160px',
                         opacity: sidebarCollapsed ? 0 : 1,
@@ -21,18 +21,27 @@
                             'width 320ms cubic-bezier(0.4,0,0.2,1), opacity 200ms ease',
                     }"
                 >
-                    <p
-                        class="text-[13px] leading-tight font-black tracking-[0.12em] text-zinc-100 uppercase"
-                        style="font-family: 'Syne', sans-serif"
-                    >
-                        Bogor
-                    </p>
-                    <p
-                        class="text-[13px] leading-tight font-black tracking-[0.12em] text-zinc-100 uppercase"
-                        style="font-family: 'Syne', sans-serif"
-                    >
-                        Sneakers
-                    </p>
+                    <img
+                        src="/logo-b-bogor.svg"
+                        alt="Logo Bogor Sneakers"
+                        class="h-8 w-8 shrink-0 rounded-lg border border-zinc-700/60 bg-zinc-900/80 p-1"
+                        loading="eager"
+                        decoding="async"
+                    />
+                    <div>
+                        <p
+                            class="text-[13px] leading-tight font-black tracking-[0.12em] text-zinc-100 uppercase"
+                            style="font-family: 'Syne', sans-serif"
+                        >
+                            Bogor
+                        </p>
+                        <p
+                            class="text-[13px] leading-tight font-black tracking-[0.12em] text-zinc-100 uppercase"
+                            style="font-family: 'Syne', sans-serif"
+                        >
+                            Sneakers
+                        </p>
+                    </div>
                 </div>
                 <button
                     @click="sidebarCollapsed = !sidebarCollapsed"
@@ -137,6 +146,13 @@
         >
             <!-- Left -->
             <div class="flex items-center gap-3">
+                <img
+                    src="/logo-b-bogor.svg"
+                    alt="Logo Bogor Sneakers"
+                    class="h-7 w-7 rounded-md border border-zinc-700/70 bg-zinc-900/70 p-1"
+                    loading="eager"
+                    decoding="async"
+                />
                 <div class="h-1 w-1 shrink-0 rounded-full bg-zinc-700"></div>
                 <span
                     class="text-[11px] tracking-[0.15em] text-zinc-500 uppercase"
