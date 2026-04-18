@@ -1,0 +1,1 @@
+export { createAdminGaleriKaryaApiService } from './galeriKaryaApi';
