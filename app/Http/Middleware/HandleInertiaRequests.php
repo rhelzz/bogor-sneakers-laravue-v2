@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\WhatsappAdmin;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,6 +42,21 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'floatingContacts' => fn (): array => $this->resolveFloatingContacts(),
         ];
+    }
+
+    /**
+     * @return array<int, array{id: int, name: string, role: string, phone: string, initial: string, color: string}>
+     */
+    private function resolveFloatingContacts(): array
+    {
+        return WhatsappAdmin::query()
+            ->active()
+            ->ordered()
+            ->get()
+            ->map(static fn (WhatsappAdmin $admin): array => $admin->toFloatingContact())
+            ->values()
+            ->all();
     }
 }
