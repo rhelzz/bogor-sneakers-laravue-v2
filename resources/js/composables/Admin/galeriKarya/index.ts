@@ -1,0 +1,1 @@
+export { useAdminGaleriKaryaManager } from './useAdminGaleriKaryaManager';
