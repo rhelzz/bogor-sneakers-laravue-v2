@@ -13,14 +13,20 @@
     </section>
 </template>
 
-<script setup lang="ts">
-withDefaults(
-    defineProps<{
-        title: string;
-        description?: string;
-    }>(),
-    {
-        description: '',
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+    name: 'AdminPageHeader',
+    props: {
+        title: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+            default: '',
+        },
     },
-);
+});
 </script>
