@@ -1,5 +1,6 @@
 <template>
     <div class="font-body bg-washi text-sumi antialiased">
+        <Head title="Home" />
         <FloatingMenuNav current-page="home" />
         <FloatingAdminPanel :contacts="contacts" />
         <FloatingOrderPanel
@@ -794,7 +795,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import Footer from '@/components/sections/Footer.vue';
