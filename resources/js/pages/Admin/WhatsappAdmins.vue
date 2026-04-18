@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+        <Head title="Admin WhatsApp Admins" />
         <div class="admin-page">
             <AdminPageHeader
                 title="Kelola WhatsApp Admin"
@@ -269,8 +270,8 @@
         </div>
     </AdminLayout>
 </template>
-
 <script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
 
 import AdminAlert from '@/components/admin/AdminAlert.vue';
