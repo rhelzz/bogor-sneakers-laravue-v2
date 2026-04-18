@@ -794,12 +794,13 @@
 </template>
 
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
+import Footer from '@/components/sections/Footer.vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
-import Footer from '@/components/sections/Footer.vue';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 import type { GallerySlot as GallerySlotApi } from '@/types/gallery';
 import type { TikTokFeedItem, TikTokFollowerSnapshot } from '@/types/tiktok';
@@ -849,6 +850,7 @@ type HomePageProps = {
 };
 
 const props = defineProps<HomePageProps>();
+const page = usePage();
 
 // State Management
 const produktFilter = ref('all');
@@ -856,32 +858,15 @@ const tiktokCategoryFilter = ref('all');
 const currentCarouselIndex = ref(0);
 
 // Contact Data
-const contacts = ref<FloatingContact[]>([
-    {
-        id: 1,
-        name: 'Rizky - Admin',
-        role: 'PO · Order · Ketersediaan',
-        phone: '6281234567890',
-        initial: 'R',
-        color: 'bg-matcha/20 text-matcha',
-    },
-    {
-        id: 2,
-        name: 'Farhan - CS',
-        role: 'Komplain · Tracking · Retur',
-        phone: '6289876543210',
-        initial: 'F',
-        color: 'bg-indigo/20 text-indigo',
-    },
-    {
-        id: 3,
-        name: 'Dinda - DIY',
-        role: 'Kustom · Desain · Konsultasi',
-        phone: '6285511223344',
-        initial: 'D',
-        color: 'bg-sakura/30 text-sakura',
-    },
-]);
+const contacts = computed<FloatingContact[]>(() => {
+    const sharedContacts = page.props.floatingContacts;
+
+    if (!Array.isArray(sharedContacts)) {
+        return [];
+    }
+
+    return sharedContacts as FloatingContact[];
+});
 
 // Orders
 const orders = ref<FloatingOrder[]>([
