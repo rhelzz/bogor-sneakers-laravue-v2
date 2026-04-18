@@ -7,6 +7,7 @@ use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\PreOrderHomeController;
 use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
+use App\Http\Controllers\WhatsAppAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,4 +47,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/pre-order-home', [PreOrderHomeController::class, 'store'])->name('admin.pre-order-home.store');
     Route::put('/pre-order-home/{homePreorder}', [PreOrderHomeController::class, 'update'])->name('admin.pre-order-home.update');
     Route::delete('/pre-order-home/{homePreorder}', [PreOrderHomeController::class, 'destroy'])->name('admin.pre-order-home.destroy');
+
+    Route::get('/whatsapp-admins', [WhatsAppAdminController::class, 'index'])->name('admin.whatsapp-admins');
+    Route::post('/whatsapp-admins', [WhatsAppAdminController::class, 'store'])->name('admin.whatsapp-admins.store');
+    Route::put('/whatsapp-admins/{whatsappAdmin}', [WhatsAppAdminController::class, 'update'])->name('admin.whatsapp-admins.update');
+    Route::delete('/whatsapp-admins/{whatsappAdmin}', [WhatsAppAdminController::class, 'destroy'])->name('admin.whatsapp-admins.destroy');
 });
