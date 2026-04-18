@@ -659,7 +659,7 @@
 </template>
 
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
@@ -682,6 +682,7 @@ const props = defineProps<{
     products: CatalogPublicItem[];
     maxPrice?: number;
 }>();
+const page = usePage();
 
 const MAX_PRICE = Math.max(3000000, Number(props.maxPrice ?? 0));
 const ITEMS_PER_PAGE = 12;
@@ -727,32 +728,15 @@ const availableSizes = computed(() => {
     return Array.from({ length: 15 }, (_, idx) => idx + 36);
 });
 
-const contacts = ref<FloatingContact[]>([
-    {
-        id: 1,
-        name: 'Rizky - Admin',
-        role: 'PO · Order · Ketersediaan',
-        phone: '6281234567890',
-        initial: 'R',
-        color: 'bg-matcha/20 text-matcha',
-    },
-    {
-        id: 2,
-        name: 'Farhan - CS',
-        role: 'Komplain · Tracking · Retur',
-        phone: '6289876543210',
-        initial: 'F',
-        color: 'bg-indigo/20 text-indigo',
-    },
-    {
-        id: 3,
-        name: 'Dinda - DIY',
-        role: 'Kustom · Desain · Konsultasi',
-        phone: '6285511223344',
-        initial: 'D',
-        color: 'bg-sakura/30 text-sakura',
-    },
-]);
+const contacts = computed<FloatingContact[]>(() => {
+    const sharedContacts = page.props.floatingContacts;
+
+    if (!Array.isArray(sharedContacts)) {
+        return [];
+    }
+
+    return sharedContacts as FloatingContact[];
+});
 
 const orders = ref<FloatingOrder[]>([
     {
