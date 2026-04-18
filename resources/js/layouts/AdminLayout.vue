@@ -180,67 +180,78 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
 
-const page = usePage();
-const sidebarCollapsed = ref(false);
+export default defineComponent({
+    name: 'AdminLayout',
+    setup() {
+        const page = usePage();
+        const sidebarCollapsed = ref(false);
 
-// Load sidebar state from localStorage
-onMounted(() => {
-    const saved = localStorage.getItem('sidebarCollapsed');
+        // Load sidebar state from localStorage.
+        onMounted(() => {
+            const saved = localStorage.getItem('sidebarCollapsed');
 
-    if (saved !== null) {
-        sidebarCollapsed.value = JSON.parse(saved);
-    }
+            if (saved !== null) {
+                sidebarCollapsed.value = JSON.parse(saved);
+            }
+        });
+
+        // Persist sidebar state on every change.
+        watch(sidebarCollapsed, (newValue) => {
+            localStorage.setItem('sidebarCollapsed', JSON.stringify(newValue));
+        });
+
+        const navItemsKonten = [
+            {
+                href: '/admin/carousel-home',
+                icon: 'bi-images',
+                label: 'Carousel Home',
+                route: 'carousel-home',
+            },
+            {
+                href: '/admin/tiktok-feed',
+                icon: 'bi-tiktok',
+                label: 'TikTok Feed',
+                route: 'tiktok-feed',
+            },
+            {
+                href: '/admin/galeri-karya',
+                icon: 'bi-grid-3x3-gap',
+                label: 'Galeri Karya',
+                route: 'galeri-karya',
+            },
+            {
+                href: '/admin/katalog',
+                icon: 'bi-shop',
+                label: 'Katalog',
+                route: 'admin/katalog',
+            },
+            {
+                href: '/admin/pre-order-home',
+                icon: 'bi-hourglass-split',
+                label: 'Pre-Order Home',
+                route: 'pre-order-home',
+            },
+        ];
+
+        const isActive = (route: string) => {
+            if (!route) {
+                return false;
+            }
+
+            return page.url.includes(route);
+        };
+
+        return {
+            sidebarCollapsed,
+            navItemsKonten,
+            isActive,
+        };
+    },
 });
-
-// Save sidebar state to localStorage whenever it changes
-watch(sidebarCollapsed, (newValue) => {
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(newValue));
-});
-
-const navItemsKonten = [
-    {
-        href: '/admin/carousel-home',
-        icon: 'bi-images',
-        label: 'Carousel Home',
-        route: 'carousel-home',
-    },
-    {
-        href: '/admin/tiktok-feed',
-        icon: 'bi-tiktok',
-        label: 'TikTok Feed',
-        route: 'tiktok-feed',
-    },
-    {
-        href: '/admin/galeri-karya',
-        icon: 'bi-grid-3x3-gap',
-        label: 'Galeri Karya',
-        route: 'galeri-karya',
-    },
-    {
-        href: '/admin/katalog',
-        icon: 'bi-shop',
-        label: 'Katalog',
-        route: 'admin/katalog',
-    },
-    {
-        href: '/admin/pre-order-home',
-        icon: 'bi-hourglass-split',
-        label: 'Pre-Order Home',
-        route: 'pre-order-home',
-    },
-];
-
-const isActive = (route: string) => {
-    if (!route) {
-        return false;
-    }
-
-    return page.url.includes(route);
-};
 </script>
 
 <style>
