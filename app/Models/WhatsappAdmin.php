@@ -6,7 +6,20 @@ use Database\Factories\WhatsappAdminFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $role
+ * @property string $phone
+ * @property string|null $initial
+ * @property string $color
+ * @property bool $is_active
+ * @property int $sort_order
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class WhatsappAdmin extends Model
 {
     /** @use HasFactory<WhatsappAdminFactory> */
@@ -49,7 +62,7 @@ class WhatsappAdmin extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', '=', true);
     }
 
     public function scopeOrdered(Builder $query): Builder
