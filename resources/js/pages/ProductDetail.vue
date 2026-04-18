@@ -255,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
@@ -267,27 +267,19 @@ import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 const props = defineProps<{
     product: CatalogDetailItem | null;
 }>();
+const page = usePage();
 
 const availableSizes = Array.from({ length: 15 }, (_, idx) => idx + 36);
 
-const contacts = ref<FloatingContact[]>([
-    {
-        id: 1,
-        name: 'Rizky - Admin',
-        role: 'PO · Order · Ketersediaan',
-        phone: '6281234567890',
-        initial: 'R',
-        color: 'bg-matcha/20 text-matcha',
-    },
-    {
-        id: 2,
-        name: 'Farhan - CS',
-        role: 'Komplain · Tracking · Retur',
-        phone: '6289876543210',
-        initial: 'F',
-        color: 'bg-indigo/20 text-indigo',
-    },
-]);
+const contacts = computed<FloatingContact[]>(() => {
+    const sharedContacts = page.props.floatingContacts;
+
+    if (!Array.isArray(sharedContacts)) {
+        return [];
+    }
+
+    return sharedContacts as FloatingContact[];
+});
 
 const orders = ref<FloatingOrder[]>([
     {
