@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\WhatsappAdminFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -62,7 +61,7 @@ class WhatsappAdmin extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', '=', true);
+        return $query->where('is_active', '=', true, 'and');
     }
 
     public function scopeOrdered(Builder $query): Builder
