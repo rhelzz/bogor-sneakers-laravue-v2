@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+        <Head title="Admin Katalog" />
         <div class="admin-page">
             <AdminPageHeader
                 title="Kelola Katalog"
@@ -588,6 +589,7 @@
 </template>
 
 <script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import AdminAlert from '@/components/admin/AdminAlert.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import { useAdminCatalogManager } from '@/composables/Admin/katalog/useAdminCatalogManager';
