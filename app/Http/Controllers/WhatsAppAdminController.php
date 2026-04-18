@@ -14,7 +14,7 @@ class WhatsAppAdminController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Admin/WhatsAppAdmins', [
+        return Inertia::render('Admin/WhatsappAdmins', [
             'admins' => WhatsappAdmin::query()
                 ->ordered()
                 ->get(['*'])
@@ -140,7 +140,7 @@ class WhatsAppAdminController extends Controller
     private function ensureUniquePhone(string $phone, ?WhatsappAdmin $current = null): void
     {
         $query = WhatsappAdmin::query()
-            ->where('phone', '=', $phone);
+            ->where('phone', '=', $phone, 'and');
 
         if ($current instanceof WhatsappAdmin) {
             $query->whereKeyNot((int) $current->getKey());
