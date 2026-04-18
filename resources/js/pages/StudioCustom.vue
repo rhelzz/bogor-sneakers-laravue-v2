@@ -1,5 +1,6 @@
 <template>
     <div class="font-body bg-washi text-sumi antialiased">
+        <Head title="Studio Custom" />
         <FloatingMenuNav current-page="studio-custom" />
         <FloatingAdminPanel
             :contacts="contacts"
@@ -1339,7 +1340,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CSSProperties } from 'vue';
 
