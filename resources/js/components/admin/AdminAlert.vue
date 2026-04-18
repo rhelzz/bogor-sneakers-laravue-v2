@@ -14,40 +14,52 @@
     </Transition>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
+<script lang="ts">
+import { computed, defineComponent, type PropType } from 'vue';
 
-const props = withDefaults(
-    defineProps<{
-        message: string;
-        variant?: 'success' | 'error' | 'info';
-    }>(),
-    {
-        variant: 'info',
+type AlertVariant = 'success' | 'error' | 'info';
+
+export default defineComponent({
+    name: 'AdminAlert',
+    props: {
+        message: {
+            type: String,
+            required: true,
+        },
+        variant: {
+            type: String as PropType<AlertVariant>,
+            default: 'info',
+        },
     },
-);
+    setup(props) {
+        const alertClass = computed(() => {
+            if (props.variant === 'success') {
+                return 'admin-alert-success';
+            }
 
-const alertClass = computed(() => {
-    if (props.variant === 'success') {
-        return 'admin-alert-success';
-    }
+            if (props.variant === 'error') {
+                return 'admin-alert-error';
+            }
 
-    if (props.variant === 'error') {
-        return 'admin-alert-error';
-    }
+            return 'admin-alert-info';
+        });
 
-    return 'admin-alert-info';
-});
+        const iconClass = computed(() => {
+            if (props.variant === 'success') {
+                return 'bi bi-check-circle-fill';
+            }
 
-const iconClass = computed(() => {
-    if (props.variant === 'success') {
-        return 'bi bi-check-circle-fill';
-    }
+            if (props.variant === 'error') {
+                return 'bi bi-exclamation-triangle-fill';
+            }
 
-    if (props.variant === 'error') {
-        return 'bi bi-exclamation-triangle-fill';
-    }
+            return 'bi bi-info-circle-fill';
+        });
 
-    return 'bi bi-info-circle-fill';
+        return {
+            alertClass,
+            iconClass,
+        };
+    },
 });
 </script>
