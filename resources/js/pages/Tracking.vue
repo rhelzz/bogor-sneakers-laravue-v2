@@ -1,5 +1,6 @@
 <template>
     <div class="font-body bg-washi text-sumi antialiased">
+        <Head title="Tracking Pesanan" />
         <FloatingMenuNav current-page="tracking" />
         <FloatingAdminPanel
             :contacts="contacts"
@@ -235,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 import Footer from '@/components/sections/Footer.vue';
