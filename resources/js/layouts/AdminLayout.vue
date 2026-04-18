@@ -235,6 +235,12 @@ export default defineComponent({
                 label: 'Pre-Order Home',
                 route: 'pre-order-home',
             },
+            {
+                href: '/admin/whatsapp-admins',
+                icon: 'bi-whatsapp',
+                label: 'WhatsApp Admin',
+                route: 'whatsapp-admins',
+            },
         ];
 
         const isActive = (route: string) => {
