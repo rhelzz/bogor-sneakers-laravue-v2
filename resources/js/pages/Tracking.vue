@@ -235,27 +235,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
+import Footer from '@/components/sections/Footer.vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
-import Footer from '@/components/sections/Footer.vue';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 
 // State Management
 const searchId = ref('');
+const page = usePage();
 
-const contacts = ref<FloatingContact[]>([
-    {
-        id: 1,
-        name: 'Farhan - Customer Service',
-        role: 'Komplain, Tracking, Retur',
-        phone: '6289876543210',
-        initial: 'F',
-        color: 'bg-indigo/20 text-indigo',
-    },
-]);
+const contacts = computed<FloatingContact[]>(() => {
+    const sharedContacts = page.props.floatingContacts;
+
+    if (!Array.isArray(sharedContacts)) {
+        return [];
+    }
+
+    return sharedContacts as FloatingContact[];
+});
 
 const orders = ref<FloatingOrder[]>([
     {
