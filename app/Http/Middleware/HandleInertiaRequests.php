@@ -54,7 +54,7 @@ class HandleInertiaRequests extends Middleware
         return WhatsappAdmin::query()
             ->active()
             ->ordered()
-            ->get()
+            ->get(['*'])
             ->map(static fn (WhatsappAdmin $admin): array => $admin->toFloatingContact())
             ->values()
             ->all();
