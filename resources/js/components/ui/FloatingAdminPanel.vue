@@ -1,5 +1,6 @@
 <template>
   <button
+    v-if="contacts.length > 0"
     aria-label="Hubungi admin"
     class="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
     @click="contactOpen = !contactOpen"
@@ -11,6 +12,7 @@
   </button>
 
   <div
+    v-if="contacts.length > 0"
     :class="[
       'fixed bottom-24 right-6 w-72 bg-washi rounded-2xl shadow-2xl border border-sumi/10 z-40 overflow-hidden transition-all duration-300 origin-bottom-right',
       contactOpen ? 'opacity-100 pointer-events-auto translate-y-0 scale-100' : 'opacity-0 pointer-events-none translate-y-2 scale-[0.98]',
