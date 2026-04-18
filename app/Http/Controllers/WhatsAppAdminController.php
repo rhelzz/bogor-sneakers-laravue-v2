@@ -17,7 +17,7 @@ class WhatsAppAdminController extends Controller
         return Inertia::render('Admin/WhatsAppAdmins', [
             'admins' => WhatsappAdmin::query()
                 ->ordered()
-                ->get()
+                ->get(['*'])
                 ->map(fn (WhatsappAdmin $admin): array => $this->serializeAdmin($admin))
                 ->values()
                 ->all(),
@@ -77,17 +77,23 @@ class WhatsAppAdminController extends Controller
                 : (int) $whatsappAdmin->sort_order,
         ]);
 
+        $freshAdmin = $whatsappAdmin->fresh();
+
+        if (! $freshAdmin instanceof WhatsappAdmin) {
+            $freshAdmin = $whatsappAdmin;
+        }
+
         return response()->json([
             'message' => 'Kontak WhatsApp admin berhasil diperbarui.',
-            'admin' => $this->serializeAdmin($whatsappAdmin->fresh()),
+            'admin' => $this->serializeAdmin($freshAdmin),
         ]);
     }
 
     public function destroy(WhatsappAdmin $whatsappAdmin): JsonResponse
     {
-        $deletedId = $whatsappAdmin->id;
+        $deletedId = (int) $whatsappAdmin->getKey();
 
-        $whatsappAdmin->delete();
+        WhatsappAdmin::destroy($deletedId);
 
         return response()->json([
             'message' => 'Kontak WhatsApp admin berhasil dihapus.',
@@ -133,13 +139,14 @@ class WhatsAppAdminController extends Controller
 
     private function ensureUniquePhone(string $phone, ?WhatsappAdmin $current = null): void
     {
-        $exists = WhatsappAdmin::query()
-            ->where('phone', $phone)
-            ->when(
-                $current instanceof WhatsappAdmin,
-                fn ($query) => $query->whereKeyNot($current->id),
-            )
-            ->exists();
+        $query = WhatsappAdmin::query()
+            ->where('phone', '=', $phone);
+
+        if ($current instanceof WhatsappAdmin) {
+            $query->whereKeyNot((int) $current->getKey());
+        }
+
+        $exists = $query->exists();
 
         if ($exists) {
             throw ValidationException::withMessages([
