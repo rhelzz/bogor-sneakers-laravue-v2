@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+        <Head title="Admin Galeri Karya" />
         <div class="admin-page">
             <AdminPageHeader
                 title="Kelola Galeri Karya"
@@ -136,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import { onUnmounted, ref } from 'vue';
 
 import AdminAlert from '@/components/admin/AdminAlert.vue';
