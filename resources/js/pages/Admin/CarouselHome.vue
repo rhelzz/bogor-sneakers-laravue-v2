@@ -229,290 +229,37 @@
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { computed, reactive, ref } from 'vue';
 
 import AdminAlert from '@/components/admin/AdminAlert.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+import { useAdminCarouselHomeManager } from '@/composables/Admin/carouselHome/useAdminCarouselHomeManager';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import type { CarouselSlide } from '@/types/carousel';
 
-// Props
-const props = defineProps({
-    slides: {
-        type: Array as () => CarouselSlide[],
-        default: () => [],
-    },
+const props = defineProps<{
+    slides?: CarouselSlide[];
+}>();
+
+const {
+    fileInput,
+    isDragging,
+    isSubmitting,
+    isUpdating,
+    isDeleting,
+    successMessage,
+    errorMessage,
+    slides,
+    form,
+    activeSlides,
+    openFilePicker,
+    handleFileSelect,
+    handleFileDrop,
+    resetForm,
+    uploadSlide,
+    toggleActive,
+    deleteSlide,
+    getImageUrl,
+} = useAdminCarouselHomeManager({
+    initialSlides: props.slides ?? [],
 });
-
-// State
-const fileInput = ref<HTMLInputElement | null>(null);
-const isDragging = ref(false);
-const isSubmitting = ref(false);
-const isUpdating = ref<number | null>(null);
-const isDeleting = ref<number | null>(null);
-const successMessage = ref('');
-const errorMessage = ref('');
-
-const slides = ref<CarouselSlide[]>(props.slides);
-
-const form = reactive({
-    image: null as File | null,
-});
-
-const csrfToken =
-    document
-        .querySelector('meta[name="csrf-token"]')
-        ?.getAttribute('content') ?? '';
-
-type ApiErrorResponse = {
-    message?: string;
-    errors?: Record<string, string[]>;
-};
-
-type ApiSlideResponse = {
-    message: string;
-    slide: CarouselSlide;
-};
-
-type ApiDeleteResponse = {
-    message: string;
-    id: number;
-};
-
-const activeSlides = computed(() => {
-    return slides.value.filter((s) => s.is_active).length;
-});
-
-const buildHeaders = (isJsonBody: boolean) => {
-    const headers: Record<string, string> = {
-        Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    };
-
-    if (csrfToken) {
-        headers['X-CSRF-TOKEN'] = csrfToken;
-    }
-
-    if (isJsonBody) {
-        headers['Content-Type'] = 'application/json';
-    }
-
-    return headers;
-};
-
-const requestJson = async <T,>(url: string, init: RequestInit = {}) => {
-    const isFormData = init.body instanceof FormData;
-    const response = await fetch(url, {
-        credentials: 'same-origin',
-        ...init,
-        headers: {
-            ...buildHeaders(!isFormData),
-            ...(init.headers ?? {}),
-        },
-    });
-
-    const payload = await response.json().catch(() => null);
-
-    if (!response.ok) {
-        throw {
-            status: response.status,
-            payload,
-        };
-    }
-
-    return payload as T;
-};
-
-// Methods
-const openFilePicker = () => {
-    fileInput.value?.click();
-};
-
-const handleFileSelect = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (file) {
-        if (file.size > 5 * 1024 * 1024) {
-            errorMessage.value = 'Ukuran gambar maksimal 5MB.';
-
-            return;
-        }
-
-        form.image = file;
-        errorMessage.value = '';
-    }
-};
-
-const handleFileDrop = (e: DragEvent) => {
-    isDragging.value = false;
-    const file = e.dataTransfer?.files?.[0];
-
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-        if (file.size > 5 * 1024 * 1024) {
-            errorMessage.value = 'Ukuran gambar maksimal 5MB.';
-
-            return;
-        }
-
-        form.image = file;
-        errorMessage.value = '';
-    }
-};
-
-const resetForm = () => {
-    form.image = null;
-
-    if (fileInput.value) {
-        fileInput.value.value = '';
-    }
-};
-
-const uploadSlide = async () => {
-    if (!form.image) {
-        return;
-    }
-
-    isSubmitting.value = true;
-    errorMessage.value = '';
-    successMessage.value = '';
-
-    const pickedImage = form.image;
-    const tempId = -Date.now();
-    const previewUrl = URL.createObjectURL(pickedImage);
-
-    const optimisticSlide: CarouselSlide = {
-        id: tempId,
-        image_path: previewUrl,
-        is_active: true,
-        order: slides.value.length,
-    };
-
-    slides.value = [optimisticSlide, ...slides.value];
-
-    const formData = new FormData();
-    formData.append('image', pickedImage);
-
-    resetForm();
-
-    try {
-        const data = await requestJson<ApiSlideResponse>(
-            '/admin/carousel-home',
-            {
-                method: 'POST',
-                body: formData,
-            },
-        );
-
-        slides.value = slides.value.map((slide) => {
-            if (slide.id !== tempId) {
-                return slide;
-            }
-
-            return data.slide;
-        });
-
-        successMessage.value = data.message || 'Image berhasil diupload!';
-    } catch (error) {
-        slides.value = slides.value.filter((slide) => slide.id !== tempId);
-
-        const apiError = error as { payload?: ApiErrorResponse };
-        const imageError = apiError.payload?.errors?.image?.[0];
-        errorMessage.value =
-            imageError ||
-            apiError.payload?.message ||
-            'Gagal upload image. Cek ukuran file atau format.';
-    } finally {
-        URL.revokeObjectURL(previewUrl);
-        isSubmitting.value = false;
-    }
-};
-
-const toggleActive = async (id: number) => {
-    const slide = slides.value.find((s) => s.id === id);
-
-    if (!slide || id < 0) {
-        return;
-    }
-
-    const oldState = slide.is_active;
-    slide.is_active = !slide.is_active;
-
-    isUpdating.value = id;
-    errorMessage.value = '';
-
-    try {
-        await requestJson<ApiSlideResponse>(`/admin/carousel-home/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                is_active: slide.is_active,
-            }),
-        });
-
-        successMessage.value = 'Status diperbarui!';
-    } catch (error) {
-        slide.is_active = oldState;
-        const apiError = error as { payload?: ApiErrorResponse };
-        errorMessage.value =
-            apiError.payload?.message || 'Gagal update status.';
-    } finally {
-        isUpdating.value = null;
-    }
-};
-
-const deleteSlide = async (id: number) => {
-    if (!confirm('Hapus slide ini? Gambar akan dihapus dari server.')) {
-        return;
-    }
-
-    if (id < 0) {
-        slides.value = slides.value.filter((slide) => slide.id !== id);
-
-        return;
-    }
-
-    const index = slides.value.findIndex((slide) => slide.id === id);
-
-    if (index === -1) {
-        return;
-    }
-
-    const [deletedSlide] = slides.value.splice(index, 1);
-    isDeleting.value = id;
-    errorMessage.value = '';
-
-    try {
-        const data = await requestJson<ApiDeleteResponse>(
-            `/admin/carousel-home/${id}`,
-            {
-                method: 'DELETE',
-            },
-        );
-
-        successMessage.value = data.message || 'Slide dihapus!';
-    } catch (error) {
-        slides.value.splice(index, 0, deletedSlide);
-        const apiError = error as { payload?: ApiErrorResponse };
-        errorMessage.value = apiError.payload?.message || 'Gagal hapus slide.';
-    } finally {
-        isDeleting.value = null;
-    }
-};
-
-const getImageUrl = (imagePath: string) => {
-    if (!imagePath) {
-        return '';
-    }
-
-    if (
-        imagePath.startsWith('blob:') ||
-        imagePath.startsWith('http://') ||
-        imagePath.startsWith('https://') ||
-        imagePath.startsWith('/')
-    ) {
-        return imagePath;
-    }
-
-    return `/storage/${imagePath}`;
-};
 </script>
