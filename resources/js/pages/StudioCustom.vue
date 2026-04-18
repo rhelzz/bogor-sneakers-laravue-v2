@@ -1339,13 +1339,14 @@
 </template>
 
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CSSProperties } from 'vue';
 
+import Footer from '@/components/sections/Footer.vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
-import Footer from '@/components/sections/Footer.vue';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 
 const CANVAS_SIZE = 1000;
@@ -1368,6 +1369,7 @@ const FALLBACK_PALETTE = [
 ];
 const WHATSAPP_INTRO =
     'Halo kak, berikut ringkasan guest checkout BogorSneaker:';
+const page = usePage();
 
 type LayerId = number;
 
@@ -1618,16 +1620,15 @@ const insoleOptions: MaterialOption[] = [
     },
 ];
 
-const contacts = ref<FloatingContact[]>([
-    {
-        id: 1,
-        name: 'Dinda - DIY Master',
-        role: 'Kustom, Desain, Konsultasi',
-        phone: '6285511223344',
-        initial: 'D',
-        color: 'bg-sakura/30 text-sakura',
-    },
-]);
+const contacts = computed<FloatingContact[]>(() => {
+    const sharedContacts = page.props.floatingContacts;
+
+    if (!Array.isArray(sharedContacts)) {
+        return [];
+    }
+
+    return sharedContacts as FloatingContact[];
+});
 
 const orders = ref<FloatingOrder[]>([
     {
