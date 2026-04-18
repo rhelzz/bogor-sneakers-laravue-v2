@@ -1,5 +1,6 @@
 <template>
     <div class="font-body min-h-screen bg-washi text-sumi antialiased">
+        <Head title="Katalog" />
         <FloatingMenuNav current-page="katalog" />
         <FloatingAdminPanel :contacts="contacts" />
         <FloatingOrderPanel :orders="orders" />
@@ -659,7 +660,7 @@
 </template>
 
 <script setup lang="ts">
-import { router, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
