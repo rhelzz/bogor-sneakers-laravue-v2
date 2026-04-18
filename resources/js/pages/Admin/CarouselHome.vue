@@ -1,5 +1,6 @@
 <template>
     <AdminLayout>
+        <Head title="Admin Carousel Home" />
         <div class="admin-page">
             <AdminPageHeader
                 title="Kelola Carousel Home"
@@ -227,6 +228,7 @@
 </template>
 
 <script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
 import { computed, reactive, ref } from 'vue';
 
 import AdminAlert from '@/components/admin/AdminAlert.vue';
