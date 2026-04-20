@@ -14,7 +14,7 @@ export const GALERI_KARYA_ASPECT_CLASS_MAP: Record<number, string> = {
     5: 'aspect-square',
     6: 'aspect-[4/3]',
     7: 'aspect-[3/4]',
-    8: 'aspect-square',
+    8: 'aspect-square', 
 };
 
 export const GALERI_KARYA_TITLE_DEFAULTS: Record<number, string> = {
