@@ -57,11 +57,24 @@ export interface CatalogDeleteResponse {
     id: number;
 }
 
-export interface CatalogImageUploadResponse {
+export interface CatalogPreviewImageUploadResponse {
     message: string;
+    kind: 'preview';
     image: CatalogImageItem;
     catalog_id: number;
 }
+
+export interface CatalogCardImageUploadResponse {
+    message: string;
+    kind: 'card';
+    catalog_id: number;
+    card_image_path: string | null;
+    card_image_url: string | null;
+}
+
+export type CatalogImageUploadResponse =
+    | CatalogPreviewImageUploadResponse
+    | CatalogCardImageUploadResponse;
 
 export interface CatalogImageDeleteResponse {
     message: string;

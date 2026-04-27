@@ -23,6 +23,7 @@ export interface CatalogPublicItem {
     status: CatalogStatus
     sizes: number[]
     popularity: number
+    card_image_url: string | null
     image_url: string | null
     preorder_min_days: number | null
     preorder_max_days: number | null
@@ -42,6 +43,8 @@ export interface CatalogAdminItem {
     code: string
     brand: string
     collection: string
+    card_image_path: string | null
+    card_image_url: string | null
     description: string | null
     price: number
     status: CatalogStatus

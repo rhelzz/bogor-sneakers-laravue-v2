@@ -159,6 +159,8 @@ class KatalogController extends Controller
         DB::transaction(function () use ($catalog): void {
             $catalog->loadMissing('images');
 
+            $this->deleteStoredImage($catalog->card_image_path);
+
             $catalog->images->each(function (CatalogImage $image): void {
                 $this->deleteStoredImage($image->image_path);
             });
@@ -174,14 +176,50 @@ class KatalogController extends Controller
 
     public function uploadImage(Request $request, Catalog $catalog): JsonResponse
     {
-        $request->validate([
+        $validated = $request->validate([
+            'kind' => ['nullable', 'string', Rule::in(['card', 'preview'])],
             'image' => 'required|image|mimes:jpeg,png,webp|max:5120',
         ], [
+            'kind.in' => 'Jenis gambar harus card atau preview.',
             'image.required' => 'Gambar wajib diunggah.',
             'image.image' => 'File harus berupa gambar.',
             'image.mimes' => 'Format gambar harus JPEG, PNG, atau WEBP.',
             'image.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
+
+        $kind = (string) ($validated['kind'] ?? 'preview');
+
+        /** @var UploadedFile $file */
+        $file = $request->file('image');
+
+        if ($kind === 'card') {
+            $updated = DB::transaction(function () use ($catalog, $file): Catalog {
+                $previousPath = $catalog->card_image_path;
+                $path = $this->storeOptimizedImage($file);
+
+                $catalog->update([
+                    'card_image_path' => $path,
+                ]);
+
+                $isPreviousPathUsedByPreview = is_string($previousPath)
+                    && $previousPath !== ''
+                    && $catalog->images()->where('image_path', $previousPath)->exists();
+
+                if ($previousPath !== $path && ! $isPreviousPathUsedByPreview) {
+                    $this->deleteStoredImage($previousPath);
+                }
+
+                return $catalog->fresh(['images', 'sizes']);
+            });
+
+            return response()->json([
+                'message' => 'Gambar card katalog berhasil diperbarui.',
+                'kind' => 'card',
+                'catalog_id' => $catalog->id,
+                'card_image_path' => $updated->card_image_path,
+                'card_image_url' => $updated->card_image_url,
+            ]);
+        }
 
         $catalog->loadMissing('images');
 
@@ -190,9 +228,6 @@ class KatalogController extends Controller
                 'image' => sprintf('Maksimal %d gambar per produk.', self::MAX_IMAGES),
             ]);
         }
-
-        /** @var UploadedFile $file */
-        $file = $request->file('image');
 
         $image = DB::transaction(function () use ($catalog, $file): CatalogImage {
             $nextPosition = ((int) $catalog->images()->max('position')) + 1;
@@ -206,6 +241,7 @@ class KatalogController extends Controller
 
         return response()->json([
             'message' => 'Gambar katalog berhasil ditambahkan.',
+            'kind' => 'preview',
             'image' => $this->serializeImage($image->fresh()),
             'catalog_id' => $catalog->id,
         ], 201);
@@ -218,8 +254,20 @@ class KatalogController extends Controller
         }
 
         DB::transaction(function () use ($catalog, $catalogImage): void {
-            $this->deleteStoredImage($catalogImage->image_path);
+            $deletedImagePath = $catalogImage->image_path;
+
             $catalogImage->delete();
+
+            $isUsedByCard = is_string($catalog->card_image_path)
+                && $catalog->card_image_path === $deletedImagePath;
+            $isUsedByPreview = $catalog->images()
+                ->where('image_path', $deletedImagePath)
+                ->exists();
+
+            if (! $isUsedByCard && ! $isUsedByPreview) {
+                $this->deleteStoredImage($deletedImagePath);
+            }
+
             $this->reindexCatalogImages($catalog);
         });
 
@@ -606,6 +654,7 @@ class KatalogController extends Controller
             'status' => $catalog->status,
             'sizes' => $catalog->sizes->pluck('size_eu')->map(fn (mixed $size): int => (int) $size)->values()->all(),
             'popularity' => (int) $catalog->popularity_score,
+            'card_image_url' => $catalog->card_image_url,
             'image_url' => $catalog->primary_image_url,
             'preorder_min_days' => $catalog->preorder_min_days,
             'preorder_max_days' => $catalog->preorder_max_days,
@@ -620,11 +669,22 @@ class KatalogController extends Controller
     {
         $base = $this->serializePublicCatalog($catalog);
 
-        $base['images'] = $catalog->images
+        $images = $catalog->images
             ->sortBy('position')
             ->values()
             ->map(fn (CatalogImage $image): array => $this->serializeImage($image))
             ->all();
+
+        if ($images === [] && $catalog->card_image_url !== null) {
+            $images[] = [
+                'id' => 0,
+                'image_path' => (string) ($catalog->card_image_path ?? ''),
+                'image_url' => $catalog->card_image_url,
+                'position' => 1,
+            ];
+        }
+
+        $base['images'] = $images;
 
         return $base;
     }
@@ -643,6 +703,8 @@ class KatalogController extends Controller
             'code' => $catalog->code,
             'brand' => $catalog->brand,
             'collection' => $catalog->collection,
+            'card_image_path' => $catalog->card_image_path,
+            'card_image_url' => $catalog->card_image_url,
             'description' => $catalog->description,
             'price' => (int) $catalog->price,
             'status' => $catalog->status,

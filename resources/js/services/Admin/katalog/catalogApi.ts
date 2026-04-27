@@ -105,9 +105,11 @@ export const createAdminCatalogApiService = () => {
     const uploadCatalogImage = async (
         catalogId: number,
         file: File,
+        kind: 'card' | 'preview' = 'preview',
     ): Promise<CatalogImageUploadResponse> => {
         const formData = new FormData();
         formData.append('image', file);
+        formData.append('kind', kind);
 
         return requestJson<CatalogImageUploadResponse>(
             katalogRoutes.images.store.url({ catalog: catalogId }),

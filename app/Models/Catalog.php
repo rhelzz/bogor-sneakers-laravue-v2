@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
  * @property string $code
  * @property string $brand
  * @property string $collection
+ * @property string|null $card_image_path
  * @property string|null $description
  * @property int $price
  * @property 'ready'|'po'|'habis' $status
@@ -32,6 +33,7 @@ use Illuminate\Support\Str;
  * @property bool $is_active
  * @property int $sort_order
  * @property-read string $route_key
+ * @property-read string|null $card_image_url
  * @property-read string|null $primary_image_url
  * @property-read HomePreorder|null $homePreorder
  */
@@ -47,6 +49,7 @@ class Catalog extends Model
         'code',
         'brand',
         'collection',
+        'card_image_path',
         'description',
         'price',
         'status',
@@ -128,8 +131,23 @@ class Catalog extends Model
         return sprintf('%s-%s', $this->slug, $this->public_id);
     }
 
+    public function getCardImageUrlAttribute(): ?string
+    {
+        $path = trim((string) ($this->card_image_path ?? ''));
+
+        if ($path === '') {
+            return null;
+        }
+
+        return asset('storage/'.$path);
+    }
+
     public function getPrimaryImageUrlAttribute(): ?string
     {
+        if ($this->card_image_url !== null) {
+            return $this->card_image_url;
+        }
+
         $first = $this->images->first();
 
         return $first instanceof CatalogImage ? $first->image_url : null;

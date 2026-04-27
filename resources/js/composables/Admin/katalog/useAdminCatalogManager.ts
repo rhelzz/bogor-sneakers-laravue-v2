@@ -31,7 +31,8 @@ export const useAdminCatalogManager = ({
     const errorMessage = ref('');
     const isSubmitting = ref(false);
     const isFormModalOpen = ref(false);
-    const pendingImageFiles = ref<File[]>([]);
+    const pendingCardImageFile = ref<File | null>(null);
+    const pendingPreviewImageFiles = ref<File[]>([]);
 
     const form = reactive<CatalogFormState>({
         id: null,
@@ -64,8 +65,12 @@ export const useAdminCatalogManager = ({
         });
     });
 
-    const pendingImageNames = computed(() => {
-        return pendingImageFiles.value.map((item) => item.name);
+    const pendingCardImageName = computed(() => {
+        return pendingCardImageFile.value?.name ?? '';
+    });
+
+    const pendingPreviewImageNames = computed(() => {
+        return pendingPreviewImageFiles.value.map((item) => item.name);
     });
 
     const flashSuccess = (message: string) => {
@@ -78,8 +83,9 @@ export const useAdminCatalogManager = ({
         successMessage.value = '';
     };
 
-    const clearPendingImages = () => {
-        pendingImageFiles.value = [];
+    const clearPendingUploads = () => {
+        pendingCardImageFile.value = null;
+        pendingPreviewImageFiles.value = [];
     };
 
     const resetForm = () => {
@@ -98,7 +104,7 @@ export const useAdminCatalogManager = ({
         form.is_active = true;
         form.sizes_raw = '';
 
-        clearPendingImages();
+        clearPendingUploads();
     };
 
     const openCreateModal = () => {
@@ -128,7 +134,26 @@ export const useAdminCatalogManager = ({
         catalogs.value = next;
     };
 
-    const pickPendingImages = (event: Event) => {
+    const pickPendingCardImage = (event: Event) => {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0] ?? null;
+
+        if (!file) {
+            return;
+        }
+
+        if (!isValidCatalogImageFile(file)) {
+            flashError('Format atau ukuran image card tidak valid (maks 5MB).');
+            input.value = '';
+
+            return;
+        }
+
+        pendingCardImageFile.value = file;
+        input.value = '';
+    };
+
+    const pickPendingPreviewImages = (event: Event) => {
         const input = event.target as HTMLInputElement;
         const files = Array.from(input.files ?? []);
 
@@ -140,13 +165,43 @@ export const useAdminCatalogManager = ({
             return isValidCatalogImageFile(file);
         });
 
-        pendingImageFiles.value = allowed.slice(0, maxImages);
+        pendingPreviewImageFiles.value = allowed.slice(0, maxImages);
 
         input.value = '';
     };
 
-    const uploadImageFile = async (catalogId: number, file: File) => {
-        const result = await apiService.uploadCatalogImage(catalogId, file);
+    const uploadCardImageFile = async (catalogId: number, file: File) => {
+        const result = await apiService.uploadCatalogImage(catalogId, file, 'card');
+
+        if (result.kind !== 'card') {
+            return;
+        }
+
+        const index = catalogs.value.findIndex((item) => item.id === catalogId);
+
+        if (index === -1) {
+            return;
+        }
+
+        const target = { ...catalogs.value[index] };
+        target.card_image_path = result.card_image_path;
+        target.card_image_url = result.card_image_url;
+
+        catalogs.value[index] = target;
+        catalogs.value = [...catalogs.value];
+    };
+
+    const uploadPreviewImageFile = async (catalogId: number, file: File) => {
+        const result = await apiService.uploadCatalogImage(
+            catalogId,
+            file,
+            'preview',
+        );
+
+        if (result.kind !== 'preview') {
+            return;
+        }
+
         const index = catalogs.value.findIndex((item) => item.id === catalogId);
 
         if (index === -1) {
@@ -164,6 +219,12 @@ export const useAdminCatalogManager = ({
 
     const submitForm = async () => {
         const parsedSizes = parseCatalogSizes(form.sizes_raw);
+
+        if (form.id === null && pendingCardImageFile.value === null) {
+            flashError('Image card wajib diunggah untuk produk baru.');
+
+            return;
+        }
 
         if (parsedSizes.length === 0) {
             flashError('Minimal satu ukuran valid (36-50) wajib diisi.');
@@ -214,15 +275,28 @@ export const useAdminCatalogManager = ({
 
             upsertCatalogInState(response.catalog);
 
-            if (pendingImageFiles.value.length > 0) {
+            if (pendingCardImageFile.value) {
+                await uploadCardImageFile(
+                    response.catalog.id,
+                    pendingCardImageFile.value,
+                );
+            }
+
+            if (pendingPreviewImageFiles.value.length > 0) {
+                const latestCatalog = catalogs.value.find(
+                    (item) => item.id === response.catalog.id,
+                );
                 const limit = Math.max(
                     0,
-                    maxImages - response.catalog.images.length,
+                    maxImages - (latestCatalog?.images.length ?? 0),
                 );
-                const uploadQueue = pendingImageFiles.value.slice(0, limit);
+                const uploadQueue = pendingPreviewImageFiles.value.slice(
+                    0,
+                    limit,
+                );
 
                 for (const file of uploadQueue) {
-                    await uploadImageFile(response.catalog.id, file);
+                    await uploadPreviewImageFile(response.catalog.id, file);
                 }
             }
 
@@ -254,7 +328,7 @@ export const useAdminCatalogManager = ({
         form.is_active = catalog.is_active;
         form.sizes_raw = catalog.sizes.join(', ');
 
-        clearPendingImages();
+        clearPendingUploads();
         isFormModalOpen.value = true;
     };
 
@@ -282,11 +356,45 @@ export const useAdminCatalogManager = ({
         }
     };
 
+    const uploadCardImage = async (catalog: CatalogAdminItem, event: Event) => {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        if (!isValidCatalogImageFile(file)) {
+            flashError('Format atau ukuran image card tidak valid (maks 5MB).');
+            input.value = '';
+
+            return;
+        }
+
+        try {
+            await uploadCardImageFile(catalog.id, file);
+            flashSuccess('Image card katalog berhasil diperbarui.');
+        } catch (error) {
+            flashError(
+                normalizeCatalogApiError(error, 'Gagal upload image card katalog.'),
+            );
+        } finally {
+            input.value = '';
+        }
+    };
+
     const uploadSingleImage = async (catalog: CatalogAdminItem, event: Event) => {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
 
         if (!file) {
+            return;
+        }
+
+        if (!isValidCatalogImageFile(file)) {
+            flashError('Format atau ukuran image preview tidak valid (maks 5MB).');
+            input.value = '';
+
             return;
         }
 
@@ -299,11 +407,11 @@ export const useAdminCatalogManager = ({
         }
 
         try {
-            await uploadImageFile(catalog.id, file);
-            flashSuccess('Gambar katalog berhasil ditambahkan.');
+            await uploadPreviewImageFile(catalog.id, file);
+            flashSuccess('Image preview katalog berhasil ditambahkan.');
         } catch (error) {
             flashError(
-                normalizeCatalogApiError(error, 'Gagal upload gambar katalog.'),
+                normalizeCatalogApiError(error, 'Gagal upload image preview katalog.'),
             );
         } finally {
             input.value = '';
@@ -408,13 +516,16 @@ export const useAdminCatalogManager = ({
         isSubmitting,
         isFormModalOpen,
         form,
-        pendingImageNames,
+        pendingCardImageName,
+        pendingPreviewImageNames,
         openCreateModal,
         closeFormModal,
-        pickPendingImages,
+        pickPendingCardImage,
+        pickPendingPreviewImages,
         submitForm,
         startEdit,
         deleteCatalog,
+        uploadCardImage,
         uploadSingleImage,
         deleteImage,
         moveImage,
