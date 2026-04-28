@@ -51,12 +51,17 @@ class StudioAssetController extends Controller
                     ->sort(static fn (string $a, string $b): int => strnatcasecmp($a, $b))
                     ->map(function (string $modelPath): ?array {
                         $modelRaw = basename($modelPath);
+                        $modelId = $modelRaw;
+                        $modelLabel = $modelRaw;
 
-                        if (! ctype_digit($modelRaw)) {
-                            return null;
+                        if (ctype_digit($modelRaw)) {
+                            $modelId = (int) $modelRaw;
+                            $modelLabel = sprintf('M%d', $modelId);
+                        } elseif (preg_match('/M(\d+)/i', $modelRaw, $idMatches)) {
+                            $modelId = (int) $idMatches[1];
+                            $modelLabel = $modelRaw;
                         }
 
-                        $modelId = (int) $modelRaw;
                         $files = collect(File::files($modelPath))
                             ->map(static fn (\SplFileInfo $file): string => $file->getFilename())
                             ->sort(static fn (string $a, string $b): int => strnatcasecmp($a, $b))
@@ -80,7 +85,7 @@ class StudioAssetController extends Controller
 
                         return [
                             'id' => $modelId,
-                            'label' => sprintf('M%d', $modelId),
+                            'label' => $modelLabel,
                             'preview_base_file' => $previewBaseFile,
                             'main_file' => $mainFile,
                             'pattern_base_file' => $patternBaseFile,
