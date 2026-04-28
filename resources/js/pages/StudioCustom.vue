@@ -3,64 +3,82 @@
         <Head title="Studio Custom" />
 
         <!-- TopNavBar Component -->
-        <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100">
-            <div class="flex items-center gap-8">
-                <div class="flex items-center gap-3">
-                    <img src="/logo-b-bogor.svg" class="w-8 h-8" alt="Logo">
-                    <span class="text-lg font-black tracking-tighter text-black uppercase">Studio Custom</span>
+        <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm">
+            <div class="flex items-center gap-10">
+                <!-- Brand -->
+                <div class="flex items-center gap-4 group cursor-pointer">
+                    <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center transition-transform group-hover:rotate-12">
+                        <img src="/logo-b-bogor.svg" class="w-6 h-6 invert" alt="Logo">
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-black tracking-widest text-black uppercase leading-none">Studio</span>
+                        <span class="text-[10px] font-bold text-primary tracking-[0.3em] uppercase leading-none mt-1">Customizer</span>
+                    </div>
                 </div>
                 
-                <div class="h-6 w-[1px] bg-gray-200"></div>
+                <div class="h-8 w-[1px] bg-gray-100"></div>
 
-                <div class="flex items-center gap-4">
-                     <div class="flex flex-col">
-                         <span class="text-[9px] font-black text-secondary uppercase tracking-[0.2em] leading-none mb-1.5">Family</span>
-                         <select
-                            v-model="activeFolderKey"
-                            class="h-9 min-w-[140px] rounded-lg border-gray-200 bg-gray-50/50 px-3 text-[11px] font-bold text-black focus:border-black focus:ring-0 transition-all"
-                            :disabled="catalogLoading"
-                        >
-                            <option v-for="folder in catalogFolders" :key="folder.key" :value="folder.key">
-                                {{ folder.label }}
-                            </option>
-                        </select>
+                <!-- Selection Group -->
+                <div class="flex items-center gap-8">
+                     <div class="flex items-center gap-3">
+                         <span class="text-[10px] font-black text-secondary uppercase tracking-widest whitespace-nowrap opacity-60">Model :</span>
+                         <div class="relative flex items-center group">
+                            <span class="material-symbols-outlined absolute left-3 text-base text-gray-400 group-hover:text-black transition-colors pointer-events-none">style</span>
+                            <select
+                                v-model="activeFolderKey"
+                                class="h-10 pl-9 pr-10 min-w-[160px] rounded-xl border-gray-200 bg-gray-50/50 text-[11px] font-black text-black focus:border-black focus:ring-0 transition-all appearance-none cursor-pointer hover:bg-white hover:border-gray-300"
+                                :disabled="catalogLoading"
+                            >
+                                <option v-for="folder in catalogFolders" :key="folder.key" :value="folder.key">
+                                    {{ folder.label }}
+                                </option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 text-lg text-gray-400 pointer-events-none">unfold_more</span>
+                         </div>
                      </div>
 
-                     <div class="flex flex-col">
-                         <span class="text-[9px] font-black text-secondary uppercase tracking-[0.2em] leading-none mb-1.5">Model No.</span>
-                         <select
-                            v-model="currentModel"
-                            class="h-9 min-w-[100px] rounded-lg border-gray-200 bg-gray-50/50 px-3 text-[11px] font-bold text-black focus:border-black focus:ring-0 transition-all"
-                            :disabled="catalogLoading"
-                        >
-                            <option v-for="model in availableModels" :key="model.id" :value="model.id">
-                                {{ model.label }}
-                            </option>
-                        </select>
+                     <div class="flex items-center gap-3">
+                         <span class="text-[10px] font-black text-secondary uppercase tracking-widest whitespace-nowrap opacity-60">Variant :</span>
+                         <div class="relative flex items-center group">
+                            <span class="material-symbols-outlined absolute left-3 text-base text-gray-400 group-hover:text-black transition-colors pointer-events-none">auto_awesome</span>
+                            <select
+                                v-model="currentModel"
+                                class="h-10 pl-9 pr-10 min-w-[120px] rounded-xl border-gray-200 bg-gray-50/50 text-[11px] font-black text-black focus:border-black focus:ring-0 transition-all appearance-none cursor-pointer hover:bg-white hover:border-gray-300"
+                                :disabled="catalogLoading"
+                            >
+                                <option v-for="model in availableModels" :key="model.id" :value="model.id">
+                                    {{ model.label }}
+                                </option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-3 text-lg text-gray-400 pointer-events-none">unfold_more</span>
+                         </div>
                      </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <div class="flex items-center bg-gray-100 rounded-xl p-1 mr-4">
-                    <button @click="undo" class="w-9 h-9 flex items-center justify-center text-secondary hover:text-black hover:bg-white rounded-lg transition-all" title="Undo">
+            <div class="flex items-center gap-4">
+                <!-- Action Tools -->
+                <div class="flex items-center bg-gray-50 rounded-2xl p-1.5 border border-gray-100">
+                    <button @click="undo" class="w-10 h-10 flex items-center justify-center text-secondary hover:text-black hover:bg-white hover:shadow-sm rounded-xl transition-all active:scale-90" title="Undo (Ctrl+Z)">
                         <span class="material-symbols-outlined text-xl">undo</span>
                     </button>
-                    <button @click="redo" class="w-9 h-9 flex items-center justify-center text-secondary hover:text-black hover:bg-white rounded-lg transition-all" title="Redo">
+                    <button @click="redo" class="w-10 h-10 flex items-center justify-center text-secondary hover:text-black hover:bg-white hover:shadow-sm rounded-xl transition-all active:scale-90" title="Redo (Ctrl+Y)">
                         <span class="material-symbols-outlined text-xl">redo</span>
                     </button>
-                    <button @click="resetDesign" class="w-9 h-9 flex items-center justify-center text-secondary hover:text-error hover:bg-white rounded-lg transition-all" title="Reset">
+                    <div class="w-[1px] h-6 bg-gray-200 mx-1"></div>
+                    <button @click="resetDesign" class="w-10 h-10 flex items-center justify-center text-secondary hover:text-error hover:bg-white hover:shadow-sm rounded-xl transition-all active:scale-90" title="Reset Design">
                         <span class="material-symbols-outlined text-xl text-error/70">restart_alt</span>
                     </button>
                 </div>
 
-                <button @click="validateCheckout" class="h-10 px-6 bg-black text-white font-black text-[11px] uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all rounded-xl shadow-lg shadow-black/10 active:scale-95">
+                <button @click="validateCheckout" class="h-12 px-8 bg-black text-white font-black text-[11px] uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all rounded-2xl shadow-xl shadow-black/10 active:scale-95 flex items-center gap-3">
                     {{ isSaving ? 'PROCESSING...' : 'PROCESS ORDER' }}
+                    <span class="material-symbols-outlined text-lg" v-if="!isSaving">shopping_cart_checkout</span>
                 </button>
             </div>
         </nav>
 
-        <div class="flex-grow flex mt-16 h-[calc(100vh-64px)] relative">
+        <div class="flex-grow flex mt-20 h-[calc(100vh-80px)] relative">
             <!-- SideNavBar Component -->
             <aside class="w-20 border-r border-gray-100 bg-white flex flex-col z-40">
                 <div class="flex-grow flex flex-col items-center py-8 gap-6">
@@ -121,6 +139,18 @@
                     <!-- Konva Container -->
                     <div ref="konvaContainerRef" class="relative w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
 
+                    <!-- Floating Delete Button on Canvas -->
+                    <transition name="fade">
+                        <button 
+                            v-if="activeElement"
+                            @click="removeActiveElement"
+                            class="absolute top-6 right-6 z-30 w-12 h-12 bg-red-500 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:bg-black transition-all active:scale-90 group"
+                            title="Hapus Elemen Terpilih"
+                        >
+                            <span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform">close</span>
+                        </button>
+                    </transition>
+
                     <!-- Floating View Controls -->
                     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-2xl z-20">
                         <button @click="zoomOut" class="w-10 h-10 flex items-center justify-center text-secondary hover:bg-gray-50 rounded-xl transition-all">
@@ -168,75 +198,257 @@
                                     {{ hudTitle }}
                                 </h3>
                                 <p class="text-[10px] text-secondary font-bold mt-1 tracking-widest uppercase opacity-60">{{ hudSubtitle }}</p>
+
+                                <!-- Unified Active Element Controls (Visible in any tab if element is active) -->
+                                <transition name="fade">
+                                    <div v-if="activeElement" class="mt-4 p-5 rounded-2xl bg-gray-50 border border-gray-100 space-y-4 shadow-xl shadow-black/5">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-7 h-7 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-xs text-primary">
+                                                        {{ activeElement.type === 'text' ? 'text_fields' : 'Category' }}
+                                                    </span>
+                                                </div>
+                                                <span class="text-[9px] font-black uppercase tracking-widest text-black">
+                                                    Edit {{ activeElement.type === 'text' ? 'Teks' : 'Logo' }}
+                                                </span>
+                                            </div>
+                                            <button @click="removeActiveElement" class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all" title="Hapus Elemen">
+                                                <span class="material-symbols-outlined text-sm">close</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Image/Logo Specific Controls -->
+                                        <div v-if="activeElement.type === 'image'" class="space-y-3">
+                                            <div class="p-3 bg-white rounded-xl border border-gray-100/50 space-y-4 shadow-sm">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center gap-2">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            :id="`logo-outline-${activeElement.id}`"
+                                                            v-model="activeElement.outline.active"
+                                                            class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all"
+                                                        >
+                                                        <label :for="`logo-outline-${activeElement.id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline Logo</label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div v-if="activeElement.outline.active" class="space-y-3 pt-3 border-t border-gray-50 mt-2">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[7px] font-black uppercase text-secondary/40 tracking-widest">Warna & Ukuran</span>
+                                                        <input type="color" v-model="activeElement.outline.color" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
+                                                    </div>
+                                                    <input type="range" v-model.number="activeElement.outline.size" min="1" max="15" class="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-black">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Text Specific Controls -->
+                                        <div v-if="activeElement.type === 'text'" class="space-y-4">
+                                            <div class="space-y-2">
+                                                <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest ml-1">Gaya & Konten Teks</label>
+                                                <div class="grid gap-2">
+                                                    <select 
+                                                        v-model="activeElement.fontFamily"
+                                                        class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[10px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
+                                                    >
+                                                        <option v-for="font in FONT_OPTIONS" :key="font.value" :value="font.value">
+                                                            {{ font.label }}
+                                                        </option>
+                                                    </select>
+                                                    <textarea 
+                                                        v-model="activeElement.text"
+                                                        class="w-full p-4 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-black focus:border-primary focus:ring-0 transition-all resize-none shadow-sm"
+                                                        rows="2"
+                                                        placeholder="Masukkan teks di sini..."
+                                                    ></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                                                    <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Warna</label>
+                                                    <input type="color" v-model="activeElement.color" class="w-full h-8 p-0 border-none bg-transparent cursor-pointer">
+                                                </div>
+                                                <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                                                    <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Stroke</label>
+                                                    <input type="color" v-model="activeElement.strokeColor" class="w-full h-8 p-0 border-none bg-transparent cursor-pointer">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </transition>
                             </div>
                             
                             <div class="flex-grow overflow-y-auto custom-scrollbar p-6">
                                 <!-- Layer Customization -->
                                 <div v-if="activeSideTab === 'layers'" class="space-y-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Daftar Layer</span>
+                                        <button 
+                                            @click="randomizeColors"
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-black hover:text-white rounded-lg transition-all group"
+                                        >
+                                            <span class="material-symbols-outlined text-sm">casino</span>
+                                            <span class="text-[9px] font-black uppercase tracking-tight">Randomize</span>
+                                        </button>
+                                    </div>
+
                                     <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 text-center opacity-40">
                                         <span class="material-symbols-outlined text-4xl mb-2">layers_clear</span>
                                         <p class="text-[10px] font-bold uppercase">Tidak ada layer</p>
                                     </div>
-                                    <div v-else class="grid gap-3">
+                                    <div v-else class="grid gap-2">
                                         <div 
                                             v-for="id in layerIds" 
                                             :key="`layer-${id}`"
-                                            class="group relative overflow-hidden rounded-2xl border transition-all duration-300"
+                                            class="group relative overflow-hidden rounded-xl border transition-all duration-300"
                                             :class="activeLayerPickId === id 
                                                 ? 'border-primary bg-primary/5 shadow-sm' 
-                                                : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-md cursor-pointer'"
-                                            @click="activeLayerPickId = id"
+                                                : 'border-gray-100 bg-white hover:border-gray-200 cursor-pointer'"
+                                            @click="activeLayerPickId = activeLayerPickId === id ? null : id"
                                         >
-                                            <div class="p-4 flex items-center justify-between relative z-10">
-                                                <div class="flex items-center gap-3">
-                                                    <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-[10px] font-black text-secondary group-hover:text-black transition-colors">
+                                            <div class="p-3 flex items-center justify-between relative z-10">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-[9px] font-black text-secondary">
                                                         {{ id }}
                                                     </div>
                                                     <span class="text-[10px] font-black uppercase tracking-widest">Aksen {{ id }}</span>
                                                 </div>
-                                                <div 
-                                                    class="w-8 h-8 rounded-full border-2 border-white shadow-sm transition-transform group-hover:scale-110" 
-                                                    :style="{ backgroundColor: layerColors[id] || '#ffffff' }"
-                                                ></div>
+                                                
+                                                <div class="flex items-center gap-2" @click.stop>
+                                                    <div class="flex items-center bg-white rounded-lg px-2 py-1 border border-gray-100 shadow-sm focus-within:border-primary transition-colors">
+                                                        <span class="text-[9px] font-bold text-gray-400 mr-1">#</span>
+                                                        <input 
+                                                            type="text" 
+                                                            :value="layerColors[id]?.replace('#', '')"
+                                                            @input="(e) => {
+                                                                const val = (e.target as HTMLInputElement).value;
+                                                                if (val.length === 6 || val.length === 3) setLayerColor(id, '#' + val)
+                                                            }"
+                                                            class="w-12 bg-transparent border-none p-0 text-[10px] font-black uppercase tracking-tighter focus:ring-0"
+                                                            maxlength="6"
+                                                        >
+                                                    </div>
+                                                    <div class="relative w-7 h-7 group/picker">
+                                                        <div 
+                                                            class="w-full h-full rounded-full border-2 border-white shadow-sm transition-transform group-hover/picker:scale-110 cursor-pointer" 
+                                                            :style="{ backgroundColor: layerColors[id] || '#ffffff' }"
+                                                        ></div>
+                                                        <input 
+                                                            type="color" 
+                                                            :value="layerColors[id] || '#ffffff'"
+                                                            @input="(e) => setLayerColor(id, (e.target as HTMLInputElement).value)"
+                                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                            title="Pilih Warna"
+                                                        >
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <transition name="expand">
-                                                <div v-if="activeLayerPickId === id" class="px-4 pb-4 pt-2 border-t border-gray-100/50 space-y-4">
-                                                    <div class="grid grid-cols-6 gap-2">
+                                                <div v-if="activeLayerPickId === id" class="px-3 pb-3 pt-1 border-t border-gray-100/50 space-y-3">
+                                                    <div class="grid grid-cols-8 gap-1.5">
                                                         <button 
                                                             v-for="color in randomPalette" 
                                                             :key="color"
-                                                            class="w-full aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
+                                                            class="w-full aspect-square rounded-md border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
                                                             :style="{ backgroundColor: color }"
                                                             @click.stop="setLayerColor(id, color)"
                                                         ></button>
-                                                        <button 
-                                                            class="w-full aspect-square rounded-lg bg-gray-50 flex items-center justify-center hover:bg-white hover:shadow-sm transition-all border border-gray-100 active:scale-90"
-                                                            @click.stop="triggerColorPicker(id)"
-                                                        >
-                                                            <span class="material-symbols-outlined text-sm">colorize</span>
-                                                        </button>
                                                     </div>
                                                     
-                                                    <div class="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100/50">
+                                                    <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-100/50" @click.stop>
                                                         <div class="flex items-center gap-2">
                                                             <input 
                                                                 type="checkbox" 
                                                                 :id="`outline-${id}`"
                                                                 v-model="layerOutlines[id].active"
-                                                                class="w-4 h-4 rounded-md border-gray-300 text-black focus:ring-black transition-all cursor-pointer"
+                                                                class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer"
                                                             >
-                                                            <label :for="`outline-${id}`" class="text-[9px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline</label>
+                                                            <label :for="`outline-${id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline</label>
                                                         </div>
-                                                        <input 
-                                                            v-if="layerOutlines[id].active"
-                                                            type="color" 
-                                                            v-model="layerOutlines[id].color"
-                                                            class="w-10 h-6 p-0 border-0 bg-transparent cursor-pointer rounded overflow-hidden"
-                                                        >
+                                                        <div v-if="layerOutlines[id].active" class="flex items-center gap-2">
+                                                            <input 
+                                                                type="color"
+                                                                v-model="layerOutlines[id].color"
+                                                                class="w-5 h-5 rounded-full overflow-hidden border-none p-0 cursor-pointer shadow-sm"
+                                                            >
+                                                            <input 
+                                                                type="range"
+                                                                v-model.number="layerOutlines[id].size"
+                                                                min="1" max="10"
+                                                                class="w-16 accent-black"
+                                                            >
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </transition>
+                                        </div>
+                                    </div>
+
+                                    <!-- Image Reference Section -->
+                                    <div class="mt-8 pt-6 border-t border-gray-100">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-sm text-secondary">image_search</span>
+                                                <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Ref. Gambar</span>
+                                            </div>
+                                            <button 
+                                                v-if="referenceImage"
+                                                @click="clearReferenceImage"
+                                                class="text-[9px] font-black text-red-500 uppercase hover:underline"
+                                            >Hapus</button>
+                                        </div>
+
+                                        <div v-if="!referenceImage" class="relative group">
+                                            <input 
+                                                type="file" 
+                                                @change="saveReferenceImage"
+                                                accept="image/*"
+                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            >
+                                            <div class="py-6 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gray-50/50 group-hover:bg-white group-hover:border-primary transition-all">
+                                                <span class="material-symbols-outlined text-gray-300">add_photo_alternate</span>
+                                                <span class="text-[8px] font-black text-secondary uppercase tracking-tighter">Klik untuk tambah referensi</span>
+                                            </div>
+                                        </div>
+
+                                        <div v-else class="space-y-4">
+                                            <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50">
+                                                <img 
+                                                    :src="referenceImage" 
+                                                    @click="pickColorFromRef"
+                                                    class="w-full h-full object-contain cursor-crosshair transition-transform active:scale-95"
+                                                    title="Klik pada gambar untuk mengambil warna ke layer aktif"
+                                                >
+                                            </div>
+
+                                            <!-- Extracted Palette -->
+                                            <div v-if="extractedPalette.length > 0" class="space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[8px] font-black uppercase text-secondary tracking-widest opacity-50">Ekstraksi Warna</span>
+                                                    <button 
+                                                        @click="applyExtractedPalette"
+                                                        class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
+                                                    >
+                                                        <span class="material-symbols-outlined text-[10px]">auto_fix</span>
+                                                        Terapkan Ke Semua
+                                                    </button>
+                                                </div>
+                                                <div class="grid grid-cols-6 gap-1.5">
+                                                    <button 
+                                                        v-for="color in extractedPalette" 
+                                                        :key="`ext-${color}`"
+                                                        class="aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
+                                                        :style="{ backgroundColor: color }"
+                                                        @click="activeLayerPickId !== null ? setLayerColor(activeLayerPickId, color) : showToast('Pilih layer aksen dulu')"
+                                                    ></button>
+                                                </div>
+                                            </div>
+
+                                            <p class="text-[8px] text-center font-bold text-secondary uppercase tracking-widest opacity-50">
+                                                {{ activeLayerPickId ? `Klik warna di atas untuk isi Aksen ${activeLayerPickId}` : 'Pilih layer di atas untuk menggunakan palet' }}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -263,6 +475,13 @@
                                             class="group relative aspect-square rounded-2xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
                                             @click="addUploadAsElement(media.id)"
                                         >
+                                            <button 
+                                                @click.stop="removeUploadedMedia(media.id)"
+                                                class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 text-red-500 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                                                title="Hapus dari daftar"
+                                            >
+                                                <span class="material-symbols-outlined text-sm">close</span>
+                                            </button>
                                             <img :src="media.src" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform">
                                             <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-[2px] transition-all">
                                                 <div class="bg-white text-black px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest scale-75 group-hover:scale-100 transition-transform">Tambah</div>
@@ -285,30 +504,6 @@
                                             <span class="text-[9px] text-secondary font-medium mt-1 block uppercase tracking-tighter opacity-60">Custom Branding</span>
                                         </div>
                                     </button>
-
-                                    <transition name="fade">
-                                        <div v-if="activeElement?.type === 'text'" class="p-6 rounded-3xl bg-gray-50 border border-gray-100 space-y-6">
-                                            <div>
-                                                <label class="text-[9px] font-black uppercase text-secondary tracking-widest block mb-2 opacity-60">Isi Teks</label>
-                                                <textarea 
-                                                    v-model="activeElement.text"
-                                                    class="w-full p-4 rounded-xl border-gray-200 text-xs font-bold focus:border-black focus:ring-black transition-all resize-none"
-                                                    rows="3"
-                                                ></textarea>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label class="text-[9px] font-black uppercase text-secondary tracking-widest block mb-2 opacity-60">Warna</label>
-                                                    <input type="color" v-model="activeElement.color" class="w-full h-10 p-1 bg-white rounded-lg border-gray-200 cursor-pointer">
-                                                </div>
-                                                <div>
-                                                    <label class="text-[9px] font-black uppercase text-secondary tracking-widest block mb-2 opacity-60">Stroke</label>
-                                                    <input type="color" v-model="activeElement.strokeColor" class="w-full h-10 p-1 bg-white rounded-lg border-gray-200 cursor-pointer">
-                                                </div>
-                                            </div>
-                                            <button @click="removeActiveElement" class="w-full py-3 text-[10px] font-black uppercase text-error hover:bg-error/5 rounded-xl transition-all tracking-widest">Hapus Elemen</button>
-                                        </div>
-                                    </transition>
                                 </div>
                             </div>
 
@@ -346,25 +541,51 @@
                             <div class="p-8 flex-grow overflow-y-auto custom-scrollbar space-y-8">
                                  <div class="grid gap-6">
                                     <div class="relative group">
-                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Nama Lengkap</label>
-                                        <input v-model="name" type="text" class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" placeholder="Contoh: Muhammad Rizky">
+                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Nama Lengkap <span class="text-error">*</span></label>
+                                        <input 
+                                            v-model="name" 
+                                            type="text" 
+                                            required
+                                            :class="{'border-error/50 bg-error/[0.02]': formTouched && !name}"
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            placeholder="Contoh: Muhammad Rizky"
+                                        >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">person</span>
                                     </div>
                                     <div class="relative group">
-                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">WhatsApp Number</label>
-                                        <input v-model="phone" type="text" class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" placeholder="0812xxxxxxxx">
+                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">WhatsApp Number <span class="text-error">*</span></label>
+                                        <input 
+                                            v-model="phone" 
+                                            type="text" 
+                                            required
+                                            :class="{'border-error/50 bg-error/[0.02]': formTouched && !phone}"
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            placeholder="0812xxxxxxxx"
+                                        >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">call</span>
                                     </div>
                                     <div class="relative group">
-                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Email Address</label>
-                                        <input v-model="guestEmail" type="email" class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" placeholder="email@contoh.com">
+                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Email Address <span class="text-error">*</span></label>
+                                        <input 
+                                            v-model="guestEmail" 
+                                            type="email" 
+                                            required
+                                            :class="{'border-error/50 bg-error/[0.02]': formTouched && !guestEmail}"
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            placeholder="email@contoh.com"
+                                        >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">mail</span>
                                     </div>
                                     
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="relative group">
-                                            <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shoe Size</label>
-                                            <select v-model="shoeSize" class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold appearance-none cursor-pointer">
+                                            <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shoe Size <span class="text-error">*</span></label>
+                                            <select 
+                                                v-model="shoeSize" 
+                                                required
+                                                :class="{'border-error/50 bg-error/[0.02]': formTouched && !shoeSize}"
+                                                class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold appearance-none cursor-pointer"
+                                            >
                                                 <option value="">Pilih</option>
                                                 <option v-for="size in shoeSizes" :key="size" :value="String(size)">Size {{ size }}</option>
                                             </select>
@@ -377,8 +598,15 @@
                                     </div>
 
                                     <div class="relative group">
-                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shipping Address</label>
-                                        <textarea v-model="guestAddress" rows="4" class="w-full px-5 py-4 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30 resize-none" placeholder="Masukkan alamat lengkap pengiriman..."></textarea>
+                                        <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shipping Address <span class="text-error">*</span></label>
+                                        <textarea 
+                                            v-model="guestAddress" 
+                                            rows="4" 
+                                            required
+                                            :class="{'border-error/50 bg-error/[0.02]': formTouched && !guestAddress}"
+                                            class="w-full px-5 py-4 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30 resize-none" 
+                                            placeholder="Masukkan alamat lengkap pengiriman..."
+                                        ></textarea>
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">location_on</span>
                                     </div>
                                 </div>
@@ -455,7 +683,7 @@
                                     </div>
                                 </div>
                                 <button 
-                                    @click="handleSave"
+                                    @click="validateCheckout"
                                     :disabled="isSaving"
                                     class="w-full h-16 bg-black text-white font-black text-[12px] uppercase tracking-[0.2em] hover:bg-primary-container hover:text-black transition-all rounded-[24px] flex items-center justify-center gap-4 shadow-2xl shadow-black/20 disabled:opacity-50 active:scale-95"
                                 >
@@ -503,7 +731,6 @@
             </div>
         </transition>
 
-        <input ref="colorPickerRef" type="color" class="sr-only" @change="onLayerPickerChange" />
         <input ref="uploadInputRef" type="file" class="hidden" accept="image/*" multiple @change="onUploadInputChange" />
 
         <transition name="toast">
@@ -544,7 +771,6 @@ const page = usePage();
 const activeSideTab = ref('layers');
 const activeLayerPickId = ref<number | null>(null);
 const konvaContainerRef = ref<HTMLDivElement | null>(null);
-const colorPickerRef = ref<HTMLInputElement | null>(null);
 const uploadInputRef = ref<HTMLInputElement | null>(null);
 const activeElement = ref<any>(null);
 const toastMessage = ref('');
@@ -560,9 +786,39 @@ const currentModel = ref<number | string | null>(null);
 const isSyncing = ref(false);
 
 const layerIds = ref<number[]>([]);
+const layerSourceImages = ref<Record<number, HTMLImageElement>>({});
 const layerColors = ref<Record<number, string>>({});
 const layerOutlines = ref<Record<number, { active: boolean; color: string; size: number }>>({});
 const uploadedMedia = ref<any[]>([]);
+
+// History for Undo/Redo
+const history = ref<string[]>([]);
+const redoStack = ref<string[]>([]);
+const isRestoringHistory = ref(false);
+
+const saveHistory = () => {
+    if (isRestoringHistory.value) return;
+    
+    // Process elements to ensure we can restore images
+    const elements = elementsGroup?.children?.map(node => {
+        const obj = node.toObject();
+        if (node instanceof Konva.Image && node.image()) {
+            // Store the source for restoration
+            obj.attrs.imageSrc = (node.image() as HTMLImageElement).src;
+        }
+        return obj;
+    }) || [];
+
+    const state = {
+        colors: { ...layerColors.value },
+        outlines: JSON.parse(JSON.stringify(layerOutlines.value)),
+        elements: elements
+    };
+    
+    history.value.push(JSON.stringify(state));
+    if (history.value.length > 50) history.value.shift();
+    redoStack.value = []; // Clear redo stack on new action
+};
 
 // Checkout Form
 const name = ref('');
@@ -572,6 +828,111 @@ const guestAddress = ref('');
 const shoeSize = ref('');
 const fastTrackEnabled = ref(false);
 const customBoxEnabled = ref(false);
+const formTouched = ref(false);
+
+const referenceImage = ref<string | null>(localStorage.getItem('studio_ref_image'));
+const extractedPalette = ref<string[]>(JSON.parse(localStorage.getItem('studio_extracted_palette') || '[]'));
+
+const saveReferenceImage = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        referenceImage.value = dataUrl;
+        localStorage.setItem('studio_ref_image', dataUrl);
+        generatePalette(dataUrl);
+    };
+    reader.readAsDataURL(file);
+};
+
+const generatePalette = (dataUrl: string) => {
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = 100;
+        canvas.height = 100;
+        ctx.drawImage(img, 0, 0, 100, 100);
+        
+        const imageData = ctx.getImageData(0, 0, 100, 100).data;
+        const colors = new Set<string>();
+        
+        // Sample pixels to find unique dominant colors
+        for (let i = 0; i < imageData.length; i += 40) { // skip some pixels for performance
+            const r = imageData[i];
+            const g = imageData[i+1];
+            const b = imageData[i+2];
+            
+            // Basic quantization to group similar colors
+            const qr = Math.round(r / 15) * 15;
+            const qg = Math.round(g / 15) * 15;
+            const qb = Math.round(b / 15) * 15;
+            
+            const hex = '#' + ((1 << 24) + (qr << 16) + (qg << 8) + qb).toString(16).slice(1);
+            colors.add(hex);
+            if (colors.size >= 12) break;
+        }
+        
+        extractedPalette.value = Array.from(colors);
+        localStorage.setItem('studio_extracted_palette', JSON.stringify(extractedPalette.value));
+    };
+    img.src = dataUrl;
+};
+
+const clearReferenceImage = () => {
+    referenceImage.value = null;
+    extractedPalette.value = [];
+    localStorage.removeItem('studio_ref_image');
+    localStorage.removeItem('studio_extracted_palette');
+};
+
+const applyExtractedPalette = () => {
+    if (extractedPalette.value.length === 0) return;
+    
+    layerIds.value.forEach((id, index) => {
+        // Distribute colors: if palette is smaller than layers, it will cycle
+        const color = extractedPalette.value[index % extractedPalette.value.length];
+        setLayerColor(id, color);
+    });
+    showToast('Tema warna diterapkan!');
+};
+
+const randomizeColors = () => {
+    layerIds.value.forEach(id => {
+        const randomColor = FALLBACK_PALETTE[Math.floor(Math.random() * FALLBACK_PALETTE.length)];
+        setLayerColor(id, randomColor);
+    });
+    showToast('Warna diacak!');
+};
+
+const pickColorFromRef = (e: MouseEvent) => {
+    if (activeLayerPickId.value === null) {
+        showToast('Pilih layer aksen terlebih dahulu');
+        return;
+    }
+
+    const img = e.target as HTMLImageElement;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+
+    const rect = img.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+    const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const hex = '#' + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
+    
+    setLayerColor(activeLayerPickId.value, hex);
+};
 
 // Konva Objects
 let stage: Konva.Stage | null = null;
@@ -614,10 +975,20 @@ const hudTitle = computed(() => {
 
 const hudSubtitle = computed(() => {
     if (activeSideTab.value === 'layers') return 'Personalize Layers';
-    if (activeSideTab.value === 'artwork') return 'Upload Branding';
-    if (activeSideTab.value === 'text') return 'Identity Design';
+    if (activeSideTab === 'artwork') return 'Upload Branding';
+    if (activeSideTab === 'text') return 'Identity Design';
     return 'KONFIGURASI';
 });
+
+const FONT_OPTIONS = [
+    { label: 'Modern (Lexend)', value: 'Lexend' },
+    { label: 'Clean (Inter)', value: 'Inter' },
+    { label: 'Bold (Roboto)', value: 'Roboto' },
+    { label: 'Classic (Playfair)', value: 'Playfair Display' },
+    { label: 'Sporty (Oswald)', value: 'Oswald' },
+    { label: 'Technical (JetBrains)', value: 'JetBrains Mono' },
+    { label: 'Retro (Bebas Neue)', value: 'Bebas Neue' }
+];
 
 const shoeSizes = Array.from({ length: 11 }, (_, i) => 35 + i);
 
@@ -690,6 +1061,10 @@ const initKonva = () => {
         width: width,
         height: height,
     });
+
+    // Handle High DPI screens for sharpness
+    const pixelRatio = window.devicePixelRatio || 1;
+    stage.setAttr('pixelRatio', pixelRatio);
 
     mainLayer = new Konva.Layer();
     stage.add(mainLayer);
@@ -774,7 +1149,13 @@ const loadModelAssets = async () => {
     if (!currentModelMeta.value || !shoeGroup || !stage) return;
     isSyncing.value = true;
     shoeGroup.destroyChildren();
+    elementsGroup?.destroyChildren();
     activeLayerPickId.value = null;
+    layerSourceImages.value = {};
+    
+    // Clear history for new model
+    history.value = [];
+    redoStack.value = [];
 
     try {
         const meta = currentModelMeta.value;
@@ -798,12 +1179,13 @@ const loadModelAssets = async () => {
         layerIds.value = meta.layers.map((l: any) => l.id);
         for (const layer of meta.layers) {
             const img = await loadImage(baseUrl + layer.file);
+            layerSourceImages.value[layer.id] = img;
             
             if (!layerColors.value[layer.id]) layerColors.value[layer.id] = '#ffffff';
             if (!layerOutlines.value[layer.id]) layerOutlines.value[layer.id] = { active: false, color: '#000000', size: 2 };
 
             const konvaLayer = new Konva.Image({
-                image: img,
+                image: img, // Will be replaced by canvas in updateKonvaLayer
                 width: CANVAS_SIZE,
                 height: CANVAS_SIZE,
                 x: (stage.width() - CANVAS_SIZE) / 2,
@@ -812,7 +1194,7 @@ const loadModelAssets = async () => {
                 layerId: layer.id,
                 hitFunc: (context, shape) => {
                     const imgShape = shape as Konva.Image;
-                    const canvas = imgShape.image() as HTMLImageElement;
+                    const canvas = imgShape.image() as HTMLCanvasElement;
                     if (!canvas) return;
                     
                     const hitCanvas = document.createElement('canvas');
@@ -839,12 +1221,12 @@ const loadModelAssets = async () => {
                 }
             });
 
-            konvaLayer.filters([Konva.Filters.RGBA]);
-            updateKonvaLayerFilter(konvaLayer, layerColors.value[layer.id]);
             shoeGroup.add(konvaLayer);
+            updateKonvaLayer(layer.id);
         }
         
         mainLayer?.draw();
+        saveHistory(); // Initial state
     } catch (err) {
         console.error('Failed to load model assets:', err);
         showToast('Gagal memuat aset model');
@@ -853,38 +1235,44 @@ const loadModelAssets = async () => {
     }
 };
 
-const updateKonvaLayerFilter = (konvaImg: Konva.Image, hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    
-    konvaImg.cache();
-    konvaImg.red(r).green(g).blue(b);
+const updateKonvaLayer = (id: number) => {
+    const img = layerSourceImages.value[id];
+    if (!img) return;
+
+    const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
+    if (!konvaImg) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = CANVAS_SIZE;
+    canvas.height = CANVAS_SIZE;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const outline = layerOutlines.value[id];
+    if (outline?.active) {
+        const outlineCanvas = drawOutlineLayer(img, outline.color, outline.size, CANVAS_SIZE, CANVAS_SIZE);
+        ctx.drawImage(outlineCanvas, 0, 0);
+    }
+
+    const color = layerColors.value[id] || '#ffffff';
+    const filledCanvas = drawFilledLayer(img, color, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.drawImage(filledCanvas, 0, 0);
+
+    konvaImg.image(canvas);
+    mainLayer?.draw();
 };
 
 const setLayerColor = (id: number, color: string) => {
     layerColors.value[id] = color;
-    const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
-    if (konvaImg) {
-        updateKonvaLayerFilter(konvaImg, color);
-        mainLayer?.draw();
-    }
+    updateKonvaLayer(id);
+    saveHistory();
 };
 
-const triggerColorPicker = (id: number) => {
-    activeLayerPickId.value = id;
-    if (colorPickerRef.value) {
-        colorPickerRef.value.value = layerColors.value[id] || '#ffffff';
-        colorPickerRef.value.click();
-    }
-};
-
-const onLayerPickerChange = (e: Event) => {
-    if (activeLayerPickId.value !== null) {
-        const color = (e.target as HTMLInputElement).value;
-        setLayerColor(activeLayerPickId.value, color);
-    }
-};
+watch(layerOutlines, () => {
+    layerIds.value.forEach(id => {
+        updateKonvaLayer(id);
+    });
+}, { deep: true });
 
 const addTextElement = () => {
     if (!stage || !elementsGroup) return;
@@ -903,13 +1291,14 @@ const addTextElement = () => {
         align: 'center'
     });
     
-    const meta = { id, type: 'text', text: 'BOGOR SNEAKER', color: '#000000', strokeColor: '#ffffff' };
+    const meta = { id, type: 'text', text: 'BOGOR SNEAKER', color: '#000000', strokeColor: '#ffffff', fontFamily: 'Lexend' };
     textNode.setAttr('meta', meta);
     
     elementsGroup.add(textNode);
     activeElement.value = meta;
     transformer?.nodes([textNode]);
     mainLayer?.draw();
+    saveHistory();
 };
 
 const triggerUpload = () => {
@@ -934,6 +1323,11 @@ const onUploadInputChange = (e: any) => {
     }
 };
 
+const removeUploadedMedia = (id: string) => {
+    uploadedMedia.value = uploadedMedia.value.filter(m => m.id !== id);
+    showToast('Media dihapus dari daftar');
+};
+
 const addUploadAsElement = async (id: string) => {
     const media = uploadedMedia.value.find(m => m.id === id);
     if (!media || !stage || !elementsGroup) return;
@@ -950,7 +1344,8 @@ const addUploadAsElement = async (id: string) => {
             y: stage.height() / 2 - height / 2,
             width,
             height,
-            draggable: true
+            draggable: true,
+            imageSmoothingEnabled: true
         });
         
         const meta = { id: Math.random().toString(36).slice(2), type: 'image', sourceId: id };
@@ -960,6 +1355,7 @@ const addUploadAsElement = async (id: string) => {
         activeElement.value = meta;
         transformer?.nodes([konvaImg]);
         mainLayer?.draw();
+        saveHistory();
     } catch (err) {
         showToast('Gagal menambahkan gambar');
     }
@@ -973,6 +1369,7 @@ const removeActiveElement = () => {
             transformer.nodes([]);
             activeElement.value = null;
             mainLayer?.draw();
+            saveHistory();
         }
     }
 };
@@ -986,6 +1383,7 @@ const toggleCustomBox = () => {
 };
 
 const validateCheckout = () => {
+    formTouched.value = true;
     if (!name.value || !phone.value || !guestEmail.value || !shoeSize.value || !guestAddress.value) {
         showToast('Mohon lengkapi data diri dan alamat');
         if (activeSideTab.value !== 'checkout') activeSideTab.value = 'checkout';
@@ -1142,8 +1540,79 @@ const resetZoom = () => {
     mainLayer?.draw();
 };
 
-const undo = () => { showToast('Undo diproses...'); };
-const redo = () => { showToast('Redo diproses...'); };
+const restoreState = async (stateStr: string) => {
+    isRestoringHistory.value = true;
+    try {
+        const state = JSON.parse(stateStr);
+        
+        // Restore Vue state
+        layerColors.value = { ...state.colors };
+        layerOutlines.value = JSON.parse(JSON.stringify(state.outlines));
+
+        // Restore layer colors on Konva
+        for (const id in state.colors) {
+            const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
+            if (konvaImg) {
+                updateKonvaLayerFilter(konvaImg, state.colors[id]);
+            }
+        }
+
+        // Restore elements
+        elementsGroup?.destroyChildren();
+        transformer?.nodes([]);
+        activeElement.value = null;
+
+        for (const elData of state.elements) {
+            let node: Konva.Node | null = null;
+            if (elData.className === 'Text') {
+                node = new Konva.Text(elData.attrs);
+            } else if (elData.className === 'Image') {
+                // If it's an image, we need to ensure the Image object is restored correctly
+                const attrs = { ...elData.attrs };
+                if (attrs.imageSrc) {
+                     const img = await loadImage(attrs.imageSrc);
+                     attrs.image = img;
+                }
+                node = new Konva.Image(attrs);
+            }
+            if (node) elementsGroup?.add(node);
+        }
+
+        mainLayer?.draw();
+        await nextTick();
+    } catch (err) {
+        console.error('Failed to restore state:', err);
+    } finally {
+        isRestoringHistory.value = false;
+    }
+};
+
+const undo = async () => {
+    if (history.value.length <= 1) {
+        showToast('Tidak ada perubahan untuk di-undo');
+        return;
+    }
+    
+    const currentState = history.value.pop()!;
+    redoStack.value.push(currentState);
+    
+    const prevState = history.value[history.value.length - 1];
+    await restoreState(prevState);
+    showToast('Undo berhasil');
+};
+
+const redo = async () => {
+    if (redoStack.value.length === 0) {
+        showToast('Tidak ada perubahan untuk di-redo');
+        return;
+    }
+    
+    const nextState = redoStack.value.pop()!;
+    history.value.push(nextState);
+    
+    await restoreState(nextState);
+    showToast('Redo berhasil');
+};
 const resetDesign = () => {
     if (confirm('Reset semua perubahan?')) {
         layerColors.value = {};
@@ -1157,9 +1626,25 @@ const showShare = () => {
     showToast('Link share disalin ke clipboard');
 };
 
+const handleKeyDown = (e: KeyboardEvent) => {
+    // Only delete if an element is active and we're NOT typing in an input/textarea
+    if ((e.key === 'Backspace' || e.key === 'Delete') && activeElement.value) {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            removeActiveElement();
+        }
+    }
+};
+
 onMounted(async () => {
     initKonva();
     await fetchCatalog();
+    window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
 });
 
 watch(currentModel, () => {
@@ -1179,6 +1664,7 @@ watch(() => activeElement.value?.text, (newText) => {
     if (activeElement.value?.type === 'text') {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
         if (node) {
+            saveHistory();
             (node as Konva.Text).text(newText);
             mainLayer?.draw();
         }
@@ -1189,8 +1675,25 @@ watch(() => activeElement.value?.color, (newColor) => {
     if (activeElement.value?.type === 'text') {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
         if (node) {
+            saveHistory();
             (node as Konva.Text).fill(newColor);
             mainLayer?.draw();
+        }
+    }
+});
+
+watch(() => activeElement.value?.fontFamily, (newFont) => {
+    if (activeElement.value?.type === 'text' && newFont) {
+        const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+        if (node) {
+            saveHistory();
+            (node as Konva.Text).fontFamily(newFont);
+            // Give a small timeout to let the browser process the font if it's newly loaded
+            setTimeout(() => {
+                mainLayer?.draw();
+                // Second draw to be sure
+                stage?.batchDraw();
+            }, 50);
         }
     }
 });
