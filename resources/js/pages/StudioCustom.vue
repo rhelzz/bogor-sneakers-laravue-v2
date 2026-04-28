@@ -975,8 +975,8 @@ const hudTitle = computed(() => {
 
 const hudSubtitle = computed(() => {
     if (activeSideTab.value === 'layers') return 'Personalize Layers';
-    if (activeSideTab === 'artwork') return 'Upload Branding';
-    if (activeSideTab === 'text') return 'Identity Design';
+    if (activeSideTab.value === 'artwork') return 'Upload Branding';
+    if (activeSideTab.value === 'text') return 'Identity Design';
     return 'KONFIGURASI';
 });
 
@@ -1115,7 +1115,7 @@ const initKonva = () => {
             const meta = target.getAttr('meta');
             if (meta) {
                 activeElement.value = meta;
-                transformer?.nodes([target]);
+                transformer?.nodes([target as Konva.Shape]);
             }
         }
         mainLayer?.draw();
@@ -1553,7 +1553,7 @@ const restoreState = async (stateStr: string) => {
         for (const id in state.colors) {
             const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
             if (konvaImg) {
-                updateKonvaLayerFilter(konvaImg, state.colors[id]);
+                updateKonvaLayer(Number(id));
             }
         }
 
@@ -1575,7 +1575,7 @@ const restoreState = async (stateStr: string) => {
                 }
                 node = new Konva.Image(attrs);
             }
-            if (node) elementsGroup?.add(node);
+            if (node) elementsGroup?.add(node as any);
         }
 
         mainLayer?.draw();
