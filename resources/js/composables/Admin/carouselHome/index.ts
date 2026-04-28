@@ -1,1 +1,0 @@
-export { useAdminCarouselHomeManager } from './useAdminCarouselHomeManager';

@@ -1,1 +1,0 @@
-export { useAdminCatalogManager } from './useAdminCatalogManager';

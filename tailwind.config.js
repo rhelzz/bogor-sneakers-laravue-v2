@@ -1,4 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme'
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
     darkMode: 'class',
@@ -87,7 +87,9 @@ export default {
                 'label-mono': ['Inter'],
                 'headline-xl': ['Lexend'],
                 'body-md': ['Inter'],
+                hind: ['var(--font-hind)'],
+                montserrat: ['var(--font-montserrat)'],
             },
         },
     },
-}
+};

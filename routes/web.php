@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarouselSlideController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
@@ -21,6 +22,8 @@ Route::inertia('/tracking', 'Tracking')->name('tracking');
 
 // Admin Carousel Routes
 Route::prefix('admin')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+
     Route::get('/carousel-home', [CarouselSlideController::class, 'index'])->name('admin.carousel-home');
     Route::post('/carousel-home', [CarouselSlideController::class, 'store'])->name('admin.carousel-home.store');
     Route::put('/carousel-home/{carouselSlide}', [CarouselSlideController::class, 'update'])->name('admin.carousel-home.update');

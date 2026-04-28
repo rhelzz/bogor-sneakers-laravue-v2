@@ -15,7 +15,7 @@
                         <span class="text-[10px] font-bold text-primary tracking-[0.3em] uppercase leading-none mt-1">Customizer</span>
                     </div>
                 </div>
-                
+
                 <div class="h-8 w-[1px] bg-gray-100"></div>
 
                 <!-- Selection Group -->
@@ -82,7 +82,7 @@
             <!-- SideNavBar Component -->
             <aside class="w-20 border-r border-gray-100 bg-white flex flex-col z-40">
                 <div class="flex-grow flex flex-col items-center py-8 gap-6">
-                    <button 
+                    <button
                         @click="activeSideTab = 'layers'"
                         class="group relative w-12 h-12 flex items-center justify-center rounded-2xl transition-all"
                         :class="activeSideTab === 'layers' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-secondary hover:bg-gray-50 hover:text-black'"
@@ -91,7 +91,7 @@
                         <span class="absolute left-full ml-4 px-2 py-1 bg-black text-white text-[10px] font-black rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 uppercase tracking-[0.2em]">Layers</span>
                     </button>
 
-                    <button 
+                    <button
                         @click="activeSideTab = 'artwork'"
                         class="group relative w-12 h-12 flex items-center justify-center rounded-2xl transition-all"
                         :class="activeSideTab === 'artwork' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-secondary hover:bg-gray-50 hover:text-black'"
@@ -100,7 +100,7 @@
                         <span class="absolute left-full ml-4 px-2 py-1 bg-black text-white text-[10px] font-black rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap z-50 uppercase tracking-[0.2em]">Artwork</span>
                     </button>
 
-                    <button 
+                    <button
                         @click="activeSideTab = 'text'"
                         class="group relative w-12 h-12 flex items-center justify-center rounded-2xl transition-all"
                         :class="activeSideTab === 'text' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-secondary hover:bg-gray-50 hover:text-black'"
@@ -114,7 +114,7 @@
                     <button @click="showShare" class="w-10 h-10 flex items-center justify-center text-secondary hover:text-black rounded-xl hover:bg-gray-50 transition-all">
                         <span class="material-symbols-outlined">share</span>
                     </button>
-                    <button 
+                    <button
                         @click="activeSideTab = 'checkout'"
                         class="w-12 h-12 flex items-center justify-center rounded-2xl transition-all"
                         :class="activeSideTab === 'checkout' ? 'bg-black text-white shadow-xl shadow-black/20' : 'bg-gray-100 text-secondary hover:bg-gray-200'"
@@ -135,13 +135,13 @@
                         <!-- UI Grid lines -->
                         <div class="absolute inset-0 opacity-[0.03] bg-[size:40px_40px] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)]"></div>
                     </div>
-                    
+
                     <!-- Konva Container -->
                     <div ref="konvaContainerRef" class="relative w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
 
                     <!-- Floating Delete Button on Canvas -->
                     <transition name="fade">
-                        <button 
+                        <button
                             v-if="activeElement"
                             @click="removeActiveElement"
                             class="absolute top-6 right-6 z-30 w-12 h-12 bg-red-500 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:bg-black transition-all active:scale-90 group"
@@ -223,8 +223,8 @@
                                             <div class="p-3 bg-white rounded-xl border border-gray-100/50 space-y-4 shadow-sm">
                                                 <div class="flex items-center justify-between">
                                                     <div class="flex items-center gap-2">
-                                                        <input 
-                                                            type="checkbox" 
+                                                        <input
+                                                            type="checkbox"
                                                             :id="`logo-outline-${activeElement.id}`"
                                                             v-model="activeElement.outline.active"
                                                             class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all"
@@ -232,7 +232,7 @@
                                                         <label :for="`logo-outline-${activeElement.id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline Logo</label>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div v-if="activeElement.outline.active" class="space-y-3 pt-3 border-t border-gray-50 mt-2">
                                                     <div class="flex items-center justify-between">
                                                         <span class="text-[7px] font-black uppercase text-secondary/40 tracking-widest">Warna & Ukuran</span>
@@ -248,7 +248,7 @@
                                             <div class="space-y-2">
                                                 <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest ml-1">Gaya & Konten Teks</label>
                                                 <div class="grid gap-2">
-                                                    <select 
+                                                    <select
                                                         v-model="activeElement.fontFamily"
                                                         class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[10px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
                                                     >
@@ -256,7 +256,7 @@
                                                             {{ font.label }}
                                                         </option>
                                                     </select>
-                                                    <textarea 
+                                                    <textarea
                                                         v-model="activeElement.text"
                                                         class="w-full p-4 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-black focus:border-primary focus:ring-0 transition-all resize-none shadow-sm"
                                                         rows="2"
@@ -278,13 +278,13 @@
                                     </div>
                                 </transition>
                             </div>
-                            
+
                             <div class="flex-grow overflow-y-auto custom-scrollbar p-6">
                                 <!-- Layer Customization -->
                                 <div v-if="activeSideTab === 'layers'" class="space-y-4">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Daftar Layer</span>
-                                        <button 
+                                        <button
                                             @click="randomizeColors"
                                             class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-black hover:text-white rounded-lg transition-all group"
                                         >
@@ -298,12 +298,12 @@
                                         <p class="text-[10px] font-bold uppercase">Tidak ada layer</p>
                                     </div>
                                     <div v-else class="grid gap-2">
-                                        <div 
-                                            v-for="id in layerIds" 
+                                        <div
+                                            v-for="id in layerIds"
                                             :key="`layer-${id}`"
                                             class="group relative overflow-hidden rounded-xl border transition-all duration-300"
-                                            :class="activeLayerPickId === id 
-                                                ? 'border-primary bg-primary/5 shadow-sm' 
+                                            :class="activeLayerPickId === id
+                                                ? 'border-primary bg-primary/5 shadow-sm'
                                                 : 'border-gray-100 bg-white hover:border-gray-200 cursor-pointer'"
                                             @click="activeLayerPickId = activeLayerPickId === id ? null : id"
                                         >
@@ -314,12 +314,12 @@
                                                     </div>
                                                     <span class="text-[10px] font-black uppercase tracking-widest">Aksen {{ id }}</span>
                                                 </div>
-                                                
+
                                                 <div class="flex items-center gap-2" @click.stop>
                                                     <div class="flex items-center bg-white rounded-lg px-2 py-1 border border-gray-100 shadow-sm focus-within:border-primary transition-colors">
                                                         <span class="text-[9px] font-bold text-gray-400 mr-1">#</span>
-                                                        <input 
-                                                            type="text" 
+                                                        <input
+                                                            type="text"
                                                             :value="layerColors[id]?.replace('#', '')"
                                                             @input="(e) => {
                                                                 const val = (e.target as HTMLInputElement).value;
@@ -330,12 +330,12 @@
                                                         >
                                                     </div>
                                                     <div class="relative w-7 h-7 group/picker">
-                                                        <div 
-                                                            class="w-full h-full rounded-full border-2 border-white shadow-sm transition-transform group-hover/picker:scale-110 cursor-pointer" 
+                                                        <div
+                                                            class="w-full h-full rounded-full border-2 border-white shadow-sm transition-transform group-hover/picker:scale-110 cursor-pointer"
                                                             :style="{ backgroundColor: layerColors[id] || '#ffffff' }"
                                                         ></div>
-                                                        <input 
-                                                            type="color" 
+                                                        <input
+                                                            type="color"
                                                             :value="layerColors[id] || '#ffffff'"
                                                             @input="(e) => setLayerColor(id, (e.target as HTMLInputElement).value)"
                                                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -348,19 +348,19 @@
                                             <transition name="expand">
                                                 <div v-if="activeLayerPickId === id" class="px-3 pb-3 pt-1 border-t border-gray-100/50 space-y-3">
                                                     <div class="grid grid-cols-8 gap-1.5">
-                                                        <button 
-                                                            v-for="color in randomPalette" 
+                                                        <button
+                                                            v-for="color in randomPalette"
                                                             :key="color"
                                                             class="w-full aspect-square rounded-md border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
                                                             :style="{ backgroundColor: color }"
                                                             @click.stop="setLayerColor(id, color)"
                                                         ></button>
                                                     </div>
-                                                    
+
                                                     <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-100/50" @click.stop>
                                                         <div class="flex items-center gap-2">
-                                                            <input 
-                                                                type="checkbox" 
+                                                            <input
+                                                                type="checkbox"
                                                                 :id="`outline-${id}`"
                                                                 v-model="layerOutlines[id].active"
                                                                 class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer"
@@ -368,12 +368,12 @@
                                                             <label :for="`outline-${id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline</label>
                                                         </div>
                                                         <div v-if="layerOutlines[id].active" class="flex items-center gap-2">
-                                                            <input 
+                                                            <input
                                                                 type="color"
                                                                 v-model="layerOutlines[id].color"
                                                                 class="w-5 h-5 rounded-full overflow-hidden border-none p-0 cursor-pointer shadow-sm"
                                                             >
-                                                            <input 
+                                                            <input
                                                                 type="range"
                                                                 v-model.number="layerOutlines[id].size"
                                                                 min="1" max="10"
@@ -393,7 +393,7 @@
                                                 <span class="material-symbols-outlined text-sm text-secondary">image_search</span>
                                                 <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Ref. Gambar</span>
                                             </div>
-                                            <button 
+                                            <button
                                                 v-if="referenceImage"
                                                 @click="clearReferenceImage"
                                                 class="text-[9px] font-black text-red-500 uppercase hover:underline"
@@ -401,8 +401,8 @@
                                         </div>
 
                                         <div v-if="!referenceImage" class="relative group">
-                                            <input 
-                                                type="file" 
+                                            <input
+                                                type="file"
                                                 @change="saveReferenceImage"
                                                 accept="image/*"
                                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
@@ -415,8 +415,8 @@
 
                                         <div v-else class="space-y-4">
                                             <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50">
-                                                <img 
-                                                    :src="referenceImage" 
+                                                <img
+                                                    :src="referenceImage"
                                                     @click="pickColorFromRef"
                                                     class="w-full h-full object-contain cursor-crosshair transition-transform active:scale-95"
                                                     title="Klik pada gambar untuk mengambil warna ke layer aktif"
@@ -427,7 +427,7 @@
                                             <div v-if="extractedPalette.length > 0" class="space-y-2">
                                                 <div class="flex items-center justify-between">
                                                     <span class="text-[8px] font-black uppercase text-secondary tracking-widest opacity-50">Ekstraksi Warna</span>
-                                                    <button 
+                                                    <button
                                                         @click="applyExtractedPalette"
                                                         class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
                                                     >
@@ -436,8 +436,8 @@
                                                     </button>
                                                 </div>
                                                 <div class="grid grid-cols-6 gap-1.5">
-                                                    <button 
-                                                        v-for="color in extractedPalette" 
+                                                    <button
+                                                        v-for="color in extractedPalette"
                                                         :key="`ext-${color}`"
                                                         class="aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
                                                         :style="{ backgroundColor: color }"
@@ -455,7 +455,7 @@
 
                                 <!-- Artwork Customization -->
                                 <div v-if="activeSideTab === 'artwork'" class="space-y-6">
-                                    <button 
+                                    <button
                                         @click="triggerUpload"
                                         class="w-full py-8 border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center gap-3 bg-gray-50/50 hover:bg-white hover:border-primary hover:shadow-xl hover:shadow-primary/5 transition-all group"
                                     >
@@ -469,13 +469,13 @@
                                     </button>
 
                                     <div v-if="uploadedMedia.length > 0" class="grid grid-cols-2 gap-4">
-                                        <div 
-                                            v-for="media in uploadedMedia" 
+                                        <div
+                                            v-for="media in uploadedMedia"
                                             :key="media.id"
                                             class="group relative aspect-square rounded-2xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
                                             @click="addUploadAsElement(media.id)"
                                         >
-                                            <button 
+                                            <button
                                                 @click.stop="removeUploadedMedia(media.id)"
                                                 class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/90 text-red-500 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
                                                 title="Hapus dari daftar"
@@ -492,7 +492,7 @@
 
                                 <!-- Text Customization -->
                                 <div v-if="activeSideTab === 'text'" class="space-y-6">
-                                    <button 
+                                    <button
                                         @click="addTextElement"
                                         class="w-full py-8 border-2 border-dashed border-gray-100 rounded-3xl flex flex-col items-center justify-center gap-3 bg-gray-50/50 hover:bg-white hover:border-primary hover:shadow-xl hover:shadow-primary/5 transition-all group"
                                     >
@@ -542,46 +542,46 @@
                                  <div class="grid gap-6">
                                     <div class="relative group">
                                         <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Nama Lengkap <span class="text-error">*</span></label>
-                                        <input 
-                                            v-model="name" 
-                                            type="text" 
+                                        <input
+                                            v-model="name"
+                                            type="text"
                                             required
                                             :class="{'border-error/50 bg-error/[0.02]': formTouched && !name}"
-                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30"
                                             placeholder="Contoh: Muhammad Rizky"
                                         >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">person</span>
                                     </div>
                                     <div class="relative group">
                                         <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">WhatsApp Number <span class="text-error">*</span></label>
-                                        <input 
-                                            v-model="phone" 
-                                            type="text" 
+                                        <input
+                                            v-model="phone"
+                                            type="text"
                                             required
                                             :class="{'border-error/50 bg-error/[0.02]': formTouched && !phone}"
-                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30"
                                             placeholder="0812xxxxxxxx"
                                         >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">call</span>
                                     </div>
                                     <div class="relative group">
                                         <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Email Address <span class="text-error">*</span></label>
-                                        <input 
-                                            v-model="guestEmail" 
-                                            type="email" 
+                                        <input
+                                            v-model="guestEmail"
+                                            type="email"
                                             required
                                             :class="{'border-error/50 bg-error/[0.02]': formTouched && !guestEmail}"
-                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30" 
+                                            class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30"
                                             placeholder="email@contoh.com"
                                         >
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">mail</span>
                                     </div>
-                                    
+
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="relative group">
                                             <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shoe Size <span class="text-error">*</span></label>
-                                            <select 
-                                                v-model="shoeSize" 
+                                            <select
+                                                v-model="shoeSize"
                                                 required
                                                 :class="{'border-error/50 bg-error/[0.02]': formTouched && !shoeSize}"
                                                 class="w-full h-12 px-5 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold appearance-none cursor-pointer"
@@ -599,12 +599,12 @@
 
                                     <div class="relative group">
                                         <label class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block ml-1 opacity-60">Shipping Address <span class="text-error">*</span></label>
-                                        <textarea 
-                                            v-model="guestAddress" 
-                                            rows="4" 
+                                        <textarea
+                                            v-model="guestAddress"
+                                            rows="4"
                                             required
                                             :class="{'border-error/50 bg-error/[0.02]': formTouched && !guestAddress}"
-                                            class="w-full px-5 py-4 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30 resize-none" 
+                                            class="w-full px-5 py-4 rounded-2xl border-gray-200 bg-gray-50/50 focus:bg-white focus:border-black focus:ring-0 transition-all text-sm font-bold placeholder:opacity-30 resize-none"
                                             placeholder="Masukkan alamat lengkap pengiriman..."
                                         ></textarea>
                                         <span class="material-symbols-outlined absolute right-4 top-[38px] text-gray-300 text-lg group-focus-within:text-black transition-colors">location_on</span>
@@ -622,18 +622,18 @@
                                                 <p class="text-[9px] text-secondary font-bold uppercase tracking-widest opacity-60">Pengerjaan 3-5 Hari</p>
                                             </div>
                                         </div>
-                                        <div 
+                                        <div
                                             class="w-14 h-7 rounded-full relative transition-all cursor-pointer border-2"
                                             :class="fastTrackEnabled ? 'bg-primary border-primary' : 'bg-gray-200 border-gray-200'"
                                             @click="toggleFastTrack"
                                         >
-                                            <div 
+                                            <div
                                                 class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all"
                                                 :class="fastTrackEnabled ? 'translate-x-7' : ''"
                                             ></div>
                                         </div>
                                      </div>
-                                     
+
                                      <div class="h-[1px] bg-gray-200/50"></div>
 
                                      <div class="flex items-center justify-between">
@@ -646,12 +646,12 @@
                                                 <p class="text-[9px] text-secondary font-bold uppercase tracking-widest opacity-60">Custom Exclusive Box</p>
                                             </div>
                                         </div>
-                                        <div 
+                                        <div
                                             class="w-14 h-7 rounded-full relative transition-all cursor-pointer border-2"
                                             :class="customBoxEnabled ? 'bg-primary border-primary' : 'bg-gray-200 border-gray-200'"
                                             @click="toggleCustomBox"
                                         >
-                                            <div 
+                                            <div
                                                 class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all"
                                                 :class="customBoxEnabled ? 'translate-x-7' : ''"
                                             ></div>
@@ -682,7 +682,7 @@
                                         <div class="bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 text-[9px] font-black text-secondary uppercase tracking-widest">G-002-X</div>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     @click="validateCheckout"
                                     :disabled="isSaving"
                                     class="w-full h-16 bg-black text-white font-black text-[12px] uppercase tracking-[0.2em] hover:bg-primary-container hover:text-black transition-all rounded-[24px] flex items-center justify-center gap-4 shadow-2xl shadow-black/20 disabled:opacity-50 active:scale-95"
@@ -750,7 +750,7 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
-import type { CSSProperties } from 'vue';
+// import type { CSSProperties } from 'vue';
 import Konva from 'konva';
 
 const CANVAS_SIZE = 1024;
@@ -797,15 +797,19 @@ const redoStack = ref<string[]>([]);
 const isRestoringHistory = ref(false);
 
 const saveHistory = () => {
-    if (isRestoringHistory.value) return;
-    
+    if (isRestoringHistory.value){
+         return;
+    }
+
     // Process elements to ensure we can restore images
     const elements = elementsGroup?.children?.map(node => {
         const obj = node.toObject();
+
         if (node instanceof Konva.Image && node.image()) {
             // Store the source for restoration
             obj.attrs.imageSrc = (node.image() as HTMLImageElement).src;
         }
+
         return obj;
     }) || [];
 
@@ -814,9 +818,13 @@ const saveHistory = () => {
         outlines: JSON.parse(JSON.stringify(layerOutlines.value)),
         elements: elements
     };
-    
+
     history.value.push(JSON.stringify(state));
-    if (history.value.length > 50) history.value.shift();
+
+    if (history.value.length > 50) {
+        history.value.shift();
+    }
+
     redoStack.value = []; // Clear redo stack on new action
 };
 
@@ -835,8 +843,11 @@ const extractedPalette = ref<string[]>(JSON.parse(localStorage.getItem('studio_e
 
 const saveReferenceImage = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if (!file) return;
-    
+
+    if (!file) {
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
         const dataUrl = event.target?.result as string;
@@ -852,31 +863,37 @@ const generatePalette = (dataUrl: string) => {
     img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        if (!ctx) return;
+
+        if (!ctx) {
+            return;
+        }
 
         canvas.width = 100;
         canvas.height = 100;
         ctx.drawImage(img, 0, 0, 100, 100);
-        
+
         const imageData = ctx.getImageData(0, 0, 100, 100).data;
         const colors = new Set<string>();
-        
+
         // Sample pixels to find unique dominant colors
         for (let i = 0; i < imageData.length; i += 40) { // skip some pixels for performance
             const r = imageData[i];
             const g = imageData[i+1];
             const b = imageData[i+2];
-            
+
             // Basic quantization to group similar colors
             const qr = Math.round(r / 15) * 15;
             const qg = Math.round(g / 15) * 15;
             const qb = Math.round(b / 15) * 15;
-            
+
             const hex = '#' + ((1 << 24) + (qr << 16) + (qg << 8) + qb).toString(16).slice(1);
             colors.add(hex);
-            if (colors.size >= 12) break;
+
+            if (colors.size >= 12) {
+                break;
+            }
         }
-        
+
         extractedPalette.value = Array.from(colors);
         localStorage.setItem('studio_extracted_palette', JSON.stringify(extractedPalette.value));
     };
@@ -891,8 +908,10 @@ const clearReferenceImage = () => {
 };
 
 const applyExtractedPalette = () => {
-    if (extractedPalette.value.length === 0) return;
-    
+    if (extractedPalette.value.length === 0) {
+        return;
+    }
+
     layerIds.value.forEach((id, index) => {
         // Distribute colors: if palette is smaller than layers, it will cycle
         const color = extractedPalette.value[index % extractedPalette.value.length];
@@ -912,13 +931,17 @@ const randomizeColors = () => {
 const pickColorFromRef = (e: MouseEvent) => {
     if (activeLayerPickId.value === null) {
         showToast('Pilih layer aksen terlebih dahulu');
+
         return;
     }
 
     const img = e.target as HTMLImageElement;
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+
+    if (!ctx) {
+        return;
+    }
 
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
@@ -930,7 +953,7 @@ const pickColorFromRef = (e: MouseEvent) => {
 
     const pixel = ctx.getImageData(x, y, 1, 1).data;
     const hex = '#' + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
-    
+
     setLayerColor(activeLayerPickId.value, hex);
 };
 
@@ -944,6 +967,7 @@ let transformer: Konva.Transformer | null = null;
 // Computed
 const availableModels = computed(() => {
     const folder = catalogFolders.value.find((f: { key: string }) => f.key === activeFolderKey.value);
+
     return folder?.models || [];
 });
 
@@ -957,8 +981,15 @@ const currentModelMeta = computed(() => {
 
 const guestCheckoutTotal = computed(() => {
     let total = BASE_PRODUCT_PRICE;
-    if (fastTrackEnabled.value) total += FAST_TRACK_FEE;
-    if (customBoxEnabled.value) total += CUSTOM_BOX_FEE;
+
+    if (fastTrackEnabled.value) {
+        total += FAST_TRACK_FEE;
+    }
+
+    if (customBoxEnabled.value) {
+        total += CUSTOM_BOX_FEE;
+    }
+
     return total;
 });
 
@@ -967,16 +998,34 @@ const randomPalette = computed(() => {
 });
 
 const hudTitle = computed(() => {
-    if (activeSideTab.value === 'layers') return 'Aksen Warna';
-    if (activeSideTab.value === 'artwork') return 'Media Artwork';
-    if (activeSideTab.value === 'text') return 'Kustom Teks';
+    if (activeSideTab.value === 'layers') {
+        return 'Aksen Warna';
+    }
+
+    if (activeSideTab.value === 'artwork') {
+        return 'Media Artwork';
+    }
+
+    if (activeSideTab.value === 'text') {
+        return 'Kustom Teks';
+    }
+
     return 'Studio';
 });
 
 const hudSubtitle = computed(() => {
-    if (activeSideTab.value === 'layers') return 'Personalize Layers';
-    if (activeSideTab.value === 'artwork') return 'Upload Branding';
-    if (activeSideTab.value === 'text') return 'Identity Design';
+    if (activeSideTab.value === 'layers') {
+        return 'Personalize Layers';
+    }
+
+    if (activeSideTab.value === 'artwork') {
+        return 'Upload Branding';
+    }
+
+    if (activeSideTab.value === 'text') {
+        return 'Identity Design';
+    }
+
     return 'KONFIGURASI';
 });
 
@@ -1003,7 +1052,9 @@ const formatCurrency = (val: number) => {
 
 const showToast = (msg: string) => {
     toastMessage.value = msg;
-    setTimeout(() => { toastMessage.value = ''; }, 3000);
+    setTimeout(() => {
+        toastMessage.value = '';
+    }, 3000);
 };
 
 const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -1021,12 +1072,16 @@ function drawFilledLayer(img: HTMLImageElement, color: string, w: number, h: num
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return canvas;
+
+    if (!ctx) {
+        return canvas;
+    }
 
     ctx.drawImage(img, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-in';
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, w, h);
+
     return canvas;
 }
 
@@ -1035,7 +1090,10 @@ function drawOutlineLayer(img: HTMLImageElement, color: string, size: number, w:
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return canvas;
+
+    if (!ctx) {
+        return canvas;
+    }
 
     const dArr = [-1, -1, 0, -1, 1, -1, -1, 0, 1, 0, -1, 1, 0, 1, 1, 1];
     const s = size;
@@ -1047,11 +1105,14 @@ function drawOutlineLayer(img: HTMLImageElement, color: string, size: number, w:
     ctx.globalCompositeOperation = 'source-in';
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, w, h);
+
     return canvas;
 }
 
 const initKonva = () => {
-    if (!konvaContainerRef.value) return;
+    if (!konvaContainerRef.value) {
+        return;
+    }
 
     const width = konvaContainerRef.value.clientWidth;
     const height = konvaContainerRef.value.clientHeight;
@@ -1086,7 +1147,10 @@ const initKonva = () => {
         borderStroke: '#000',
         borderDash: [5, 5],
         boundBoxFunc: (oldBox, newBox) => {
-            if (newBox.width < 20 || newBox.height < 20) return oldBox;
+            if (newBox.width < 20 || newBox.height < 20) {
+                return oldBox;
+            }
+
             return newBox;
         }
     });
@@ -1097,32 +1161,37 @@ const initKonva = () => {
             transformer?.nodes([]);
             activeElement.value = null;
             mainLayer?.draw();
+
             return;
         }
-        
+
         const parent = e.target.getParent();
         const target = e.target as Konva.Node;
 
         if (parent === shoeGroup) {
             const layerIdAttr = target.getAttr('layerId');
+
             if (layerIdAttr !== undefined) {
                 activeLayerPickId.value = layerIdAttr;
                 activeSideTab.value = 'layers';
             }
+
             transformer?.nodes([]);
             activeElement.value = null;
         } else if (parent === elementsGroup) {
             const meta = target.getAttr('meta');
+
             if (meta) {
                 activeElement.value = meta;
                 transformer?.nodes([target as Konva.Shape]);
             }
         }
+
         mainLayer?.draw();
     });
 
     stage.draggable(true);
-    
+
     stage.on('wheel', (e) => {
         e.evt.preventDefault();
         const oldScale = stage!.scaleX();
@@ -1146,13 +1215,16 @@ const initKonva = () => {
 };
 
 const loadModelAssets = async () => {
-    if (!currentModelMeta.value || !shoeGroup || !stage) return;
+    if (!currentModelMeta.value || !shoeGroup || !stage) {
+        return;
+    }
+
     isSyncing.value = true;
     shoeGroup.destroyChildren();
     elementsGroup?.destroyChildren();
     activeLayerPickId.value = null;
     layerSourceImages.value = {};
-    
+
     // Clear history for new model
     history.value = [];
     redoStack.value = [];
@@ -1160,7 +1232,7 @@ const loadModelAssets = async () => {
     try {
         const meta = currentModelMeta.value;
         const baseUrl = `/shoes-svg/${activeFolderKey.value}/${currentModel.value}/`;
-        
+
         const baseFileToLoad = meta.preview_base_file || meta.main_file;
 
         if (baseFileToLoad) {
@@ -1177,12 +1249,18 @@ const loadModelAssets = async () => {
         }
 
         layerIds.value = meta.layers.map((l: any) => l.id);
+
         for (const layer of meta.layers) {
             const img = await loadImage(baseUrl + layer.file);
             layerSourceImages.value[layer.id] = img;
-            
-            if (!layerColors.value[layer.id]) layerColors.value[layer.id] = '#ffffff';
-            if (!layerOutlines.value[layer.id]) layerOutlines.value[layer.id] = { active: false, color: '#000000', size: 2 };
+
+            if (!layerColors.value[layer.id]) {
+                layerColors.value[layer.id] = '#ffffff';
+            }
+
+            if (!layerOutlines.value[layer.id]) {
+                layerOutlines.value[layer.id] = { active: false, color: '#000000', size: 2 };
+            }
 
             const konvaLayer = new Konva.Image({
                 image: img, // Will be replaced by canvas in updateKonvaLayer
@@ -1195,23 +1273,32 @@ const loadModelAssets = async () => {
                 hitFunc: (context, shape) => {
                     const imgShape = shape as Konva.Image;
                     const canvas = imgShape.image() as HTMLCanvasElement;
-                    if (!canvas) return;
-                    
+
+                    if (!canvas) {
+                        return;
+                    }
+
                     const hitCanvas = document.createElement('canvas');
                     hitCanvas.width = 1;
                     hitCanvas.height = 1;
                     const hitCtx = hitCanvas.getContext('2d');
-                    if (!hitCtx) return;
-                    
+
+                    if (!hitCtx) {
+                        return;
+                    }
+
                     const pointer = stage!.getPointerPosition();
-                    if (!pointer) return;
-                    
+
+                    if (!pointer) {
+                        return;
+                    }
+
                     const transform = shape.getAbsoluteTransform().copy().invert();
                     const point = transform.point(pointer);
-                    
+
                     hitCtx.drawImage(canvas, point.x, point.y, 1, 1, 0, 0, 1, 1);
                     const alpha = hitCtx.getImageData(0, 0, 1, 1).data[3];
-                    
+
                     if (alpha > 10) {
                         context.beginPath();
                         context.rect(0, 0, shape.width(), shape.height());
@@ -1224,7 +1311,7 @@ const loadModelAssets = async () => {
             shoeGroup.add(konvaLayer);
             updateKonvaLayer(layer.id);
         }
-        
+
         mainLayer?.draw();
         saveHistory(); // Initial state
     } catch (err) {
@@ -1237,18 +1324,28 @@ const loadModelAssets = async () => {
 
 const updateKonvaLayer = (id: number) => {
     const img = layerSourceImages.value[id];
-    if (!img) return;
+
+    if (!img) {
+        return;
+    }
 
     const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
-    if (!konvaImg) return;
+
+    if (!konvaImg) {
+        return;
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = CANVAS_SIZE;
     canvas.height = CANVAS_SIZE;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+
+    if (!ctx) {
+        return;
+    }
 
     const outline = layerOutlines.value[id];
+
     if (outline?.active) {
         const outlineCanvas = drawOutlineLayer(img, outline.color, outline.size, CANVAS_SIZE, CANVAS_SIZE);
         ctx.drawImage(outlineCanvas, 0, 0);
@@ -1275,8 +1372,10 @@ watch(layerOutlines, () => {
 }, { deep: true });
 
 const addTextElement = () => {
-    if (!stage || !elementsGroup) return;
-    
+    if (!stage || !elementsGroup) {
+        return;
+    }
+
     const id = Math.random().toString(36).slice(2);
     const textNode = new Konva.Text({
         text: 'BOGOR SNEAKER',
@@ -1290,10 +1389,10 @@ const addTextElement = () => {
         padding: 10,
         align: 'center'
     });
-    
+
     const meta = { id, type: 'text', text: 'BOGOR SNEAKER', color: '#000000', strokeColor: '#ffffff', fontFamily: 'Lexend' };
     textNode.setAttr('meta', meta);
-    
+
     elementsGroup.add(textNode);
     activeElement.value = meta;
     transformer?.nodes([textNode]);
@@ -1307,8 +1406,11 @@ const triggerUpload = () => {
 
 const onUploadInputChange = (e: any) => {
     const files = e.target.files;
-    if (!files) return;
-    
+
+    if (!files) {
+        return;
+    }
+
     for (const file of files) {
         const reader = new FileReader();
         reader.onload = (event) => {
@@ -1330,8 +1432,11 @@ const removeUploadedMedia = (id: string) => {
 
 const addUploadAsElement = async (id: string) => {
     const media = uploadedMedia.value.find(m => m.id === id);
-    if (!media || !stage || !elementsGroup) return;
-    
+
+    if (!media || !stage || !elementsGroup) {
+        return;
+    }
+
     try {
         const img = await loadImage(media.src);
         const ratio = img.naturalHeight / img.naturalWidth;
@@ -1347,10 +1452,10 @@ const addUploadAsElement = async (id: string) => {
             draggable: true,
             imageSmoothingEnabled: true
         });
-        
+
         const meta = { id: Math.random().toString(36).slice(2), type: 'image', sourceId: id };
         konvaImg.setAttr('meta', meta);
-        
+
         elementsGroup.add(konvaImg);
         activeElement.value = meta;
         transformer?.nodes([konvaImg]);
@@ -1358,12 +1463,14 @@ const addUploadAsElement = async (id: string) => {
         saveHistory();
     } catch (err) {
         showToast('Gagal menambahkan gambar');
+        console.error(err)
     }
 };
 
 const removeActiveElement = () => {
     if (activeElement.value && transformer) {
         const node = transformer.nodes()[0];
+
         if (node) {
             node.destroy();
             transformer.nodes([]);
@@ -1384,12 +1491,17 @@ const toggleCustomBox = () => {
 
 const validateCheckout = () => {
     formTouched.value = true;
+
     if (!name.value || !phone.value || !guestEmail.value || !shoeSize.value || !guestAddress.value) {
         showToast('Mohon lengkapi data diri dan alamat');
-        if (activeSideTab.value !== 'checkout') activeSideTab.value = 'checkout';
+
+        if (activeSideTab.value !== 'checkout') {
+            activeSideTab.value = 'checkout';
+        }
+
         return;
     }
-    
+
     if (!fastTrackEnabled.value) {
         showFastTrackAlert.value = true;
     } else if (!customBoxEnabled.value) {
@@ -1402,6 +1514,7 @@ const validateCheckout = () => {
 const confirmFastTrack = (val: boolean) => {
     fastTrackEnabled.value = val;
     showFastTrackAlert.value = false;
+
     if (!customBoxEnabled.value) {
         showCustomBoxAlert.value = true;
     } else {
@@ -1417,12 +1530,15 @@ const confirmCustomBox = (val: boolean) => {
 
 const fetchCatalog = async () => {
     catalogLoading.value = true;
+
     try {
         const res = await fetch('/api/studio-custom/catalog?refresh=1');
         const data = await res.json();
         catalogFolders.value = data.folders;
+
         if (data.folders.length > 0) {
             activeFolderKey.value = data.folders[0].key;
+
             if (data.folders[0].models.length > 0) {
                 currentModel.value = data.folders[0].models[0].id;
             }
@@ -1436,13 +1552,16 @@ const fetchCatalog = async () => {
 };
 
 const handleSave = async () => {
-    if (isSaving.value) return;
+    if (isSaving.value) {
+        return;
+    }
+
     isSaving.value = true;
-    
+
     try {
         const previewUrl = await createPreviewURL();
         const patternUrl = await createPatternURL();
-        
+
         const timestamp = new Date().getTime();
         const safeName = name.value.replace(/\s+/g, '_') || 'GUEST';
         downloadURL(previewUrl, `PREVIEW_${safeName}_${timestamp}.png`);
@@ -1460,9 +1579,9 @@ const handleSave = async () => {
             `Total Est: ${formatCurrency(guestCheckoutTotal.value)}`,
             `Alamat: ${guestAddress.value}`
         ].join('\n'));
-        
+
         window.open(`https://wa.me/6285511223344?text=${waMessage}`, '_blank');
-        
+
         showToast('Order berhasil diproses & File terunduh!');
     } catch (err) {
         console.error(err);
@@ -1473,7 +1592,10 @@ const handleSave = async () => {
 };
 
 const createPreviewURL = async (): Promise<string> => {
-    if (!stage) return '';
+    if (!stage) {
+        return '';
+    }
+
     const oldNodes = transformer?.nodes() || [];
     transformer?.nodes([]);
     mainLayer?.draw();
@@ -1481,19 +1603,26 @@ const createPreviewURL = async (): Promise<string> => {
     const dataURL = stage.toDataURL({ pixelRatio: 2 });
     transformer?.nodes(oldNodes);
     mainLayer?.draw();
+
     return dataURL;
 };
 
 const createPatternURL = async (): Promise<string> => {
-    if (!currentModelMeta.value || !activeFolder.value) return '';
+    if (!currentModelMeta.value || !activeFolder.value) {
+        return '';
+    }
+
     const meta = currentModelMeta.value;
     const baseUrl = `/shoes-svg/${activeFolderKey.value}/${currentModel.value}/`;
-    
+
     const patternCanvas = document.createElement('canvas');
     patternCanvas.width = 2048;
     patternCanvas.height = 2048;
     const ctx = patternCanvas.getContext('2d');
-    if (!ctx) return '';
+
+    if (!ctx) {
+        return '';
+    }
 
     if (meta.pattern_base_file) {
         const pBase = await loadImage(baseUrl + meta.pattern_base_file);
@@ -1505,13 +1634,15 @@ const createPatternURL = async (): Promise<string> => {
         const color = layerColors.value[layer.id] || '#ffffff';
         const filled = drawFilledLayer(pLayerImg, color, 2048, 2048);
         ctx.drawImage(filled, 0, 0);
-        
+
         const outline = layerOutlines.value[layer.id];
+
         if (outline?.active) {
             const out = drawOutlineLayer(pLayerImg, outline.color, outline.size * 2, 2048, 2048);
             ctx.drawImage(out, 0, 0);
         }
     }
+
     return patternCanvas.toDataURL('image/png');
 };
 
@@ -1542,9 +1673,10 @@ const resetZoom = () => {
 
 const restoreState = async (stateStr: string) => {
     isRestoringHistory.value = true;
+
     try {
         const state = JSON.parse(stateStr);
-        
+
         // Restore Vue state
         layerColors.value = { ...state.colors };
         layerOutlines.value = JSON.parse(JSON.stringify(state.outlines));
@@ -1552,6 +1684,7 @@ const restoreState = async (stateStr: string) => {
         // Restore layer colors on Konva
         for (const id in state.colors) {
             const konvaImg = shoeGroup?.findOne(`.layer-${id}`) as Konva.Image;
+
             if (konvaImg) {
                 updateKonvaLayer(Number(id));
             }
@@ -1564,18 +1697,24 @@ const restoreState = async (stateStr: string) => {
 
         for (const elData of state.elements) {
             let node: Konva.Node | null = null;
+
             if (elData.className === 'Text') {
                 node = new Konva.Text(elData.attrs);
             } else if (elData.className === 'Image') {
                 // If it's an image, we need to ensure the Image object is restored correctly
                 const attrs = { ...elData.attrs };
+
                 if (attrs.imageSrc) {
                      const img = await loadImage(attrs.imageSrc);
                      attrs.image = img;
                 }
+
                 node = new Konva.Image(attrs);
             }
-            if (node) elementsGroup?.add(node as any);
+
+            if (node) {
+                elementsGroup?.add(node as any);
+            }
         }
 
         mainLayer?.draw();
@@ -1590,12 +1729,13 @@ const restoreState = async (stateStr: string) => {
 const undo = async () => {
     if (history.value.length <= 1) {
         showToast('Tidak ada perubahan untuk di-undo');
+
         return;
     }
-    
+
     const currentState = history.value.pop()!;
     redoStack.value.push(currentState);
-    
+
     const prevState = history.value[history.value.length - 1];
     await restoreState(prevState);
     showToast('Undo berhasil');
@@ -1604,12 +1744,13 @@ const undo = async () => {
 const redo = async () => {
     if (redoStack.value.length === 0) {
         showToast('Tidak ada perubahan untuk di-redo');
+
         return;
     }
-    
+
     const nextState = redoStack.value.pop()!;
     history.value.push(nextState);
-    
+
     await restoreState(nextState);
     showToast('Redo berhasil');
 };
@@ -1630,6 +1771,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     // Only delete if an element is active and we're NOT typing in an input/textarea
     if ((e.key === 'Backspace' || e.key === 'Delete') && activeElement.value) {
         const target = e.target as HTMLElement;
+
         if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
             e.preventDefault();
             removeActiveElement();
@@ -1653,6 +1795,7 @@ watch(currentModel, () => {
 
 watch(activeFolderKey, (newKey) => {
     const folder = catalogFolders.value.find(f => f.key === newKey);
+
     if (folder && folder.models.length > 0) {
         if (!folder.models.some((m: { id: number | string | null }) => m.id === currentModel.value)) {
             currentModel.value = folder.models[0].id;
@@ -1663,6 +1806,7 @@ watch(activeFolderKey, (newKey) => {
 watch(() => activeElement.value?.text, (newText) => {
     if (activeElement.value?.type === 'text') {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+
         if (node) {
             saveHistory();
             (node as Konva.Text).text(newText);
@@ -1674,6 +1818,7 @@ watch(() => activeElement.value?.text, (newText) => {
 watch(() => activeElement.value?.color, (newColor) => {
     if (activeElement.value?.type === 'text') {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+
         if (node) {
             saveHistory();
             (node as Konva.Text).fill(newColor);
@@ -1685,6 +1830,7 @@ watch(() => activeElement.value?.color, (newColor) => {
 watch(() => activeElement.value?.fontFamily, (newFont) => {
     if (activeElement.value?.type === 'text' && newFont) {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+
         if (node) {
             saveHistory();
             (node as Konva.Text).fontFamily(newFont);
