@@ -55,7 +55,7 @@
                 <!-- Produk -->
                 <td class="px-6 py-4">
                   <div class="flex items-center space-x-3">
-                    <div class="h-10 w-10 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0 border border-slate-200">
+                    <div class="h-10 w-10 rounded-lg bg-slate-200 overflow-hidden shrink-0 border border-slate-200">
                       <img :src="item.catalog.image" alt="Product" class="h-full w-full object-cover" />
                     </div>
                     <div>
@@ -76,7 +76,7 @@
                 <td class="px-6 py-4 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <span class="text-sm font-bold text-slate-800">{{ item.filled_slots }} / {{ item.max_slots }}</span>
-                    <div class="w-full h-1.5 bg-slate-200 rounded-full mt-1.5 max-w-[60px] overflow-hidden">
+                    <div class="w-full h-1.5 bg-slate-200 rounded-full mt-1.5 max-w-60px overflow-hidden">
                       <div
                         class="h-full rounded-full transition-all duration-500"
                         :class="getSlotColor(item.filled_slots, item.max_slots)"
@@ -105,11 +105,11 @@
                 <td class="px-6 py-4 text-center">
                   <button
                     type="button"
-                    class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
                     :style="{ backgroundColor: item.is_visible ? '#10b981' : '#cbd5e1' }"
                     @click="item.is_visible = !item.is_visible"
                     role="switch"
-                    :aria-checked="item.is_visible.toString()"
+                    :aria-checked="item.is_visible"
                   >
                     <span
                       class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
@@ -252,11 +252,11 @@
                 <div class="col-span-1 md:col-span-2 flex items-center space-x-3 mt-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <button
                     type="button"
-                    class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
                     :style="{ backgroundColor: modalVisibility ? '#10b981' : '#cbd5e1' }"
                     @click="modalVisibility = !modalVisibility"
                     role="switch"
-                    :aria-checked="modalVisibility.toString()"
+                    :aria-checked="modalVisibility"
                   >
                     <span
                       class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out"
@@ -337,14 +337,25 @@ const getStatusClass = (status: string) => {
 
 const getSlotColor = (filled: number, max: number) => {
   const percentage = (filled / max) * 100
-  if (percentage >= 100) return 'bg-rose-500'
-  if (percentage >= 80) return 'bg-amber-500'
+
+  if (percentage >= 100) {
+    return 'bg-rose-500'
+  }
+
+  if (percentage >= 80) {
+    return 'bg-amber-500'
+  }
+
   return 'bg-emerald-500'
 }
 
 const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return '-'
+  if (!dateStr) {
+    return '-'
+  }
+
   const date = new Date(dateStr)
+
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'short',
