@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TikTokFeed;
 use App\Services\TikTok\TikTokOEmbedService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -37,7 +38,7 @@ class TikTokFeedController extends Controller
     /**
      * Store a new TikTok feed item.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         if (TikTokFeed::count('*') >= 4) {
             throw ValidationException::withMessages([
@@ -51,7 +52,7 @@ class TikTokFeedController extends Controller
         $nextOrder = (TikTokFeed::max('sort_order') ?? -1) + 1;
         $category = $this->resolveCategory($validated);
 
-        $feed = TikTokFeed::create([
+        TikTokFeed::create([
             'url' => $metadata['url'],
             'category' => $category,
             'title' => $metadata['title'],
@@ -62,16 +63,13 @@ class TikTokFeedController extends Controller
             'sort_order' => $validated['sort_order'] ?? $nextOrder,
         ]);
 
-        return response()->json([
-            'message' => 'Link TikTok berhasil ditambahkan.',
-            'feed' => $this->serializeFeed($feed),
-        ], 201);
+        return back()->with('success', 'Link TikTok berhasil ditambahkan.');
     }
 
     /**
      * Update TikTok feed item.
      */
-    public function update(Request $request, TikTokFeed $tiktokFeed)
+    public function update(Request $request, TikTokFeed $tiktokFeed): RedirectResponse
     {
         $validated = $this->validatePayload($request, true);
 
@@ -96,25 +94,19 @@ class TikTokFeedController extends Controller
             'sort_order' => $validated['sort_order'] ?? $tiktokFeed->sort_order,
         ]);
 
-        return response()->json([
-            'message' => 'Link TikTok berhasil diperbarui.',
-            'feed' => $this->serializeFeed($tiktokFeed->fresh()),
-        ]);
+        return back()->with('success', 'Link TikTok berhasil diperbarui.');
     }
 
     /**
      * Delete TikTok feed item.
      */
-    public function destroy(TikTokFeed $tiktokFeed)
+    public function destroy(TikTokFeed $tiktokFeed): RedirectResponse
     {
         $deletedId = $tiktokFeed->id;
 
         TikTokFeed::destroy($deletedId);
 
-        return response()->json([
-            'message' => 'Link TikTok berhasil dihapus.',
-            'id' => $deletedId,
-        ]);
+        return back()->with('success', 'Link TikTok berhasil dihapus.');
     }
 
     /**

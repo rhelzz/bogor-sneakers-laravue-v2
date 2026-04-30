@@ -1,6 +1,7 @@
 import { ref, nextTick } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import { refreshTikTokEmbedScript, disableTikTokAutoplay } from '@/utils/Admin/tiktokHelper';
+import * as tiktokFeedRoutes from '@/routes/admin/tiktok-feed';
 
 export const useTiktokFeed = () => {
     const viewMode = ref<'grid' | 'list'>('grid');
@@ -14,7 +15,7 @@ export const useTiktokFeed = () => {
     });
 
     const submit = () => {
-        form.post(route('admin.tiktok-feed.store'), {
+        form.post(tiktokFeedRoutes.store.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
@@ -26,7 +27,7 @@ export const useTiktokFeed = () => {
 
     const destroy = (id: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus feed ini?')) {
-            router.delete(route('admin.tiktok-feed.destroy', id), {
+            router.delete(tiktokFeedRoutes.destroy.url({ tiktokFeed: id }), {
                 preserveScroll: true,
                 onSuccess: () => {
                     renderTikTokEmbeds();
