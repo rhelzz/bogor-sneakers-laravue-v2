@@ -1,3 +1,28 @@
+<script setup lang="ts">
+import { defineProps } from 'vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import { useWhatsappAdmin } from '@/composables/Admin/useWhatsappAdmin';
+import { WHATSAPP_COLORS } from '@/constants/Admin/whatsappConstants';
+
+const props = defineProps<{
+    admins: any[];
+    colorOptions: any[];
+}>();
+
+const {
+    viewMode,
+    isModalOpen,
+    modalMode,
+    form,
+    openModal,
+    closeModal,
+    submitForm,
+    deleteAdmin,
+    toggleStatus,
+    isProcessing,
+} = useWhatsappAdmin();
+</script>
+
 <template>
     <AdminLayout>
         <template #header> WhatsApp Admin </template>
@@ -9,7 +34,7 @@
                         Daftar Kontak Admin
                     </h3>
                     <span class="rounded-lg bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-700">
-                        Total: {{ mockAdmins.length }} Kontak
+                        Total: {{ admins.length }} Kontak
                     </span>
                 </div>
 
@@ -75,7 +100,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             <tr
-                                v-for="admin in mockAdmins"
+                                v-for="admin in admins"
                                 :key="admin.id"
                                 class="transition-colors duration-150 hover:bg-slate-50/50"
                             >
@@ -98,33 +123,39 @@
                                 <td class="px-6 py-4">
                                     <span class="font-mono text-sm font-semibold text-slate-600">+{{ admin.phone }}</span>
                                 </td>
-                                <td class="px-6 py-4 text-center text-sm font-bold text-slate-500">
-                                    {{ admin.sort_order }}
-                                </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span
-                                        class="inline-flex items-center justify-center rounded-md px-3 py-1 text-[10px] leading-none font-extrabold tracking-wider uppercase"
-                                        :class="
+                                    <button
+                                        @click="toggleStatus(admin)"
+                                        :disabled="isProcessing(admin.id)"
+                                        class="inline-flex items-center justify-center rounded-md px-3 py-1 text-[10px] leading-none font-extrabold tracking-wider uppercase transition-all duration-200"
+                                        :class="[
                                             admin.is_active
-                                                ? 'bg-emerald-100 text-emerald-700'
-                                                : 'bg-slate-100 text-slate-500'
-                                        "
+                                                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                                : 'bg-slate-100 text-slate-500 hover:bg-slate-200',
+                                            isProcessing(admin.id) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : ''
+                                        ]"
                                     >
-                                        {{ admin.is_active ? 'Aktif' : 'Non-aktif' }}
-                                    </span>
+                                        {{ isProcessing(admin.id) ? 'Loading...' : (admin.is_active ? 'Aktif' : 'Non-aktif') }}
+                                    </button>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end space-x-2">
                                         <button
                                             @click="openModal('edit', admin)"
-                                            class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+                                            :disabled="isProcessing(admin.id)"
+                                            class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600 disabled:opacity-50"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
                                         </button>
-                                        <button class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <button
+                                            @click="deleteAdmin(admin.id)"
+                                            :disabled="isProcessing(admin.id)"
+                                            class="flex items-center justify-center rounded-lg p-2 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:bg-slate-100 disabled:text-slate-400"
+                                        >
+                                            <span v-if="isProcessing(admin.id)" class="text-[10px] font-bold">Loading...</span>
+                                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
                                         </button>
@@ -141,7 +172,7 @@
                 class="grid grid-cols-1 gap-6 transition-all duration-300 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             >
                 <div
-                    v-for="admin in mockAdmins"
+                    v-for="admin in admins"
                     :key="admin.id"
                     class="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:border-indigo-300"
                 >
@@ -154,16 +185,19 @@
                         </div>
 
                         <div>
-                            <span
-                                class="inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase"
-                                :class="
+                            <button
+                                @click="toggleStatus(admin)"
+                                :disabled="isProcessing(admin.id)"
+                                class="inline-flex items-center justify-center rounded-lg px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase transition-all duration-200"
+                                :class="[
                                     admin.is_active
-                                        ? 'border border-emerald-200 bg-emerald-100 text-emerald-700'
-                                        : 'border border-slate-200 bg-slate-100 text-slate-500'
-                                "
+                                        ? 'border border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                        : 'border border-slate-200 bg-slate-100 text-slate-500 hover:bg-slate-200',
+                                    isProcessing(admin.id) ? 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed' : ''
+                                ]"
                             >
-                                {{ admin.is_active ? 'Aktif' : 'Off' }}
-                            </span>
+                                {{ isProcessing(admin.id) ? 'Loading...' : (admin.is_active ? 'Aktif' : 'Off') }}
+                            </button>
                         </div>
                     </div>
 
@@ -184,14 +218,20 @@
                         <div class="flex items-center space-x-1">
                             <button
                                 @click="openModal('edit', admin)"
-                                class="p-2 text-slate-400 transition-colors hover:text-indigo-600"
+                                :disabled="isProcessing(admin.id)"
+                                class="p-2 text-slate-400 transition-colors hover:text-indigo-600 disabled:opacity-50"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
                             </button>
-                            <button class="p-2 text-slate-400 transition-colors hover:text-rose-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <button
+                                @click="deleteAdmin(admin.id)"
+                                :disabled="isProcessing(admin.id)"
+                                class="flex items-center justify-center p-2 text-slate-400 transition-colors hover:text-rose-600 disabled:text-slate-400"
+                            >
+                                <span v-if="isProcessing(admin.id)" class="text-[9px] font-bold">Loading...</span>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
@@ -244,20 +284,24 @@
                                     <label class="mb-1.5 ml-1 block text-xs font-bold tracking-widest text-slate-500 uppercase">Nama Lengkap</label>
                                     <input
                                         type="text"
-                                        v-model="formData.name"
+                                        v-model="form.name"
                                         placeholder="Misal: Admin Siska"
                                         class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 font-semibold text-slate-800 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                        :class="{ 'border-rose-500': form.errors.name }"
                                     />
+                                    <p v-if="form.errors.name" class="mt-1 ml-1 text-xs font-bold text-rose-500">{{ form.errors.name }}</p>
                                 </div>
 
                                 <div>
                                     <label class="mb-1.5 ml-1 block text-xs font-bold tracking-widest text-slate-500 uppercase">Jabatan / Role</label>
                                     <input
                                         type="text"
-                                        v-model="formData.role"
+                                        v-model="form.role"
                                         placeholder="Misal: Customer Service"
                                         class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 font-semibold text-slate-800 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                        :class="{ 'border-rose-500': form.errors.role }"
                                     />
+                                    <p v-if="form.errors.role" class="mt-1 ml-1 text-xs font-bold text-rose-500">{{ form.errors.role }}</p>
                                 </div>
 
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -265,20 +309,24 @@
                                         <label class="mb-1.5 ml-1 block text-xs font-bold tracking-widest text-slate-500 uppercase">Nomor WhatsApp</label>
                                         <input
                                             type="text"
-                                            v-model="formData.phone"
+                                            v-model="form.phone"
                                             placeholder="Contoh: 0812345..."
                                             class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 font-semibold text-slate-800 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                            :class="{ 'border-rose-500': form.errors.phone }"
                                         />
+                                        <p v-if="form.errors.phone" class="mt-1 ml-1 text-xs font-bold text-rose-500">{{ form.errors.phone }}</p>
                                     </div>
                                     <div>
                                         <label class="mb-1.5 ml-1 block text-xs font-bold tracking-widest text-slate-500 uppercase">Inisial (Opsi)</label>
                                         <input
                                             type="text"
-                                            v-model="formData.initial"
+                                            v-model="form.initial"
                                             maxlength="2"
                                             placeholder="Max 2 huruf"
                                             class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 font-semibold text-slate-800 uppercase transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
+                                            :class="{ 'border-rose-500': form.errors.initial }"
                                         />
+                                        <p v-if="form.errors.initial" class="mt-1 ml-1 text-xs font-bold text-rose-500">{{ form.errors.initial }}</p>
                                     </div>
                                 </div>
 
@@ -288,27 +336,28 @@
                                         <button
                                             v-for="opt in colorOptions"
                                             :key="opt.key"
-                                            @click="formData.color = opt.key"
+                                            @click="form.color = opt.key"
                                             :class="[
                                                 opt.class,
-                                                formData.color === opt.key ? 'ring-2 ring-indigo-500 ring-offset-2' : '',
+                                                form.color === opt.key ? 'ring-2 ring-indigo-500 ring-offset-2' : '',
                                             ]"
                                             class="h-10 w-10 rounded-xl border border-black/5 transition-all duration-200"
                                             :title="opt.label"
                                         ></button>
                                     </div>
+                                    <p v-if="form.errors.color" class="mt-1 ml-1 text-xs font-bold text-rose-500">{{ form.errors.color }}</p>
                                 </div>
 
                                 <div class="flex items-center space-x-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
                                     <button
                                         type="button"
                                         class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-                                        :class="formData.is_active ? 'bg-emerald-500' : 'bg-slate-300'"
-                                        @click="formData.is_active = !formData.is_active"
+                                        :class="form.is_active ? 'bg-emerald-500' : 'bg-slate-300'"
+                                        @click="form.is_active = !form.is_active"
                                     >
                                         <span
                                             class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                            :class="formData.is_active ? 'translate-x-5' : 'translate-x-0'"
+                                            :class="form.is_active ? 'translate-x-5' : 'translate-x-0'"
                                         />
                                     </button>
                                     <span class="text-sm font-bold tracking-wider text-slate-700 uppercase">Aktifkan Kontak Ini</span>
@@ -319,12 +368,19 @@
                         <div class="flex items-center justify-end space-x-3 border-t border-slate-50 bg-slate-50/50 px-6 py-5">
                             <button
                                 @click="closeModal"
-                                class="px-5 py-2.5 text-sm font-bold text-slate-500 transition-colors hover:text-slate-800"
+                                :disabled="form.processing"
+                                class="px-5 py-2.5 text-sm font-bold text-slate-500 transition-colors hover:text-slate-800 disabled:opacity-50"
                             >
                                 Batal
                             </button>
-                            <button class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700">
-                                Simpan Kontak
+                            <button
+                                @click="submitForm"
+                                :disabled="form.processing"
+                                :class="form.processing ? 'bg-slate-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'"
+                                class="rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all"
+                            >
+                                <span v-if="form.processing">Loading...</span>
+                                <span v-else>Simpan Kontak</span>
                             </button>
                         </div>
                     </div>
@@ -333,114 +389,3 @@
         </Transition>
     </AdminLayout>
 </template>
-
-<script setup lang="ts">
-import { ref, reactive } from 'vue';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-
-// --- State View ---
-const viewMode = ref<'table' | 'card'>('table');
-
-// --- State Modal ---
-const isModalOpen = ref(false);
-const modalMode = ref<'add' | 'edit'>('add');
-const formData = reactive({
-    name: '',
-    role: '',
-    phone: '',
-    initial: '',
-    color: 'matcha',
-    is_active: true,
-    sort_order: 0,
-});
-
-const openModal = (mode: 'add' | 'edit', item: any = null) => {
-    modalMode.value = mode;
-
-    if (item) {
-        formData.name = item.name;
-        formData.role = item.role;
-        formData.phone = item.phone;
-        formData.initial = item.initial;
-        formData.color = item.color_key;
-        formData.is_active = item.is_active;
-        formData.sort_order = item.sort_order;
-    } else {
-        resetForm();
-    }
-
-    isModalOpen.value = true;
-};
-
-const closeModal = () => {
-    isModalOpen.value = false;
-};
-
-const resetForm = () => {
-    formData.name = '';
-    formData.role = '';
-    formData.phone = '';
-    formData.initial = '';
-    formData.color = 'matcha';
-    formData.is_active = true;
-};
-
-// --- Data Mock Berdasarkan Analysis Backend ---
-// Color class map dari WhatsappAdmin.php
-const colorOptions = [
-    {
-        key: 'matcha',
-        label: 'Matcha Green',
-        class: 'bg-[#7c8c5a]/20 text-[#7c8c5a]',
-    },
-    {
-        key: 'indigo',
-        label: 'Indigo Blue',
-        class: 'bg-indigo-100 text-indigo-600',
-    },
-    {
-        key: 'sakura',
-        label: 'Sakura Pink',
-        class: 'bg-[#d97781]/20 text-[#d97781]',
-    },
-    { key: 'amber', label: 'Amber', class: 'bg-amber-100 text-amber-700' },
-    { key: 'sky', label: 'Sky', class: 'bg-sky-100 text-sky-700' },
-    { key: 'slate', label: 'Slate', class: 'bg-slate-200 text-slate-700' },
-];
-
-const mockAdmins = ref([
-    {
-        id: 1,
-        name: 'Admin Utama Siska',
-        role: 'Customer Service 1',
-        phone: '6281234567890',
-        initial: 'AS',
-        color: 'bg-[#7c8c5a]/20 text-[#7c8c5a]',
-        color_key: 'matcha',
-        is_active: true,
-        sort_order: 1,
-    },
-    {
-        id: 2,
-        name: 'Admin Budi',
-        role: 'Warehouse & Stock',
-        phone: '6289876543210',
-        initial: 'B',
-        color: 'bg-indigo-100 text-indigo-600',
-        color_key: 'indigo',
-        is_active: true,
-        sort_order: 2,
-    },
-    {
-        id: 3,
-        name: 'Admin Marketing Ria',
-        role: 'Promotion & Sales',
-        phone: '628111222333',
-        initial: 'R',
-        color: 'bg-[#d97781]/20 text-[#d97781]',
-        color_key: 'sakura',
-        is_active: false,
-        sort_order: 3,
-    },
-]);
-</script>

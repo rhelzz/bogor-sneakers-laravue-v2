@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WhatsappAdmin;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -25,7 +25,7 @@ class WhatsAppAdminController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $validated = $this->validatePayload($request);
 
@@ -34,7 +34,7 @@ class WhatsAppAdminController extends Controller
 
         $nextSortOrder = (int) ((WhatsappAdmin::max('sort_order') ?? -1) + 1);
 
-        $admin = WhatsappAdmin::create([
+        WhatsappAdmin::create([
             'name' => trim((string) $validated['name']),
             'role' => trim((string) $validated['role']),
             'phone' => $normalizedPhone,
@@ -49,13 +49,10 @@ class WhatsAppAdminController extends Controller
                 : $nextSortOrder,
         ]);
 
-        return response()->json([
-            'message' => 'Kontak WhatsApp admin berhasil ditambahkan.',
-            'admin' => $this->serializeAdmin($admin),
-        ], 201);
+        return back()->with('success', 'Kontak WhatsApp admin berhasil ditambahkan.');
     }
 
-    public function update(Request $request, WhatsappAdmin $whatsappAdmin): JsonResponse
+    public function update(Request $request, WhatsappAdmin $whatsappAdmin): RedirectResponse
     {
         $validated = $this->validatePayload($request);
 
@@ -77,28 +74,16 @@ class WhatsAppAdminController extends Controller
                 : (int) $whatsappAdmin->sort_order,
         ]);
 
-        $freshAdmin = $whatsappAdmin->fresh();
-
-        if (! $freshAdmin instanceof WhatsappAdmin) {
-            $freshAdmin = $whatsappAdmin;
-        }
-
-        return response()->json([
-            'message' => 'Kontak WhatsApp admin berhasil diperbarui.',
-            'admin' => $this->serializeAdmin($freshAdmin),
-        ]);
+        return back()->with('success', 'Kontak WhatsApp admin berhasil diperbarui.');
     }
 
-    public function destroy(WhatsappAdmin $whatsappAdmin): JsonResponse
+    public function destroy(WhatsappAdmin $whatsappAdmin): RedirectResponse
     {
         $deletedId = (int) $whatsappAdmin->getKey();
 
         WhatsappAdmin::destroy($deletedId);
 
-        return response()->json([
-            'message' => 'Kontak WhatsApp admin berhasil dihapus.',
-            'id' => $deletedId,
-        ]);
+        return back()->with('success', 'Kontak WhatsApp admin berhasil dihapus.');
     }
 
     /**
