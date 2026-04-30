@@ -36,8 +36,8 @@ class CarouselSlideController extends Controller
             'image.max' => 'Ukuran gambar maksimal 5MB',
         ]);
 
-        // Get the next order value
-        $nextOrder = (CarouselSlide::max('order') ?? -1) + 1;
+        // Get the next order value (start from 1, not 0)
+        $nextOrder = (CarouselSlide::max('order') ?? 0) + 1;
 
         // Store image file
         $path = $request->file('image')->store('carousel', 'public');
@@ -49,7 +49,8 @@ class CarouselSlideController extends Controller
             'is_active' => true,
         ]);
 
-        if ($request->expectsJson()) {
+        // Return JSON untuk file upload atau XHR requests (untuk real-time Inertia update)
+        if ($request->expectsJson() || $request->isXmlHttpRequest() || $request->has('image')) {
             return response()->json([
                 'message' => 'Slide carousel berhasil ditambahkan!',
                 'slide' => [

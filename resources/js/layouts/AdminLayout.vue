@@ -158,34 +158,12 @@
                         <div class="overflow-hidden">
                             <div class="mt-1 space-y-1 py-2 pr-2 pl-14">
                                 <Link
-                                    :href="carouselHome.url()"
-                                    class="group relative flex items-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all duration-200 before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white"
+                                    v-for="item in subMenuItems"
+                                    :key="item.href"
+                                    :href="item.href"
+                                    :class="getSubMenuClasses(item.href)"
                                 >
-                                    Carousel Home
-                                </Link>
-                                <Link
-                                    :href="preOrderHome.url()"
-                                    class="group relative flex items-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all duration-200 before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white"
-                                >
-                                    Pre-order Home
-                                </Link>
-                                <Link
-                                    :href="tiktokFeed.url()"
-                                    class="group relative flex items-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all duration-200 before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white"
-                                >
-                                    Tiktok Feed
-                                </Link>
-                                <Link
-                                    :href="galeriKarya.url()"
-                                    class="group relative flex items-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all duration-200 before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white"
-                                >
-                                    Galeri Karya
-                                </Link>
-                                <Link
-                                    :href="whatsappAdmins.url()"
-                                    class="group relative flex items-center rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all duration-200 before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white"
-                                >
-                                    WhatsApp Admin
+                                    {{ item.label }}
                                 </Link>
                             </div>
                         </div>
@@ -320,8 +298,8 @@
 </template>
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import {
     dashboard,
     carouselHome,
@@ -331,8 +309,32 @@ import {
     whatsappAdmins,
 } from '@/routes/admin';
 
+const page = usePage();
 const isSidebarOpen = ref(true);
 const isContentMenuOpen = ref(true);
+
+const subMenuItems = computed(() => [
+    { label: 'Carousel Home', href: carouselHome.url() },
+    { label: 'Pre-order Home', href: preOrderHome.url() },
+    { label: 'Tiktok Feed', href: tiktokFeed.url() },
+    { label: 'Galeri Karya', href: galeriKarya.url() },
+    { label: 'WhatsApp Admin', href: whatsappAdmins.url() },
+]);
+
+const isUrlActive = (href: string) => {
+    return page.url === href || page.url.startsWith(href + '?');
+};
+
+const getSubMenuClasses = (href: string) => {
+    const active = isUrlActive(href);
+    const baseClasses =
+        'group relative flex items-center rounded-lg px-4 py-2.5 font-semibold transition-all duration-300 ease-in-out before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white';
+    const stateClasses = active
+        ? 'text-[15px] text-white'
+        : 'text-sm text-slate-400';
+
+    return `${baseClasses} ${stateClasses}`;
+};
 
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;

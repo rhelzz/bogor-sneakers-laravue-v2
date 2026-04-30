@@ -36,6 +36,11 @@ class CarouselSlide extends Model
     ];
 
     /**
+     * Append image_url attribute to JSON serialization
+     */
+    protected $appends = ['image_url'];
+
+    /**
      * Scope to get only active slides.
      */
     public function scopeActive(Builder $query): Builder
@@ -48,6 +53,10 @@ class CarouselSlide extends Model
      */
     public function getImageUrlAttribute(): string
     {
+        // Handle empty/null image_path to prevent broken URLs
+        if (!$this->image_path) {
+            return '';
+        }
         return asset('storage/'.$this->image_path);
     }
 }
