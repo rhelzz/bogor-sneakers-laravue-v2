@@ -32,6 +32,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/galeri-karya', [GalleryKaryaController::class, 'index'])->name('admin.galeri-karya');
     Route::post('/galeri-karya/{gallerySlot}/image', [GalleryKaryaController::class, 'replaceImage'])->name('admin.galeri-karya.replace-image');
     Route::put('/galeri-karya/{gallerySlot}', [GalleryKaryaController::class, 'updateMetadata'])->name('admin.galeri-karya.update');
+    Route::delete('/galeri-karya/{gallerySlot}', [GalleryKaryaController::class, 'destroy'])->name('admin.galeri-karya.destroy');
 
     Route::get('/tiktok-feed', [TikTokFeedController::class, 'index'])->name('admin.tiktok-feed');
     Route::post('/tiktok-feed', [TikTokFeedController::class, 'store'])->name('admin.tiktok-feed.store');

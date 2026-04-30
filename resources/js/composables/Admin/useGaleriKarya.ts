@@ -51,12 +51,12 @@ export function useGaleriKarya() {
             const slotId = editingSlotId.value;
             
             // First, update metadata
-            form.put(route('admin.galeri-karya.update', slotId), {
+            form.put(`/admin/galeri-karya/${slotId}`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     // If a new image was selected, upload it
                     if (form.image) {
-                        form.post(route('admin.galeri-karya.replace-image', slotId), {
+                        form.post(`/admin/galeri-karya/${slotId}/image`, {
                             preserveScroll: true,
                             onSuccess: () => {
                                 closeModal();
@@ -83,11 +83,11 @@ export function useGaleriKarya() {
             }
 
             // Post image first
-            form.post(route('admin.galeri-karya.replace-image', slotId), {
+            form.post(`/admin/galeri-karya/${slotId}/image`, {
                 preserveScroll: true,
                 onSuccess: () => {
                     // Then update metadata
-                    form.put(route('admin.galeri-karya.update', slotId), {
+                    form.put(`/admin/galeri-karya/${slotId}`, {
                         preserveScroll: true,
                         onSuccess: () => {
                             closeModal();
@@ -100,14 +100,8 @@ export function useGaleriKarya() {
 
     const destroy = (slotId: number) => {
         if (confirm('Apakah Anda yakin ingin menghapus karya ini?')) {
-            // Because the backend doesn't have a dedicated delete endpoint,
-            // we will simulate deleting by calling a destroy route,
-            // which the backend should ideally support for this action.
-            router.delete(route('admin.galeri-karya.destroy', slotId), {
+            router.delete(`/admin/galeri-karya/${slotId}`, {
                 preserveScroll: true,
-                onError: () => {
-                    alert('Gagal menghapus gambar. Fitur hapus belum didukung oleh backend untuk Galeri Karya.');
-                }
             });
         }
     };

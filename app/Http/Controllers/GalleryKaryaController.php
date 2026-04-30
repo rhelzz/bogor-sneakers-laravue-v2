@@ -67,10 +67,14 @@ class GalleryKaryaController extends Controller
             Storage::disk('public')->delete($oldPath);
         }
 
-        return response()->json([
-            'message' => 'Gambar slot berhasil diperbarui.',
-            'slot' => $this->serializeSlot($gallerySlot->fresh()),
-        ]);
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'message' => 'Gambar slot berhasil diperbarui.',
+                'slot' => $this->serializeSlot($gallerySlot->fresh()),
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     /**
@@ -100,10 +104,34 @@ class GalleryKaryaController extends Controller
             'author' => $author,
         ]);
 
-        return response()->json([
-            'message' => 'Judul dan author berhasil diperbarui.',
-            'slot' => $this->serializeSlot($gallerySlot->fresh()),
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json([
+                'message' => 'Judul dan author berhasil diperbarui.',
+                'slot' => $this->serializeSlot($gallerySlot->fresh()),
+            ]);
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Reset a gallery slot to default values.
+     */
+    public function destroy(GallerySlot $gallerySlot)
+    {
+        $oldPath = $gallerySlot->image_path;
+
+        $gallerySlot->update([
+            'image_path' => null,
+            'title' => $this->defaultTitleForSlot((int) $gallerySlot->slot),
+            'author' => self::DEFAULT_AUTHOR,
         ]);
+
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return redirect()->back();
     }
 
     /**
