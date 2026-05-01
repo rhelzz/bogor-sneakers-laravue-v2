@@ -410,8 +410,6 @@ const subMenuItems = computed(() => [
 const productSubMenuItems = computed(() => [
     { label: 'Katalog', href: katalog.url() },
     { label: 'Kelola Model Sepatu', href: '/admin/model-sepatu' },
-    { label: 'Kelola Nama Varian', href: '/admin/nama-varian' },
-    { label: 'Kelola SVG', href: '/admin/svg' },
 ]);
 
 const isUrlActive = (href: string) => {

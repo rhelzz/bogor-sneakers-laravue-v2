@@ -6,6 +6,8 @@ import { katalog } from '@/routes/admin';
 
 interface CatalogItem {
     id: number;
+    shoe_model_id: number | null;
+    shoe_model_name: string | null;
     name: string;
     collection: string;
     price: number;
@@ -151,7 +153,13 @@ const getStatusLabel = (status: string) => {
                                 <td class="px-6 py-4">
                                     <div class="max-w-xs">
                                         <p class="font-bold text-slate-800">{{ item.name }}</p>
-                                        <p class="text-xs text-slate-500">ID: {{ item.id }}</p>
+                                        <div v-if="item.shoe_model_name" class="mt-0.5 flex items-center gap-1.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            </svg>
+                                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">{{ item.shoe_model_name }}</span>
+                                        </div>
+                                        <p v-else class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter italic">No Model</p>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -216,7 +224,10 @@ const getStatusLabel = (status: string) => {
                         </div>
                     </div>
                     <div class="p-5">
-                        <p class="mb-1 text-[11px] font-bold tracking-widest text-indigo-600 uppercase">{{ item.collection }}</p>
+                        <div class="mb-1 flex items-center justify-between">
+                            <p class="text-[11px] font-bold tracking-widest text-indigo-600 uppercase">{{ item.collection }}</p>
+                            <span v-if="item.shoe_model_name" class="rounded bg-indigo-50 px-1.5 py-0.5 text-[9px] font-extrabold text-indigo-600 uppercase">{{ item.shoe_model_name }}</span>
+                        </div>
                         <h4 class="mb-2 line-clamp-1 font-bold text-slate-800">{{ item.name }}</h4>
                         <div class="flex items-center justify-between border-t border-slate-100 pt-4">
                             <p class="font-bold text-slate-900">{{ formatCurrency(item.price) }}</p>

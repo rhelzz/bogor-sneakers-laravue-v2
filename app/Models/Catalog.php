@@ -41,6 +41,7 @@ class Catalog extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'shoe_model_id',
         'public_id',
         'slug',
         'name',
@@ -64,6 +65,7 @@ class Catalog extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'shoe_model_id' => 'integer',
         'price' => 'integer',
         'preorder_min_days' => 'integer',
         'preorder_max_days' => 'integer',
@@ -95,6 +97,11 @@ class Catalog extends Model
         static::saving(function (Catalog $catalog): void {
             $catalog->slug = static::makeSlug((string) $catalog->name);
         });
+    }
+
+    public function shoeModel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(ShoeModel::class);
     }
 
     public function images(): HasMany

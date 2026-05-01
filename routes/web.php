@@ -6,6 +6,7 @@ use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\PreOrderHomeController;
+use App\Http\Controllers\ShoeModelController;
 use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
 use App\Http\Controllers\WhatsAppAdminController;
@@ -41,9 +42,7 @@ Route::prefix('admin')->group(function () {
     Route::delete('/tiktok-feed/{tiktokFeed}', [TikTokFeedController::class, 'destroy'])->name('admin.tiktok-feed.destroy');
 
     Route::get('/katalog', [KatalogController::class, 'adminIndex'])->name('admin.katalog');
-    Route::get('/katalog/create', function () {
-        return Inertia::render('Admin/Katalog/Create');
-    })->name('admin.katalog.create');
+    Route::get('/katalog/create', [KatalogController::class, 'create'])->name('admin.katalog.create');
     Route::post('/katalog', [KatalogController::class, 'store'])->name('admin.katalog.store');
     Route::put('/katalog/{catalog}', [KatalogController::class, 'update'])->name('admin.katalog.update');
     Route::delete('/katalog/{catalog}', [KatalogController::class, 'destroy'])->name('admin.katalog.destroy');
@@ -60,4 +59,10 @@ Route::prefix('admin')->group(function () {
     Route::post('/whatsapp-admins', [WhatsAppAdminController::class, 'store'])->name('admin.whatsapp-admins.store');
     Route::put('/whatsapp-admins/{whatsappAdmin}', [WhatsAppAdminController::class, 'update'])->name('admin.whatsapp-admins.update');
     Route::delete('/whatsapp-admins/{whatsappAdmin}', [WhatsAppAdminController::class, 'destroy'])->name('admin.whatsapp-admins.destroy');
+
+    // Shoe Model Management
+    Route::get('/model-sepatu', [ShoeModelController::class, 'index'])->name('admin.model-sepatu.index');
+    Route::get('/model-sepatu/{shoeModel}', [ShoeModelController::class, 'show'])->name('admin.model-sepatu.show');
+    Route::put('/model-sepatu/{shoeModel}', [ShoeModelController::class, 'update'])->name('admin.model-sepatu.update');
+    Route::post('/model-sepatu/sync', [ShoeModelController::class, 'sync'])->name('admin.model-sepatu.sync');
 });
