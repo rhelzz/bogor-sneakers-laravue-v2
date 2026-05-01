@@ -86,6 +86,90 @@
                     </span>
                 </Link>
 
+                <!-- Manajemen Produk -->
+                <div class="space-y-1">
+                    <button
+                        @click="toggleProductMenu"
+                        class="group flex w-full items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
+                        :class="{
+                            'justify-center': !isSidebarOpen,
+                            'bg-white/10 text-white':
+                                isProductMenuOpen && isSidebarOpen,
+                        }"
+                    >
+                        <div
+                            class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                            :class="{
+                                'bg-indigo-600 text-white':
+                                    isProductMenuOpen && isSidebarOpen,
+                            }"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 shrink-0"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2.5"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                                />
+                            </svg>
+                        </div>
+                        <span
+                            v-if="isSidebarOpen"
+                            class="ml-4 flex-1 truncate text-left font-semibold tracking-wide"
+                        >
+                            Manajemen Produk
+                        </span>
+                        <svg
+                            v-if="isSidebarOpen"
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 shrink-0 text-slate-500 transition-transform duration-300 ease-in-out group-hover:text-white"
+                            :class="
+                                isProductMenuOpen
+                                    ? 'rotate-180 text-white'
+                                    : 'rotate-0'
+                            "
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2.5"
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </button>
+
+                    <!-- Submenu Produk -->
+                    <div
+                        v-show="isSidebarOpen"
+                        class="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out"
+                        :style="{
+                            gridTemplateRows: isProductMenuOpen ? '1fr' : '0fr',
+                        }"
+                    >
+                        <div class="overflow-hidden">
+                            <div class="mt-1 space-y-1 py-2 pr-2 pl-14">
+                                <Link
+                                    v-for="item in productSubMenuItems"
+                                    :key="item.href"
+                                    :href="item.href"
+                                    :class="getSubMenuClasses(item.href)"
+                                >
+                                    {{ item.label }}
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Manajemen Konten -->
                 <div class="space-y-1">
                     <button
@@ -307,11 +391,13 @@ import {
     tiktokFeed,
     galeriKarya,
     whatsappAdmins,
+    katalog,
 } from '@/routes/admin';
 
 const page = usePage();
 const isSidebarOpen = ref(true);
 const isContentMenuOpen = ref(true);
+const isProductMenuOpen = ref(true);
 
 const subMenuItems = computed(() => [
     { label: 'Carousel Home', href: carouselHome.url() },
@@ -319,6 +405,13 @@ const subMenuItems = computed(() => [
     { label: 'Tiktok Feed', href: tiktokFeed.url() },
     { label: 'Galeri Karya', href: galeriKarya.url() },
     { label: 'WhatsApp Admin', href: whatsappAdmins.url() },
+]);
+
+const productSubMenuItems = computed(() => [
+    { label: 'Katalog', href: katalog.url() },
+    { label: 'Kelola Model Sepatu', href: '/admin/model-sepatu' },
+    { label: 'Kelola Nama Varian', href: '/admin/nama-varian' },
+    { label: 'Kelola SVG', href: '/admin/svg' },
 ]);
 
 const isUrlActive = (href: string) => {
@@ -341,6 +434,7 @@ const toggleSidebar = () => {
 
     if (!isSidebarOpen.value) {
         isContentMenuOpen.value = false;
+        isProductMenuOpen.value = false;
     }
 };
 
@@ -350,6 +444,15 @@ const toggleContentMenu = () => {
     } else {
         isSidebarOpen.value = true;
         isContentMenuOpen.value = true;
+    }
+};
+
+const toggleProductMenu = () => {
+    if (isSidebarOpen.value) {
+        isProductMenuOpen.value = !isProductMenuOpen.value;
+    } else {
+        isSidebarOpen.value = true;
+        isProductMenuOpen.value = true;
     }
 };
 </script>
