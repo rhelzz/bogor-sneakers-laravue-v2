@@ -16,7 +16,6 @@ class HomePreOrderFeatureTest extends TestCase
     {
         $catalogs = collect(range(1, 6))->map(
             fn (int $index): Catalog => $this->createCatalog(
-                sprintf('PO-LIMIT-%02d', $index),
                 'po',
                 true,
                 $index,
@@ -54,7 +53,7 @@ class HomePreOrderFeatureTest extends TestCase
 
     public function test_admin_cannot_set_filled_slots_above_max_slots(): void
     {
-        $catalog = $this->createCatalog('PO-SLOT-OVERFLOW', 'po', true, 1);
+        $catalog = $this->createCatalog('po', true, 1);
 
         $response = $this->postJson('/admin/pre-order-home', [
             'catalog_id' => $catalog->id,
@@ -78,7 +77,6 @@ class HomePreOrderFeatureTest extends TestCase
             $status = $index <= 7 ? 'po' : 'ready';
 
             return $this->createCatalog(
-                sprintf('HOME-CATALOG-%02d', $index),
                 $status,
                 true,
                 $index,
@@ -136,15 +134,12 @@ class HomePreOrderFeatureTest extends TestCase
     }
 
     private function createCatalog(
-        string $code,
         string $status,
         bool $isActive,
         int $sortOrder,
     ): Catalog {
         $catalog = Catalog::create([
-            'name' => 'Produk ' . $code,
-            'code' => $code,
-            'brand' => 'Nike',
+            'name' => 'Produk ' . Str::random(8),
             'collection' => 'Lifestyle',
             'description' => null,
             'price' => 1350000,

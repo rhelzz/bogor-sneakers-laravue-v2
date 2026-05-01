@@ -158,7 +158,6 @@ class HomeController extends Controller
                     'id' => $assignment->id,
                     'catalog_id' => (int) $catalog->id,
                     'product' => $catalog->name,
-                    'sku' => $catalog->code,
                     'size' => $this->formatCatalogSizeRange($catalog),
                     'batch' => $batchLabel !== ''
                         ? $batchLabel
@@ -177,9 +176,8 @@ class HomeController extends Controller
     }
 
     /**
-     * @return array<int, array{id: int, name: string, size: string, price: int, status: string, statusClass: string, brand: string, brand_label: string, image_url: ?string}>
-     */
-    private function getLatestCollections(): array
+    * @return array<int, array{id: int, name: string, size: string, price: int, status: string, statusClass: string, image_url: ?string}>
+    */    private function getLatestCollections(): array
     {
         return Catalog::query()
             ->active()
@@ -195,8 +193,6 @@ class HomeController extends Controller
                     'price' => (int) $catalog->price,
                     'status' => $this->toCatalogStatusLabel((string) $catalog->status),
                     'statusClass' => $this->toCatalogStatusClass((string) $catalog->status),
-                    'brand' => $this->toKey((string) $catalog->brand),
-                    'brand_label' => trim((string) $catalog->brand),
                     'image_url' => $catalog->primary_image_url,
                 ];
             })

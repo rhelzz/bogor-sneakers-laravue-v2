@@ -88,8 +88,6 @@ class KatalogController extends Controller
 
             $catalog = Catalog::create([
                 'name' => trim((string) $validated['name']),
-                'code' => strtoupper(trim((string) $validated['code'])),
-                'brand' => trim((string) $validated['brand']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
                 'price' => (int) $validated['price'],
@@ -124,8 +122,6 @@ class KatalogController extends Controller
         $updated = DB::transaction(function () use ($catalog, $validated): Catalog {
             $catalog->update([
                 'name' => trim((string) $validated['name']),
-                'code' => strtoupper(trim((string) $validated['code'])),
-                'brand' => trim((string) $validated['brand']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
                 'price' => (int) $validated['price'],
@@ -326,16 +322,8 @@ class KatalogController extends Controller
      */
     private function validateCatalogPayload(Request $request, ?Catalog $catalog = null): array
     {
-        $codeRule = Rule::unique('catalogs', 'code');
-
-        if ($catalog instanceof Catalog) {
-            $codeRule = $codeRule->ignore($catalog->id);
-        }
-
         return $request->validate([
             'name' => ['required', 'string', 'max:160'],
-            'code' => ['required', 'string', 'max:80', $codeRule],
-            'brand' => ['required', 'string', 'max:120'],
             'collection' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'integer', 'min:0', 'max:1000000000'],
@@ -355,9 +343,6 @@ class KatalogController extends Controller
             'images.*' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ], [
             'name.required' => 'Nama katalog wajib diisi.',
-            'code.required' => 'Kode produk wajib diisi.',
-            'code.unique' => 'Kode produk sudah dipakai.',
-            'brand.required' => 'Brand wajib diisi.',
             'collection.required' => 'Koleksi wajib diisi.',
             'price.required' => 'Harga wajib diisi.',
             'price.integer' => 'Harga harus berupa angka.',
@@ -635,7 +620,6 @@ class KatalogController extends Controller
      */
     private function serializePublicCatalog(Catalog $catalog): array
     {
-        $brandLabel = trim($catalog->brand);
         $collectionLabel = trim($catalog->collection);
 
         return [
@@ -643,10 +627,7 @@ class KatalogController extends Controller
             'route_key' => $catalog->route_key,
             'public_id' => $catalog->public_id,
             'slug' => $catalog->slug,
-            'code' => $catalog->code,
             'name' => $catalog->name,
-            'brand' => $this->toKey($brandLabel),
-            'brandLabel' => $brandLabel,
             'collection' => $this->toKey($collectionLabel),
             'collectionLabel' => $collectionLabel,
             'description' => $catalog->description,
@@ -700,8 +681,6 @@ class KatalogController extends Controller
             'route_key' => $catalog->route_key,
             'slug' => $catalog->slug,
             'name' => $catalog->name,
-            'code' => $catalog->code,
-            'brand' => $catalog->brand,
             'collection' => $catalog->collection,
             'card_image_path' => $catalog->card_image_path,
             'card_image_url' => $catalog->card_image_url,

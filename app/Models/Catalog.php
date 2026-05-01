@@ -16,8 +16,6 @@ use Illuminate\Support\Str;
  * @property string $public_id
  * @property string $slug
  * @property string $name
- * @property string $code
- * @property string $brand
  * @property string $collection
  * @property string|null $card_image_path
  * @property string|null $description
@@ -46,8 +44,6 @@ class Catalog extends Model
         'public_id',
         'slug',
         'name',
-        'code',
-        'brand',
         'collection',
         'card_image_path',
         'description',

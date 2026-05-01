@@ -30,7 +30,7 @@
                     <input
                         v-model="searchQuery"
                         type="text"
-                        placeholder="Cari nama / brand / kode..."
+                        placeholder="Cari nama produk..."
                         autocomplete="off"
                         spellcheck="false"
                         class="w-full rounded-xl border border-sumi/15 bg-shironeri px-3 py-2.5 pr-10 text-xs tracking-[0.04em] text-sumi transition outline-none focus:border-matcha"
@@ -203,62 +203,6 @@
                     class="fixed top-32 left-0 h-[calc(100vh-128px)] w-70 overflow-y-auto border-r border-sumi/10 bg-shironeri p-4 sm:p-5"
                 >
                     <div class="space-y-4">
-                        <div class="border-b border-sumi/10 pb-4">
-                            <div
-                                class="mb-3 flex items-center justify-between text-[11px] tracking-[0.14em] text-hai uppercase"
-                            >
-                                <span>Brand</span>
-                                <button
-                                    class="text-[10px] tracking-[0.08em] underline hover:text-sumi"
-                                    @click="resetBrandFilter"
-                                >
-                                    Reset
-                                </button>
-                            </div>
-                            <div class="space-y-1">
-                                <button
-                                    v-for="brand in brandFilters"
-                                    :key="brand.key"
-                                    class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition"
-                                    :class="
-                                        selectedBrands.includes(brand.key)
-                                            ? 'bg-matcha/15'
-                                            : 'hover:bg-sumi/5'
-                                    "
-                                    @click="toggleBrand(brand.key)"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <span
-                                            class="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] border"
-                                            :class="
-                                                selectedBrands.includes(
-                                                    brand.key,
-                                                )
-                                                    ? 'border-matcha bg-matcha text-washi'
-                                                    : 'border-sumi/30'
-                                            "
-                                        >
-                                            <i
-                                                v-if="
-                                                    selectedBrands.includes(
-                                                        brand.key,
-                                                    )
-                                                "
-                                                class="bi bi-check text-[10px]"
-                                            />
-                                        </span>
-                                        <span
-                                            class="text-xs tracking-[0.03em]"
-                                            >{{ brand.label }}</span
-                                        >
-                                    </span>
-                                    <span class="text-[11px] text-hai">{{
-                                        brandCount[brand.key] ?? 0
-                                    }}</span>
-                                </button>
-                            </div>
-                        </div>
-
                         <div class="border-b border-sumi/10 pb-4">
                             <div
                                 class="mb-3 flex items-center justify-between text-[11px] tracking-[0.14em] text-hai uppercase"
@@ -512,7 +456,6 @@
                                         v-if="viewMode !== 'list'"
                                         class="text-[10px] tracking-[0.11em] text-hai uppercase"
                                     >
-                                        {{ product.brandLabel }} ·
                                         {{
                                             collectionLabel(product.collection)
                                         }}
@@ -697,20 +640,6 @@ const statusFilters = [
 
 const products = ref<CatalogPublicItem[]>([...props.products]);
 
-const brandFilters = computed(() => {
-    const map = new Map<string, string>();
-
-    products.value.forEach((product) => {
-        if (!map.has(product.brand)) {
-            map.set(product.brand, product.brandLabel);
-        }
-    });
-
-    return Array.from(map.entries())
-        .map(([key, label]) => ({ key, label }))
-        .sort((a, b) => a.label.localeCompare(b.label, 'id-ID'));
-});
-
 const collectionFilters = computed(() => {
     const map = new Map<string, string>();
 
@@ -784,7 +713,6 @@ const sortMode = ref<SortMode>('newest');
 const viewMode = ref<ViewMode>('3col');
 const selectedStatus = ref<(typeof statusFilters)[number]['key']>('all');
 
-const selectedBrands = ref<string[]>([]);
 const selectedSizes = ref<number[]>([]);
 const selectedCollections = ref<string[]>([]);
 
@@ -795,17 +723,6 @@ const currentPage = ref(1);
 const applyButtonLabel = ref('Terapkan Filter');
 
 let applyFeedbackTimeout: ReturnType<typeof setTimeout> | undefined;
-
-const brandCount = computed<Record<string, number>>(() => {
-    return products.value.reduce(
-        (acc, product) => {
-            acc[product.brand] = (acc[product.brand] ?? 0) + 1;
-
-            return acc;
-        },
-        {} as Record<string, number>,
-    );
-});
 
 const collectionCount = computed<Record<string, number>>(() => {
     return products.value.reduce(
@@ -824,13 +741,7 @@ const filteredProducts = computed(() => {
     return products.value.filter((product) => {
         const matchesQuery =
             query.length === 0 ||
-            product.name.toLowerCase().includes(query) ||
-            product.brandLabel.toLowerCase().includes(query) ||
-            product.code.toLowerCase().includes(query);
-
-        const matchesBrand =
-            selectedBrands.value.length === 0 ||
-            selectedBrands.value.includes(product.brand);
+            product.name.toLowerCase().includes(query);
 
         const matchesSize =
             selectedSizes.value.length === 0 ||
@@ -849,7 +760,6 @@ const filteredProducts = computed(() => {
 
         return (
             matchesQuery &&
-            matchesBrand &&
             matchesSize &&
             matchesCollection &&
             matchesStatus &&
@@ -949,18 +859,6 @@ const activeFilterChips = computed<FilterChip[]>(() => {
         });
     }
 
-    selectedBrands.value.forEach((brand) => {
-        const label =
-            brandFilters.value.find((item) => item.key === brand)?.label ??
-            brand;
-        chips.push({
-            key: `brand-${brand}`,
-            label,
-            type: 'brand',
-            value: brand,
-        });
-    });
-
     selectedSizes.value.forEach((size) => {
         chips.push({
             key: `size-${size}`,
@@ -1027,7 +925,6 @@ watch(
         searchQuery,
         sortMode,
         selectedStatus,
-        selectedBrands,
         selectedSizes,
         selectedCollections,
         priceMin,
@@ -1047,18 +944,6 @@ watch(sortedProducts, () => {
 
 const setViewMode = (mode: ViewMode) => {
     viewMode.value = mode;
-};
-
-const toggleBrand = (brand: string) => {
-    if (selectedBrands.value.includes(brand)) {
-        selectedBrands.value = selectedBrands.value.filter(
-            (item) => item !== brand,
-        );
-
-        return;
-    }
-
-    selectedBrands.value = [...selectedBrands.value, brand];
 };
 
 const toggleCollection = (collection: string) => {
@@ -1083,10 +968,6 @@ const toggleSize = (size: number) => {
     }
 
     selectedSizes.value = [...selectedSizes.value, size];
-};
-
-const resetBrandFilter = () => {
-    selectedBrands.value = [];
 };
 
 const resetSizeFilter = () => {
@@ -1123,7 +1004,6 @@ const loadMore = () => {
 const clearAllFilters = () => {
     searchQuery.value = '';
     selectedStatus.value = 'all';
-    selectedBrands.value = [];
     selectedSizes.value = [];
     selectedCollections.value = [];
     priceMin.value = 0;
@@ -1133,14 +1013,6 @@ const clearAllFilters = () => {
 const removeFilterChip = (chip: FilterChip) => {
     if (chip.type === 'search') {
         searchQuery.value = '';
-
-        return;
-    }
-
-    if (chip.type === 'brand' && typeof chip.value === 'string') {
-        selectedBrands.value = selectedBrands.value.filter(
-            (item) => item !== chip.value,
-        );
 
         return;
     }

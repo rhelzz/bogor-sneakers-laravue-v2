@@ -241,8 +241,6 @@ class PreOrderHomeController extends Controller
                 ? [
                     'id' => $catalog->id,
                     'name' => $catalog->name,
-                    'code' => $catalog->code,
-                    'brand' => $catalog->brand,
                     'collection' => $catalog->collection,
                     'size_range' => $this->formatSizeRange($catalog),
                     'image_url' => $catalog->primary_image_url,
@@ -262,8 +260,6 @@ class PreOrderHomeController extends Controller
         return [
             'id' => $catalog->id,
             'name' => $catalog->name,
-            'code' => $catalog->code,
-            'brand' => $catalog->brand,
             'collection' => $catalog->collection,
             'size_range' => $this->formatSizeRange($catalog),
             'image_url' => $catalog->primary_image_url,

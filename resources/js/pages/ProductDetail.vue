@@ -129,28 +129,8 @@
                             </div>
 
                             <div
-                                class="mt-4 grid grid-cols-2 gap-2 text-xs text-hai sm:grid-cols-3"
+                                class="mt-4 grid grid-cols-1 gap-2 text-xs text-hai sm:grid-cols-1"
                             >
-                                <div
-                                    class="rounded-xl border border-sumi/10 bg-washi p-3"
-                                >
-                                    <p class="mb-1 tracking-[0.08em] uppercase">
-                                        Kode
-                                    </p>
-                                    <p class="font-semibold text-sumi">
-                                        {{ product.code }}
-                                    </p>
-                                </div>
-                                <div
-                                    class="rounded-xl border border-sumi/10 bg-washi p-3"
-                                >
-                                    <p class="mb-1 tracking-[0.08em] uppercase">
-                                        Brand
-                                    </p>
-                                    <p class="font-semibold text-sumi">
-                                        {{ product.brandLabel }}
-                                    </p>
-                                </div>
                                 <div
                                     class="rounded-xl border border-sumi/10 bg-washi p-3"
                                 >
@@ -168,7 +148,6 @@
                             <p
                                 class="text-[11px] tracking-[0.14em] text-hai uppercase"
                             >
-                                {{ product.brandLabel }} ·
                                 {{ product.collectionLabel }}
                             </p>
                             <h1

@@ -424,6 +424,7 @@ watch(
 
 const handleCategoryChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
+    
     if (target.value === '__new') {
         isAddingNewCategory.value = true;
         form.category = '__new';

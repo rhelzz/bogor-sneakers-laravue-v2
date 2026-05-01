@@ -16,8 +16,6 @@ return new class extends Migration
             $table->ulid('public_id')->unique();
             $table->string('slug');
             $table->string('name', 160);
-            $table->string('code', 80)->unique();
-            $table->string('brand', 120);
             $table->string('collection', 120);
             $table->text('description')->nullable();
             $table->unsignedInteger('price')->default(0);
@@ -34,7 +32,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('slug');
-            $table->index('brand');
             $table->index('collection');
             $table->index('price');
             $table->index('status');
