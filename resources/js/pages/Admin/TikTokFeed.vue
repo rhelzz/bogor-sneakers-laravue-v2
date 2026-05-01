@@ -232,7 +232,7 @@
                                 </span>
                                 <p
                                     class="truncate text-sm font-bold text-slate-800"
-                                    :title="feed.title"
+                                    :title="feed.title ?? undefined"
                                 >
                                     {{ feed.title || 'Video TikTok' }}
                                 </p>
@@ -386,18 +386,18 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
-import AdminLayout from '@/layouts/AdminLayout.vue';
 import { useTiktokFeed } from '@/composables/Admin/useTiktokFeed';
-import { TikTokFeedItem } from '@/types/tiktok';
+import { MAX_TIKTOK_FEEDS } from '@/constants/Admin/tiktokConstants';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import type { TikTokFeedItem } from '@/types/tiktok';
 import {
     getEmbedAuthor,
     getEmbedProfileUrl,
     getEmbedVideoUrl,
     getEmbedCaption,
 } from '@/utils/Admin/tiktokHelper';
-import { MAX_TIKTOK_FEEDS } from '@/constants/Admin/tiktokConstants';
 
-const props = defineProps<{
+defineProps<{
     feeds: TikTokFeedItem[];
     categories: string[];
 }>();
@@ -424,7 +424,7 @@ watch(
 
 const handleCategoryChange = (e: Event) => {
     const target = e.target as HTMLSelectElement;
-    
+
     if (target.value === '__new') {
         isAddingNewCategory.value = true;
         form.category = '__new';

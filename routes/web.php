@@ -10,6 +10,7 @@ use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
 use App\Http\Controllers\WhatsAppAdminController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog');
@@ -40,6 +41,9 @@ Route::prefix('admin')->group(function () {
     Route::delete('/tiktok-feed/{tiktokFeed}', [TikTokFeedController::class, 'destroy'])->name('admin.tiktok-feed.destroy');
 
     Route::get('/katalog', [KatalogController::class, 'adminIndex'])->name('admin.katalog');
+    Route::get('/katalog/create', function () {
+        return Inertia::render('Admin/Katalog/Create');
+    })->name('admin.katalog.create');
     Route::post('/katalog', [KatalogController::class, 'store'])->name('admin.katalog.store');
     Route::put('/katalog/{catalog}', [KatalogController::class, 'update'])->name('admin.katalog.update');
     Route::delete('/katalog/{catalog}', [KatalogController::class, 'destroy'])->name('admin.katalog.destroy');
