@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Catalog;
 use App\Models\CatalogImage;
-use App\Models\ShoeModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,7 +63,7 @@ class KatalogController extends Controller
     public function adminIndex(): Response
     {
         $catalogs = Catalog::query()
-            ->with(['images', 'sizes', 'shoeModel'])
+            ->with(['images', 'sizes'])
             ->ordered()
             ->get(['*']);
 
@@ -74,14 +73,6 @@ class KatalogController extends Controller
                 ->values()
                 ->all(),
             'maxImages' => self::MAX_IMAGES,
-            'shoeModels' => ShoeModel::where('is_active', true)->get(['id', 'name']),
-        ]);
-    }
-
-    public function create(): Response
-    {
-        return Inertia::render('Admin/Katalog/Create', [
-            'shoeModels' => ShoeModel::where('is_active', true)->get(['id', 'name']),
         ]);
     }
 
@@ -96,7 +87,6 @@ class KatalogController extends Controller
             $sortOrder = (int) ($validated['sort_order'] ?? ((Catalog::max('sort_order') ?? -1) + 1));
 
             $catalog = Catalog::create([
-                'shoe_model_id' => isset($validated['shoe_model_id']) ? (int) $validated['shoe_model_id'] : null,
                 'name' => trim((string) $validated['name']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
@@ -131,7 +121,6 @@ class KatalogController extends Controller
 
         $updated = DB::transaction(function () use ($catalog, $validated): Catalog {
             $catalog->update([
-                'shoe_model_id' => isset($validated['shoe_model_id']) ? (int) $validated['shoe_model_id'] : null,
                 'name' => trim((string) $validated['name']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
@@ -334,7 +323,6 @@ class KatalogController extends Controller
     private function validateCatalogPayload(Request $request, ?Catalog $catalog = null): array
     {
         return $request->validate([
-            'shoe_model_id' => ['nullable', 'integer', 'exists:shoe_models,id'],
             'name' => ['required', 'string', 'max:160'],
             'collection' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
@@ -354,7 +342,6 @@ class KatalogController extends Controller
             'images' => ['nullable', 'array', 'max:6'],
             'images.*' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ], [
-            'shoe_model_id.exists' => 'Model sepatu tidak valid.',
             'name.required' => 'Nama katalog wajib diisi.',
             'collection.required' => 'Koleksi wajib diisi.',
             'price.required' => 'Harga wajib diisi.',
@@ -688,8 +675,6 @@ class KatalogController extends Controller
     {
         return [
             'id' => $catalog->id,
-            'shoe_model_id' => $catalog->shoe_model_id,
-            'shoe_model_name' => $catalog->shoeModel?->name,
             'public_id' => $catalog->public_id,
             'route_key' => $catalog->route_key,
             'slug' => $catalog->slug,

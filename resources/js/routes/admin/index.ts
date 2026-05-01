@@ -84,7 +84,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     dashboard.form = dashboardForm
 /**
 * @see \App\Http\Controllers\CarouselSlideController::carouselHome
@@ -162,7 +162,7 @@ carouselHome.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     carouselHome.form = carouselHomeForm
 /**
 * @see \App\Http\Controllers\GalleryKaryaController::galeriKarya
@@ -240,7 +240,7 @@ galeriKarya.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     galeriKarya.form = galeriKaryaForm
 /**
 * @see \App\Http\Controllers\TikTokFeedController::tiktokFeed
@@ -318,7 +318,7 @@ tiktokFeed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     tiktokFeed.form = tiktokFeedForm
 /**
 * @see \App\Http\Controllers\KatalogController::katalog
@@ -396,7 +396,7 @@ katalog.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     katalog.form = katalogForm
 /**
 * @see \App\Http\Controllers\PreOrderHomeController::preOrderHome
@@ -474,7 +474,7 @@ preOrderHome.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     preOrderHome.form = preOrderHomeForm
 /**
 * @see \App\Http\Controllers\WhatsAppAdminController::whatsappAdmins
@@ -552,7 +552,7 @@ whatsappAdmins.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
                     }),
             method: 'get',
         })
-    
+
     whatsappAdmins.form = whatsappAdminsForm
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
@@ -630,7 +630,7 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-    
+
     modelSepatu.form = modelSepatuForm
 
 export const variants = variantsDefault

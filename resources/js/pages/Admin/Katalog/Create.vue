@@ -5,7 +5,6 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { katalog } from '@/routes/admin';
 
 const form = useForm({
-    shoe_model_id: null as number | null,
     name: '',
     collection: '',
     price: 0,
@@ -17,10 +16,6 @@ const form = useForm({
     thumbnail: null as File | null,
     images: [] as File[],
 });
-
-defineProps<{
-    shoeModels: Array<{ id: number; name: string }>;
-}>();
 
 const formattedPrice = computed({
     get: () => new Intl.NumberFormat('id-ID').format(form.price),
@@ -333,30 +328,6 @@ const submit = () => {
                                             class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pr-4 pl-12 font-mono text-lg font-bold text-indigo-600 transition-all outline-none focus:border-indigo-500 focus:bg-white"
                                         />
                                     </div>
-                                </div>
-
-                                <!-- Shoe Model -->
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-sm font-bold text-slate-700"
-                                        >Model Sepatu (Blueprint)</label
-                                    >
-                                    <select
-                                        v-model="form.shoe_model_id"
-                                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition-all outline-none focus:border-indigo-500 focus:bg-white"
-                                    >
-                                        <option :value="null">
-                                            Tanpa Model (Hanya Katalog)
-                                        </option>
-                                        <option
-                                            v-for="model in shoeModels"
-                                            :key="model.id"
-                                            :value="model.id"
-                                        >
-                                            {{ model.name }}
-                                        </option>
-                                    </select>
-                                    <p class="text-[10px] font-semibold text-slate-400">Hubungkan ke model untuk mengaktifkan fitur Studio Custom.</p>
                                 </div>
 
                                 <!-- Collection -->
