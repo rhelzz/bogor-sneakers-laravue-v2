@@ -7,6 +7,7 @@ use App\Models\CatalogSize;
 use App\Models\HomePreorder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
@@ -41,7 +42,6 @@ class Catalog extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'shoe_model_id',
         'public_id',
         'slug',
         'name',
@@ -59,13 +59,13 @@ class Catalog extends Model
         'popularity_score',
         'is_active',
         'sort_order',
+        'shoe_model_id',
     ];
 
     /**
      * @var array<string, string>
      */
     protected $casts = [
-        'shoe_model_id' => 'integer',
         'price' => 'integer',
         'preorder_min_days' => 'integer',
         'preorder_max_days' => 'integer',
@@ -75,6 +75,7 @@ class Catalog extends Model
         'popularity_score' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'shoe_model_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -99,11 +100,6 @@ class Catalog extends Model
         });
     }
 
-    public function shoeModel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(ShoeModel::class);
-    }
-
     public function images(): HasMany
     {
         return $this->hasMany(CatalogImage::class)->orderBy('position', 'asc');
@@ -117,6 +113,11 @@ class Catalog extends Model
     public function homePreorder(): HasOne
     {
         return $this->hasOne(HomePreorder::class);
+    }
+
+    public function shoeModel(): BelongsTo
+    {
+        return $this->belongsTo(ShoeModel::class);
     }
 
     public function scopeActive(Builder $query): Builder

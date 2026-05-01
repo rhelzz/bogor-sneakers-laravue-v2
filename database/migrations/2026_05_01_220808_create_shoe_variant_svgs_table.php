@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shoe_models', function (Blueprint $table) {
+        Schema::create('shoe_variant_svgs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->boolean('is_active')->default(true);
+            $table->foreignId('shoe_variant_id')->constrained()->onDelete('cascade');
+            $table->string('file_name');
+            $table->string('file_path');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shoe_models');
+        Schema::dropIfExists('shoe_variant_svgs');
     }
 };

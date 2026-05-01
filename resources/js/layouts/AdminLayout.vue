@@ -392,6 +392,7 @@ import {
     galeriKarya,
     whatsappAdmins,
     katalog,
+    modelSepatu,
 } from '@/routes/admin';
 
 const page = usePage();
@@ -409,7 +410,7 @@ const subMenuItems = computed(() => [
 
 const productSubMenuItems = computed(() => [
     { label: 'Katalog', href: katalog.url() },
-    { label: 'Kelola Model Sepatu', href: '/admin/model-sepatu' },
+    { label: 'Kelola Model Sepatu', href: modelSepatu.url() },
 ]);
 
 const isUrlActive = (href: string) => {

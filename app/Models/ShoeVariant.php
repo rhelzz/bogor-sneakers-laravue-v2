@@ -2,28 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ShoeVariant extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'shoe_model_id',
         'name',
-        'full_preview_path',
-        'svg_data',
-        'sort_order',
-        'is_active',
     ];
 
-    protected $casts = [
-        'svg_data' => 'array',
-        'is_active' => 'boolean',
-        'sort_order' => 'integer',
-    ];
-
-    public function shoeModel(): BelongsTo
+    public function model(): BelongsTo
     {
-        return $this->belongsTo(ShoeModel::class);
+        return $this->belongsTo(ShoeModel::class, 'shoe_model_id');
+    }
+
+    public function svgs(): HasMany
+    {
+        return $this->hasMany(ShoeVariantSvg::class);
     }
 }

@@ -15,10 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('shoe_model_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->string('full_preview_path');
-            $table->json('svg_data');
-            $table->integer('sort_order')->default(0);
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
