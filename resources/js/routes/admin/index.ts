@@ -6,8 +6,7 @@ import katalogCe320b from './katalog'
 import preOrderHome1a388a from './pre-order-home'
 import whatsappAdmins183620 from './whatsapp-admins'
 import modelSepatu9e70d3 from './model-sepatu'
-import variantsDefault from './variants'
-
+import variants from './variants'
 /**
 * @see \App\Http\Controllers\DashboardController::dashboard
  * @see app/Http/Controllers/DashboardController.php:12
@@ -84,7 +83,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     dashboard.form = dashboardForm
 /**
 * @see \App\Http\Controllers\CarouselSlideController::carouselHome
@@ -162,7 +161,7 @@ carouselHome.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     carouselHome.form = carouselHomeForm
 /**
 * @see \App\Http\Controllers\GalleryKaryaController::galeriKarya
@@ -240,7 +239,7 @@ galeriKarya.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     galeriKarya.form = galeriKaryaForm
 /**
 * @see \App\Http\Controllers\TikTokFeedController::tiktokFeed
@@ -318,7 +317,7 @@ tiktokFeed.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     tiktokFeed.form = tiktokFeedForm
 /**
 * @see \App\Http\Controllers\KatalogController::katalog
@@ -396,7 +395,7 @@ katalog.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     katalog.form = katalogForm
 /**
 * @see \App\Http\Controllers\PreOrderHomeController::preOrderHome
@@ -474,7 +473,7 @@ preOrderHome.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     preOrderHome.form = preOrderHomeForm
 /**
 * @see \App\Http\Controllers\WhatsAppAdminController::whatsappAdmins
@@ -552,7 +551,7 @@ whatsappAdmins.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
                     }),
             method: 'get',
         })
-
+    
     whatsappAdmins.form = whatsappAdminsForm
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
@@ -630,11 +629,8 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
                     }),
             method: 'get',
         })
-
+    
     modelSepatu.form = modelSepatuForm
-
-export const variants = variantsDefault
-
 const admin = {
     dashboard: Object.assign(dashboard, dashboard),
 carouselHome: Object.assign(carouselHome, carouselHomeA7ebd0),
@@ -644,7 +640,7 @@ katalog: Object.assign(katalog, katalogCe320b),
 preOrderHome: Object.assign(preOrderHome, preOrderHome1a388a),
 whatsappAdmins: Object.assign(whatsappAdmins, whatsappAdmins183620),
 modelSepatu: Object.assign(modelSepatu, modelSepatu9e70d3),
-variants: Object.assign(variantsDefault, variantsDefault),
+variants: Object.assign(variants, variants),
 }
 
 export default admin

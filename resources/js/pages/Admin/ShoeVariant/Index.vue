@@ -2,7 +2,9 @@
 import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { modelSepatu, variants as variantsRoute } from '@/routes/admin';
+import { modelSepatu } from '@/routes/admin/';
+import modelSepatuRoutes from '@/routes/admin/model-sepatu/';
+import variantsRoute from '@/routes/admin/variants/';
 
 interface SVGAsset {
     id: number;
@@ -57,21 +59,24 @@ const closeModals = () => {
 };
 
 const submitVariant = () => {
-    variantForm.post(modelSepatu.variants.store.url(props.shoeModel.id), {
+    variantForm.post(modelSepatuRoutes.variants.url(props.shoeModel.id), {
         onSuccess: () => closeModals(),
     });
 };
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files) {
         uploadForm.files = Array.from(target.files);
     }
 };
 
 const submitUpload = () => {
-    if (!selectedVariant.value) return;
-    
+    if (!selectedVariant.value) {
+        return;
+    }
+
     uploadForm.post(variantsRoute.svgs.upload.url(selectedVariant.value.id), {
         onSuccess: () => closeModals(),
     });
@@ -86,11 +91,27 @@ const deleteVariant = (variant: ShoeVariant) => {
 // Function to helper determine if a file is an accent, base or pattern
 const getLayerTypeLabel = (fileName: string) => {
     const lower = fileName.toLowerCase();
-    if (lower.includes('_base')) return 'Base Layer';
-    if (lower.includes('_pola base')) return 'Pattern Base';
-    if (lower.includes('_pola aksen')) return 'Pattern Accent';
-    if (lower.includes('_aksen')) return 'Accent Layer';
-    if (lower.includes('full')) return 'Full Preview';
+
+    if (lower.includes('_base')) {
+        return 'Base Layer';
+    }
+
+    if (lower.includes('_pola base')) {
+        return 'Pattern Base';
+    }
+
+    if (lower.includes('_pola aksen')) {
+        return 'Pattern Accent';
+    }
+
+    if (lower.includes('_aksen')) {
+        return 'Accent Layer';
+    }
+
+    if (lower.includes('full')) {
+        return 'Full Preview';
+    }
+
     return 'Other';
 };
 </script>
@@ -136,7 +157,7 @@ const getLayerTypeLabel = (fileName: string) => {
                             <h3 class="font-bold text-slate-800">{{ variant.name }}</h3>
                         </div>
                         <div class="flex space-x-2">
-                            <button 
+                            <button
                                 @click="openUploadModal(variant)"
                                 class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
                                 title="Bulk Upload SVG"
@@ -145,7 +166,7 @@ const getLayerTypeLabel = (fileName: string) => {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                             </button>
-                            <button 
+                            <button
                                 @click="deleteVariant(variant)"
                                 class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                                 title="Hapus Varian"
@@ -216,9 +237,9 @@ const getLayerTypeLabel = (fileName: string) => {
                 <form @submit.prevent="submitVariant" class="space-y-4">
                     <div>
                         <label class="mb-1 block text-sm font-bold text-slate-700">Nama Varian</label>
-                        <input 
+                        <input
                             v-model="variantForm.name"
-                            type="text" 
+                            type="text"
                             required
                             placeholder="Contoh: Varian 1 / Black Gum"
                             class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
@@ -228,7 +249,7 @@ const getLayerTypeLabel = (fileName: string) => {
 
                     <div class="mt-8 flex justify-end gap-3">
                         <button type="button" @click="closeModals" class="rounded-xl px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
-                        <button 
+                        <button
                             type="submit"
                             :disabled="variantForm.processing"
                             class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
@@ -256,11 +277,11 @@ const getLayerTypeLabel = (fileName: string) => {
                 </div>
 
                 <form @submit.prevent="submitUpload" class="space-y-6">
-                    <div 
+                    <div
                         class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-10 transition-colors hover:border-indigo-300 hover:bg-indigo-50/30 group"
                     >
-                        <input 
-                            type="file" 
+                        <input
+                            type="file"
                             multiple
                             accept=".svg"
                             class="absolute inset-0 cursor-pointer opacity-0"
@@ -284,7 +305,7 @@ const getLayerTypeLabel = (fileName: string) => {
 
                     <div class="flex justify-end gap-3">
                         <button type="button" @click="closeModals" class="rounded-xl px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 transition-colors">Batal</button>
-                        <button 
+                        <button
                             type="submit"
                             :disabled="uploadForm.processing || uploadForm.files.length === 0"
                             class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
