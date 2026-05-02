@@ -631,8 +631,8 @@
                                     </div>
                                 </div>
 
-                                <div class="p-6 rounded-[32px] bg-gray-50 border border-gray-100 space-y-4">
-                                     <div class="flex items-center justify-between">
+                                <div v-if="fastTrackVisible || customBoxVisible" class="p-6 rounded-[32px] bg-gray-50 border border-gray-100 space-y-4">
+                                     <div v-if="fastTrackVisible" class="flex items-center justify-between">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-primary">
                                                 <span class="material-symbols-outlined text-xl">bolt</span>
@@ -654,9 +654,9 @@
                                         </div>
                                      </div>
 
-                                     <div class="h-[1px] bg-gray-200/50"></div>
+                                     <div v-if="fastTrackVisible && customBoxVisible" class="h-[1px] bg-gray-200/50"></div>
 
-                                     <div class="flex items-center justify-between">
+                                     <div v-if="customBoxVisible" class="flex items-center justify-between">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-primary">
                                                 <span class="material-symbols-outlined text-xl">inventory_2</span>
@@ -1655,6 +1655,14 @@ const toggleCustomBox = () => {
     customBoxEnabled.value = !customBoxEnabled.value;
 };
 
+const hasSeenAddonPopups = ref(false);
+
+watch(activeSideTab, (newTab) => {
+    if (newTab === 'checkout' && !hasSeenAddonPopups.value) {
+        showFastTrackAlert.value = true;
+    }
+});
+
 const validateCheckout = () => {
     formTouched.value = true;
 
@@ -1668,30 +1676,24 @@ const validateCheckout = () => {
         return;
     }
 
-    if (!fastTrackEnabled.value) {
-        showFastTrackAlert.value = true;
-    } else if (!customBoxEnabled.value) {
-        showCustomBoxAlert.value = true;
-    } else {
-        handleSave();
-    }
+    handleSave();
 };
+
+const fastTrackVisible = ref(false);
+const customBoxVisible = ref(false);
 
 const confirmFastTrack = (val: boolean) => {
     fastTrackEnabled.value = val;
+    fastTrackVisible.value = val;
     showFastTrackAlert.value = false;
-
-    if (!customBoxEnabled.value) {
-        showCustomBoxAlert.value = true;
-    } else {
-        handleSave();
-    }
+    showCustomBoxAlert.value = true;
 };
 
 const confirmCustomBox = (val: boolean) => {
     customBoxEnabled.value = val;
+    customBoxVisible.value = val;
     showCustomBoxAlert.value = false;
-    handleSave();
+    hasSeenAddonPopups.value = true;
 };
 
 const fetchCatalog = async () => {
