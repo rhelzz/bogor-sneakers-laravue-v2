@@ -236,9 +236,14 @@
                                                 <div v-if="activeElement.outline.active" class="space-y-3 pt-3 border-t border-gray-50 mt-2">
                                                     <div class="flex items-center justify-between">
                                                         <span class="text-[7px] font-black uppercase text-secondary/40 tracking-widest">Warna & Ukuran</span>
-                                                        <input type="color" v-model="activeElement.outline.color" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
+                                                        <div class="flex items-center gap-2">
+                                                            <input type="color" v-model="activeElement.outline.color" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
+                                                            <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5 shadow-sm focus-within:border-primary transition-colors">
+                                                                <input type="number" v-model.number="activeElement.outline.size" min="1" max="15" class="w-8 text-[10px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                                                                <span class="text-[8px] font-black text-gray-400 select-none">px</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <input type="range" v-model.number="activeElement.outline.size" min="1" max="15" class="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-black">
                                                 </div>
                                             </div>
                                         </div>
@@ -270,8 +275,14 @@
                                                     <input type="color" v-model="activeElement.color" class="w-full h-8 p-0 border-none bg-transparent cursor-pointer">
                                                 </div>
                                                 <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                                                    <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Stroke</label>
-                                                    <input type="color" v-model="activeElement.strokeColor" class="w-full h-8 p-0 border-none bg-transparent cursor-pointer">
+                                                    <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Stroke (Warna & Ukuran)</label>
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="color" v-model="activeElement.strokeColor" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
+                                                        <div class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-0.5 shadow-sm focus-within:border-primary transition-colors flex-grow">
+                                                            <input type="number" v-model.number="activeElement.strokeWidth" min="0" max="15" class="w-full text-[10px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                                                            <span class="text-[8px] font-black text-gray-400 select-none">px</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -284,19 +295,93 @@
                                 <div v-if="activeSideTab === 'layers'" class="space-y-4">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Daftar Layer</span>
-                                        <button
-                                            @click="randomizeColors"
-                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-black hover:text-white rounded-lg transition-all group"
-                                        >
-                                            <span class="material-symbols-outlined text-sm">casino</span>
-                                            <span class="text-[9px] font-black uppercase tracking-tight">Randomize</span>
-                                        </button>
                                     </div>
-
                                     <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 text-center opacity-40">
                                         <span class="material-symbols-outlined text-4xl mb-2">layers_clear</span>
                                         <p class="text-[10px] font-bold uppercase">Tidak ada layer</p>
                                     </div>
+                                    <!-- Image Reference Section -->
+                                    <div class="mb-8 pb-6 border-b border-gray-100">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-sm text-secondary">image_search</span>
+                                                <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Ref. Gambar</span>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <button
+                                                    v-if="referenceImage"
+                                                    @click="clearReferenceImage"
+                                                    class="text-[9px] font-black text-red-500 uppercase hover:underline"
+                                                >Hapus</button>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="!referenceImage" class="relative group">
+                                            <input
+                                                type="file"
+                                                @change="saveReferenceImage"
+                                                accept="image/*"
+                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                            >
+                                            <div class="py-6 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gray-50/50 group-hover:bg-white group-hover:border-primary transition-all">
+                                                <span class="material-symbols-outlined text-gray-300">add_photo_alternate</span>
+                                                <span class="text-[8px] font-black text-secondary uppercase tracking-tighter">Klik untuk tambah referensi</span>
+                                            </div>
+                                        </div>
+
+                                        <div v-else class="space-y-4">
+                                            <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50">
+                                                <img
+                                                    :src="referenceImage"
+                                                    @click="pickColorFromRef"
+                                                    class="w-full h-full object-contain cursor-crosshair transition-transform active:scale-95"
+                                                    title="Klik pada gambar untuk mengambil warna ke layer aktif"
+                                                >
+                                            </div>
+
+                                            <!-- Extracted Palette -->
+                                            <div v-if="extractedPalette.length > 0" class="space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[8px] font-black uppercase text-secondary tracking-widest opacity-50">Ekstraksi Warna</span>
+                                                    <div class="flex items-center gap-3">
+                                                        <button
+                                                            @click="randomizeFromRef"
+                                                            class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
+                                                        >
+                                                            <span class="material-symbols-outlined text-[10px]">casino</span>
+                                                            Acak Palet
+                                                        </button>
+                                                        <button
+                                                            @click="applyExtractedPalette"
+                                                            class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
+                                                        >
+                                                            <span class="material-symbols-outlined text-[10px]">auto_fix</span>
+                                                            Terapkan
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-6 gap-1.5">
+                                                    <button
+                                                        v-for="color in extractedPalette"
+                                                        :key="`ext-${color}`"
+                                                        class="aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
+                                                        :style="{ backgroundColor: color }"
+                                                        @click="activeLayerPickId !== null ? setLayerColor(activeLayerPickId, color) : showToast('Pilih layer aksen dulu')"
+                                                    ></button>
+                                                </div>
+                                            </div>
+
+                                            <p class="text-[8px] text-center font-bold text-secondary uppercase tracking-widest opacity-50">
+                                                {{ activeLayerPickId ? `Klik warna di atas untuk isi Aksen ${activeLayerPickId}` : 'Pilih layer di bawah untuk menggunakan palet' }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 opacity-20">
+                                        <span class="material-symbols-outlined text-6xl mb-4 text-secondary">extension</span>
+                                        <p class="text-xs font-black uppercase tracking-widest text-secondary">Loading Layers...</p>
+                                    </div>
+
                                     <div v-else class="grid gap-2">
                                         <div
                                             v-for="id in layerIds"
@@ -386,71 +471,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Image Reference Section -->
-                                    <div class="mt-8 pt-6 border-t border-gray-100">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <div class="flex items-center gap-2">
-                                                <span class="material-symbols-outlined text-sm text-secondary">image_search</span>
-                                                <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Ref. Gambar</span>
-                                            </div>
-                                            <button
-                                                v-if="referenceImage"
-                                                @click="clearReferenceImage"
-                                                class="text-[9px] font-black text-red-500 uppercase hover:underline"
-                                            >Hapus</button>
-                                        </div>
-
-                                        <div v-if="!referenceImage" class="relative group">
-                                            <input
-                                                type="file"
-                                                @change="saveReferenceImage"
-                                                accept="image/*"
-                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                            >
-                                            <div class="py-6 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gray-50/50 group-hover:bg-white group-hover:border-primary transition-all">
-                                                <span class="material-symbols-outlined text-gray-300">add_photo_alternate</span>
-                                                <span class="text-[8px] font-black text-secondary uppercase tracking-tighter">Klik untuk tambah referensi</span>
-                                            </div>
-                                        </div>
-
-                                        <div v-else class="space-y-4">
-                                            <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50">
-                                                <img
-                                                    :src="referenceImage"
-                                                    @click="pickColorFromRef"
-                                                    class="w-full h-full object-contain cursor-crosshair transition-transform active:scale-95"
-                                                    title="Klik pada gambar untuk mengambil warna ke layer aktif"
-                                                >
-                                            </div>
-
-                                            <!-- Extracted Palette -->
-                                            <div v-if="extractedPalette.length > 0" class="space-y-2">
-                                                <div class="flex items-center justify-between">
-                                                    <span class="text-[8px] font-black uppercase text-secondary tracking-widest opacity-50">Ekstraksi Warna</span>
-                                                    <button
-                                                        @click="applyExtractedPalette"
-                                                        class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
-                                                    >
-                                                        <span class="material-symbols-outlined text-[10px]">auto_fix</span>
-                                                        Terapkan Ke Semua
-                                                    </button>
-                                                </div>
-                                                <div class="grid grid-cols-6 gap-1.5">
-                                                    <button
-                                                        v-for="color in extractedPalette"
-                                                        :key="`ext-${color}`"
-                                                        class="aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
-                                                        :style="{ backgroundColor: color }"
-                                                        @click="activeLayerPickId !== null ? setLayerColor(activeLayerPickId, color) : showToast('Pilih layer aksen dulu')"
-                                                    ></button>
-                                                </div>
-                                            </div>
-
-                                            <p class="text-[8px] text-center font-bold text-secondary uppercase tracking-widest opacity-50">
-                                                {{ activeLayerPickId ? `Klik warna di atas untuk isi Aksen ${activeLayerPickId}` : 'Pilih layer di atas untuk menggunakan palet' }}
-                                            </p>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <!-- Artwork Customization -->
@@ -807,7 +827,8 @@ const saveHistory = () => {
 
         if (node instanceof Konva.Image && node.image()) {
             // Store the source for restoration
-            obj.attrs.imageSrc = (node.image() as HTMLImageElement).src;
+            const img = node.image() as any;
+            obj.attrs.imageSrc = img instanceof HTMLCanvasElement ? img.toDataURL() : img.src;
         }
 
         return obj;
@@ -838,8 +859,8 @@ const fastTrackEnabled = ref(false);
 const customBoxEnabled = ref(false);
 const formTouched = ref(false);
 
-const referenceImage = ref<string | null>(localStorage.getItem('studio_ref_image'));
-const extractedPalette = ref<string[]>(JSON.parse(localStorage.getItem('studio_extracted_palette') || '[]'));
+const referenceImage = ref<string | null>(null);
+const extractedPalette = ref<string[]>([]);
 
 const saveReferenceImage = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -920,12 +941,17 @@ const applyExtractedPalette = () => {
     showToast('Tema warna diterapkan!');
 };
 
-const randomizeColors = () => {
+const randomizeFromRef = () => {
+    if (extractedPalette.value.length === 0) {
+        showToast('Upload referensi gambar dulu');
+        return;
+    }
+
     layerIds.value.forEach(id => {
-        const randomColor = FALLBACK_PALETTE[Math.floor(Math.random() * FALLBACK_PALETTE.length)];
+        const randomColor = extractedPalette.value[Math.floor(Math.random() * extractedPalette.value.length)];
         setLayerColor(id, randomColor);
     });
-    showToast('Warna diacak!');
+    showToast('Warna diacak dari referensi!');
 };
 
 const pickColorFromRef = (e: MouseEvent) => {
@@ -1085,7 +1111,12 @@ function drawFilledLayer(img: HTMLImageElement, color: string, w: number, h: num
     return canvas;
 }
 
-function drawOutlineLayer(img: HTMLImageElement, color: string, size: number, w: number, h: number): HTMLCanvasElement {
+function drawOutlineLayer(img: HTMLImageElement, color: string, size: number, originalW: number, originalH: number): HTMLCanvasElement {
+    const s = size;
+    const padding = s * 2;
+    const w = originalW + padding;
+    const h = originalH + padding;
+
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
@@ -1095,19 +1126,133 @@ function drawOutlineLayer(img: HTMLImageElement, color: string, size: number, w:
         return canvas;
     }
 
-    const dArr = [-1, -1, 0, -1, 1, -1, -1, 0, 1, 0, -1, 1, 0, 1, 1, 1];
-    const s = size;
+    // Draw the image multiple times shifted around a circle to create the outline
+    const dArr = [-1, -1, 0, -1, 1, -1, -1, 0, 1, 0, -1, 1, 0, 1, 1, 1, -0.7, -0.7, 0.7, -0.7, -0.7, 0.7, 0.7, 0.7];
 
+    // First, draw all the shifted images (adding 's' to center the shifts in the padded canvas)
     for (let i = 0; i < dArr.length; i += 2) {
-        ctx.drawImage(img, dArr[i] * s, dArr[i + 1] * s, w, h);
+        ctx.drawImage(img, s + (dArr[i] * s), s + (dArr[i + 1] * s), originalW, originalH);
     }
 
+    // Colorize the expanded shape
     ctx.globalCompositeOperation = 'source-in';
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, w, h);
 
+    // Punch a hole exactly where the original image will sit
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(img, s, s, originalW, originalH);
+
+    // Draw the original image back into the hole
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(img, s, s, originalW, originalH);
+
     return canvas;
 }
+
+const updateKonvaImageElement = async (node: Konva.Image) => {
+    const meta = node.getAttr('meta');
+    if (!meta || meta.type !== 'image') {
+        return;
+    }
+
+    try {
+        let sourceSrc = meta.originalImageSrc;
+        if (!sourceSrc) {
+            const currentImg = node.image() as any;
+            if (currentImg instanceof HTMLImageElement) {
+                sourceSrc = currentImg.src;
+                meta.originalImageSrc = sourceSrc;
+            } else {
+                return;
+            }
+        }
+
+        const img = await loadImage(sourceSrc);
+
+        if (!meta.outline?.active) {
+            // Restore original image dimensions
+            node.image(img);
+            
+            // Recalculate original size based on scale if it was padded
+            if (node.getAttr('hasPadding')) {
+                const s = meta.outline?.size || 0;
+                const originalW = img.naturalWidth;
+                
+                // Assume node width is currently padded. We need to shrink it back.
+                const currentW = node.width();
+                const paddedW = originalW + (s * 2);
+                const ratio = currentW / paddedW;
+                
+                node.width(originalW * ratio);
+                node.height(img.naturalHeight * ratio);
+                
+                // Adjust position back
+                node.x(node.x() + (s * ratio));
+                node.y(node.y() + (s * ratio));
+                
+                node.setAttr('hasPadding', false);
+            }
+            
+            mainLayer?.draw();
+            return;
+        }
+
+        const s = meta.outline.size;
+        const originalW = img.naturalWidth;
+        const originalH = img.naturalHeight;
+
+        // drawOutlineLayer handles padding and returns the full combined canvas
+        const combinedCanvas = drawOutlineLayer(img, meta.outline.color, s, originalW, originalH);
+        
+        node.image(combinedCanvas);
+        
+        if (!node.getAttr('hasPadding')) {
+             const padding = s * 2; 
+             const w = originalW + padding;
+             const h = originalH + padding;
+             
+             // Calculate ratio based on current visual width vs original natural width
+             const currentW = node.width();
+             const ratio = currentW / originalW;
+             
+             // Adjust visual size to match the new padded canvas
+             node.width(w * ratio);
+             node.height(h * ratio);
+             
+             // Offset position so it doesn't appear to jump
+             node.x(node.x() - (s * ratio));
+             node.y(node.y() - (s * ratio));
+             
+             node.setAttr('hasPadding', true);
+             node.setAttr('paddingSize', s);
+        } else {
+             // It already has padding, but the padding size might have changed
+             const oldS = node.getAttr('paddingSize') || 0;
+             if (oldS !== s) {
+                 const diff = s - oldS;
+                 const paddedW = originalW + (oldS * 2);
+                 const currentW = node.width();
+                 const ratio = currentW / paddedW;
+                 
+                 const newPaddedW = originalW + (s * 2);
+                 const newPaddedH = originalH + (s * 2);
+                 
+                 node.width(newPaddedW * ratio);
+                 node.height(newPaddedH * ratio);
+                 
+                 node.x(node.x() - (diff * ratio));
+                 node.y(node.y() - (diff * ratio));
+                 
+                 node.setAttr('paddingSize', s);
+             }
+        }
+
+        mainLayer?.draw();
+    } catch (err) {
+        console.error('Failed to update image outline:', err);
+    }
+};
 
 const initKonva = () => {
     if (!konvaContainerRef.value) {
@@ -1182,6 +1327,15 @@ const initKonva = () => {
             const meta = target.getAttr('meta');
 
             if (meta) {
+                // Ensure backward compatibility for images
+                if (meta.type === 'image' && !meta.outline) {
+                    meta.outline = { active: false, color: '#ffffff', size: 3 };
+                }
+                // Ensure backward compatibility for text
+                if (meta.type === 'text') {
+                    if (meta.strokeWidth === undefined) meta.strokeWidth = 0;
+                    if (!meta.strokeColor) meta.strokeColor = '#ffffff';
+                }
                 activeElement.value = meta;
                 transformer?.nodes([target as Konva.Shape]);
             }
@@ -1383,6 +1537,8 @@ const addTextElement = () => {
         fontFamily: 'Lexend',
         fontStyle: '900',
         fill: '#000000',
+        stroke: '#ffffff',
+        strokeWidth: 0,
         x: stage.width() / 2 - 100,
         y: stage.height() / 2,
         draggable: true,
@@ -1390,7 +1546,7 @@ const addTextElement = () => {
         align: 'center'
     });
 
-    const meta = { id, type: 'text', text: 'BOGOR SNEAKER', color: '#000000', strokeColor: '#ffffff', fontFamily: 'Lexend' };
+    const meta = { id, type: 'text', text: 'BOGOR SNEAKER', color: '#000000', strokeColor: '#ffffff', strokeWidth: 0, fontFamily: 'Lexend' };
     textNode.setAttr('meta', meta);
 
     elementsGroup.add(textNode);
@@ -1453,7 +1609,17 @@ const addUploadAsElement = async (id: string) => {
             imageSmoothingEnabled: true
         });
 
-        const meta = { id: Math.random().toString(36).slice(2), type: 'image', sourceId: id };
+        const meta = {
+            id: Math.random().toString(36).slice(2),
+            type: 'image',
+            sourceId: id,
+            originalImageSrc: media.src, // Store original source to re-render stroke
+            outline: {
+                active: false,
+                color: '#ffffff',
+                size: 3
+            }
+        };
         konvaImg.setAttr('meta', meta);
 
         elementsGroup.add(konvaImg);
@@ -1709,7 +1875,14 @@ const restoreState = async (stateStr: string) => {
                      attrs.image = img;
                 }
 
-                node = new Konva.Image(attrs);
+                const konvaImg = new Konva.Image(attrs);
+                
+                // If it has outline, re-render it from original source
+                if (attrs.meta?.type === 'image' && attrs.meta.outline?.active) {
+                    await updateKonvaImageElement(konvaImg);
+                }
+                
+                node = konvaImg;
             }
 
             if (node) {
@@ -1783,6 +1956,19 @@ onMounted(async () => {
     initKonva();
     await fetchCatalog();
     window.addEventListener('keydown', handleKeyDown);
+
+    // Initialize from localStorage
+    if (typeof window !== 'undefined') {
+        referenceImage.value = localStorage.getItem('studio_ref_image');
+        const storedPalette = localStorage.getItem('studio_extracted_palette');
+        if (storedPalette) {
+            try {
+                extractedPalette.value = JSON.parse(storedPalette);
+            } catch (e) {
+                console.warn('Failed to parse studio_extracted_palette', e);
+            }
+        }
+    }
 });
 
 onUnmounted(() => {
@@ -1827,6 +2013,30 @@ watch(() => activeElement.value?.color, (newColor) => {
     }
 });
 
+watch(() => activeElement.value?.strokeColor, (newStrokeColor) => {
+    if (activeElement.value?.type === 'text') {
+        const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+
+        if (node) {
+            saveHistory();
+            (node as Konva.Text).stroke(newStrokeColor);
+            mainLayer?.draw();
+        }
+    }
+});
+
+watch(() => activeElement.value?.strokeWidth, (newStrokeWidth) => {
+    if (activeElement.value?.type === 'text') {
+        const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
+
+        if (node) {
+            saveHistory();
+            (node as Konva.Text).strokeWidth(newStrokeWidth);
+            mainLayer?.draw();
+        }
+    }
+});
+
 watch(() => activeElement.value?.fontFamily, (newFont) => {
     if (activeElement.value?.type === 'text' && newFont) {
         const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id);
@@ -1843,6 +2053,16 @@ watch(() => activeElement.value?.fontFamily, (newFont) => {
         }
     }
 });
+
+watch(() => activeElement.value?.outline, async (newOutline) => {
+    if (activeElement.value?.type === 'image' && newOutline) {
+        const node = elementsGroup?.findOne((n: any) => n.getAttr('meta')?.id === activeElement.value.id) as Konva.Image;
+        if (node) {
+            await updateKonvaImageElement(node);
+            saveHistory(); // Save history AFTER update
+        }
+    }
+}, { deep: true });
 </script>
 
 <style scoped>
