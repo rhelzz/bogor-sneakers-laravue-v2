@@ -47,4 +47,9 @@ return [
         'follower_cache_ttl' => env('TIKTOK_FOLLOWER_CACHE_TTL', 900),
     ],
 
+    'rajaongkir' => [
+        'key' => env('RAJAONGKIR_API_KEY'),
+        'base_url' => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
+    ],
+
 ];

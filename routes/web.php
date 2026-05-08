@@ -14,6 +14,15 @@ use App\Http\Controllers\WhatsAppAdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\ShippingController;
+
+// ... other imports
+
+Route::prefix('shipping')->group(function () {
+    Route::get('/destinations', [ShippingController::class, 'searchDestinations']);
+    Route::post('/calculate', [ShippingController::class, 'calculateCost']);
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog');
 Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])

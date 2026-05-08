@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'shipping/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
