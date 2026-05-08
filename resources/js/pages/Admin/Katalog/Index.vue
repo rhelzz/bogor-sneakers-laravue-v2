@@ -7,6 +7,7 @@ import { katalog } from '@/routes/admin';
 interface CatalogItem {
     id: number;
     name: string;
+    shoe_model_name: string | null;
     collection: string;
     price: number;
     status: 'ready' | 'po' | 'habis';
@@ -16,6 +17,7 @@ interface CatalogItem {
 
 const props = defineProps<{
     catalogs: CatalogItem[];
+    shoeModels: { id: number; name: string }[];
 }>();
 
 const viewMode = ref<'table' | 'card'>('table');
@@ -151,6 +153,7 @@ const getStatusLabel = (status: string) => {
                                 <td class="px-6 py-4">
                                     <div class="max-w-xs">
                                         <p class="font-bold text-slate-800">{{ item.name }}</p>
+                                        <p v-if="item.shoe_model_name" class="text-[10px] font-bold text-indigo-500 uppercase">{{ item.shoe_model_name }}</p>
                                         <p class="text-xs text-slate-500">ID: {{ item.id }}</p>
                                     </div>
                                 </td>
@@ -216,7 +219,10 @@ const getStatusLabel = (status: string) => {
                         </div>
                     </div>
                     <div class="p-5">
-                        <p class="mb-1 text-[11px] font-bold tracking-widest text-indigo-600 uppercase">{{ item.collection }}</p>
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-[11px] font-bold tracking-widest text-indigo-600 uppercase">{{ item.collection }}</p>
+                            <p v-if="item.shoe_model_name" class="text-[10px] font-bold text-slate-400 uppercase">{{ item.shoe_model_name }}</p>
+                        </div>
                         <h4 class="mb-2 line-clamp-1 font-bold text-slate-800">{{ item.name }}</h4>
                         <div class="flex items-center justify-between border-t border-slate-100 pt-4">
                             <p class="font-bold text-slate-900">{{ formatCurrency(item.price) }}</p>

@@ -1,10 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { katalog } from '@/routes/admin';
 
+interface ShoeModel {
+    id: number;
+    name: string;
+}
+
+const props = defineProps<{
+    shoeModels: ShoeModel[];
+}>();
+
+const isSubmitting = ref(false);
+
 const form = useForm({
+    shoe_model_id: null as number | null,
     name: '',
     collection: '',
     price: 0,
@@ -16,6 +28,37 @@ const form = useForm({
     thumbnail: null as File | null,
     images: [] as File[],
 });
+
+// Watch min_size to handle disabled state logic
+watch(() => form.min_size, (newMin) => {
+    const minVal = typeof newMin === 'number' ? newMin : parseInt(newMin as string);
+    
+    if (isNaN(minVal)) {
+        form.max_size = '';
+        return;
+    }
+});
+
+const handleMaxSizeBlur = () => {
+    const minVal = typeof form.min_size === 'number' ? form.min_size : parseInt(form.min_size as string);
+    const maxVal = typeof form.max_size === 'number' ? form.max_size : parseInt(form.max_size as string);
+
+    if (isNaN(minVal) || isNaN(maxVal)) return;
+
+    if (maxVal <= minVal) {
+        form.max_size = minVal + 1;
+    }
+};
+
+const isDropdownOpen = ref(false);
+const selectedModel = computed(() => 
+    props.shoeModels.find(m => m.id === form.shoe_model_id)
+);
+
+const selectModel = (id: number) => {
+    form.shoe_model_id = id;
+    isDropdownOpen.value = false;
+};
 
 const formattedPrice = computed({
     get: () => new Intl.NumberFormat('id-ID').format(form.price),
@@ -59,12 +102,43 @@ const removeDetailImage = (index: number) => {
 };
 
 const submit = () => {
-    form.post(route('admin.katalog.store'), {
-        forceFormData: true,
-        onSuccess: () => {
-            // handle success
-        },
-    });
+    if (isSubmitting.value) return;
+
+    const min = typeof form.min_size === 'number' ? form.min_size : parseInt(form.min_size as string);
+    const max = typeof form.max_size === 'number' ? form.max_size : parseInt(form.max_size as string);
+    
+    const sizes: number[] = [];
+    if (!isNaN(min) && !isNaN(max) && min <= max) {
+        for (let s = min; s <= max; s++) {
+            sizes.push(s);
+        }
+    }
+
+    isSubmitting.value = true;
+
+    // Fake loading delay of 1.5 seconds
+    setTimeout(() => {
+        form.transform((data) => ({
+            ...data,
+            sizes: sizes,
+        })).post(katalog.store.url(), {
+            forceFormData: true,
+            onSuccess: () => {
+                isSubmitting.value = false;
+                // Redirection is handled by Inertia via the controller normally, 
+                // but we can ensure it if needed or the controller redirect will kick in.
+            },
+            onError: () => {
+                isSubmitting.value = false;
+                alert('Gagal menambahkan produk. Silakan periksa kembali form Anda.');
+            },
+            onFinish: () => {
+                // Keep submitting true if successful to prevent double clicks during redirect
+                if (form.wasSuccessful) return;
+                isSubmitting.value = false;
+            }
+        });
+    }, 1500);
 };
 </script>
 
@@ -357,6 +431,69 @@ const submit = () => {
                                     </select>
                                 </div>
 
+                                <!-- Shoe Model Dropdown -->
+                                <div class="space-y-2">
+                                    <label
+                                        class="text-sm font-bold text-slate-700"
+                                        >Model Sepatu</label
+                                    >
+                                    <div class="relative">
+                                        <button
+                                            type="button"
+                                            @click="isDropdownOpen = !isDropdownOpen"
+                                            class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition-all outline-none focus:border-indigo-500 focus:bg-white"
+                                            :class="{ 'ring-2 ring-indigo-500/10 border-indigo-500': isDropdownOpen }"
+                                        >
+                                            <span :class="selectedModel ? 'text-slate-900' : 'text-slate-400'">
+                                                {{ selectedModel ? selectedModel.name : 'Pilih Model Sepatu' }}
+                                            </span>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5 text-slate-400 transition-transform duration-300"
+                                                :class="{ 'rotate-180': isDropdownOpen }"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Dropdown Menu -->
+                                        <transition
+                                            enter-active-class="transition duration-200 ease-in-out"
+                                            enter-from-class="transform scale-95 opacity-0 -translate-y-2"
+                                            enter-to-class="transform scale-100 opacity-100 translate-y-0"
+                                            leave-active-class="transition duration-150 ease-in-out"
+                                            leave-from-class="transform scale-100 opacity-100 translate-y-0"
+                                            leave-to-class="transform scale-95 opacity-0 -translate-y-2"
+                                        >
+                                            <div
+                                                v-if="isDropdownOpen"
+                                                class="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                                            >
+                                                <div class="max-h-60 overflow-y-auto py-1">
+                                                    <button
+                                                        v-for="model in shoeModels"
+                                                        :key="model.id"
+                                                        type="button"
+                                                        @click="selectModel(model.id)"
+                                                        class="flex w-full items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                                        :class="{ 'bg-indigo-50 text-indigo-600 font-bold': form.shoe_model_id === model.id }"
+                                                    >
+                                                        {{ model.name }}
+                                                    </button>
+                                                    <div v-if="shoeModels.length === 0" class="px-4 py-3 text-xs text-slate-400 text-center italic">
+                                                        Belum ada model sepatu aktif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                    <!-- Overlay to close dropdown -->
+                                    <div v-if="isDropdownOpen" @click="isDropdownOpen = false" class="fixed inset-0 z-40 cursor-default"></div>
+                                </div>
+
                                 <!-- Sizes -->
                                 <div class="space-y-2">
                                     <label
@@ -374,7 +511,10 @@ const submit = () => {
                                             v-model.number="form.max_size"
                                             type="number"
                                             placeholder="Max"
-                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center text-sm outline-none focus:border-indigo-500 focus:bg-white"
+                                            :disabled="!form.min_size"
+                                            :min="(typeof form.min_size === 'number' ? form.min_size : parseInt(form.min_size as string)) + 1"
+                                            @blur="handleMaxSizeBlur"
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center text-sm outline-none focus:border-indigo-500 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                                         />
                                     </div>
                                 </div>
@@ -423,23 +563,33 @@ const submit = () => {
                         <div class="flex flex-col gap-3">
                             <button
                                 type="submit"
-                                class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-900 px-8 py-4 text-sm font-bold text-white transition-all hover:bg-indigo-600 hover:shadow-xl hover:shadow-indigo-200"
+                                :disabled="isSubmitting"
+                                class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-slate-900 px-8 py-4 text-sm font-bold text-white transition-all enabled:hover:bg-indigo-600 enabled:hover:shadow-xl enabled:hover:shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                <span>Simpan Produk</span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4 transition-transform group-hover:translate-x-1"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                    />
-                                </svg>
+                                <template v-if="isSubmitting">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Menyimpan...</span>
+                                </template>
+                                <template v-else>
+                                    <span>Simpan Produk</span>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                        />
+                                    </svg>
+                                </template>
                             </button>
                             <Link
                                 :href="katalog.url()"

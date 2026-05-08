@@ -43,9 +43,7 @@ Route::prefix('admin')->group(function () {
     Route::delete('/tiktok-feed/{tiktokFeed}', [TikTokFeedController::class, 'destroy'])->name('admin.tiktok-feed.destroy');
 
     Route::get('/katalog', [KatalogController::class, 'adminIndex'])->name('admin.katalog');
-    Route::get('/katalog/create', function () {
-        return Inertia::render('Admin/Katalog/Create');
-    })->name('admin.katalog.create');
+    Route::get('/katalog/create', [KatalogController::class, 'create'])->name('admin.katalog.create');
     Route::post('/katalog', [KatalogController::class, 'store'])->name('admin.katalog.store');
     Route::put('/katalog/{catalog}', [KatalogController::class, 'update'])->name('admin.katalog.update');
     Route::delete('/katalog/{catalog}', [KatalogController::class, 'destroy'])->name('admin.katalog.destroy');

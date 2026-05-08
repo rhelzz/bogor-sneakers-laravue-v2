@@ -129,7 +129,7 @@
                             </div>
 
                             <div
-                                class="mt-4 grid grid-cols-1 gap-2 text-xs text-hai sm:grid-cols-1"
+                                class="mt-4 grid grid-cols-1 gap-2 text-xs text-hai sm:grid-cols-2"
                             >
                                 <div
                                     class="rounded-xl border border-sumi/10 bg-washi p-3"
@@ -139,6 +139,17 @@
                                     </p>
                                     <p class="font-semibold text-sumi">
                                         {{ product.collectionLabel }}
+                                    </p>
+                                </div>
+                                <div
+                                    v-if="product.shoe_model_name"
+                                    class="rounded-xl border border-sumi/10 bg-washi p-3"
+                                >
+                                    <p class="mb-1 tracking-[0.08em] uppercase">
+                                        Model
+                                    </p>
+                                    <p class="font-semibold text-sumi">
+                                        {{ product.shoe_model_name }}
                                     </p>
                                 </div>
                             </div>
@@ -249,7 +260,8 @@ const props = defineProps<{
 }>();
 const page = usePage();
 
-const availableSizes = Array.from({ length: 15 }, (_, idx) => idx + 36);
+const product = computed(() => props.product);
+const availableSizes = computed(() => product.value?.sizes ?? []);
 
 const contacts = computed<FloatingContact[]>(() => {
     const sharedContacts = page.props.floatingContacts;
@@ -283,7 +295,6 @@ const orders = ref<FloatingOrder[]>([
     },
 ]);
 
-const product = computed(() => props.product);
 const galleryImages = computed(() => product.value?.images ?? []);
 
 const selectedSize = ref<number | null>(null);

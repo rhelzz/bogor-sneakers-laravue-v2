@@ -63,7 +63,7 @@ class KatalogController extends Controller
     public function adminIndex(): Response
     {
         $catalogs = Catalog::query()
-            ->with(['images', 'sizes'])
+            ->with(['images', 'sizes', 'shoeModel'])
             ->ordered()
             ->get(['*']);
 
@@ -72,21 +72,40 @@ class KatalogController extends Controller
                 ->map(fn (Catalog $catalog): array => $this->serializeAdminCatalog($catalog))
                 ->values()
                 ->all(),
+            'shoeModels' => \App\Models\ShoeModel::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->values()
+                ->all(),
             'maxImages' => self::MAX_IMAGES,
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Katalog/Create', [
+            'shoeModels' => \App\Models\ShoeModel::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->values()
+                ->all(),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
     {
         $validated = $this->validateCatalogPayload($request);
 
         /** @var array<int, UploadedFile> $images */
         $images = $request->file('images', []);
 
-        $catalog = DB::transaction(function () use ($validated, $images): Catalog {
+        DB::transaction(function () use ($validated, $images): void {
             $sortOrder = (int) ($validated['sort_order'] ?? ((Catalog::max('sort_order') ?? -1) + 1));
 
             $catalog = Catalog::create([
+                'shoe_model_id' => isset($validated['shoe_model_id']) ? (int) $validated['shoe_model_id'] : null,
                 'name' => trim((string) $validated['name']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
@@ -105,14 +124,9 @@ class KatalogController extends Controller
 
             $this->syncSizes($catalog, $validated['sizes'] ?? []);
             $this->appendImages($catalog, $images);
-
-            return $catalog->fresh(['images', 'sizes']);
         });
 
-        return response()->json([
-            'message' => 'Produk katalog berhasil ditambahkan.',
-            'catalog' => $this->serializeAdminCatalog($catalog),
-        ], 201);
+        return redirect()->route('admin.katalog')->with('success', 'Produk katalog berhasil ditambahkan.');
     }
 
     public function update(Request $request, Catalog $catalog): JsonResponse
@@ -121,6 +135,7 @@ class KatalogController extends Controller
 
         $updated = DB::transaction(function () use ($catalog, $validated): Catalog {
             $catalog->update([
+                'shoe_model_id' => isset($validated['shoe_model_id']) ? (int) $validated['shoe_model_id'] : null,
                 'name' => trim((string) $validated['name']),
                 'collection' => trim((string) $validated['collection']),
                 'description' => $this->normalizeNullableText($validated['description'] ?? null),
@@ -139,7 +154,7 @@ class KatalogController extends Controller
 
             $this->syncSizes($catalog, $validated['sizes'] ?? []);
 
-            return $catalog->fresh(['images', 'sizes']);
+            return $catalog->fresh(['images', 'sizes', 'shoeModel']);
         });
 
         return response()->json([
@@ -323,6 +338,7 @@ class KatalogController extends Controller
     private function validateCatalogPayload(Request $request, ?Catalog $catalog = null): array
     {
         return $request->validate([
+            'shoe_model_id' => ['nullable', 'integer', 'exists:shoe_models,id'],
             'name' => ['required', 'string', 'max:160'],
             'collection' => ['required', 'string', 'max:120'],
             'description' => ['nullable', 'string'],
@@ -342,6 +358,7 @@ class KatalogController extends Controller
             'images' => ['nullable', 'array', 'max:6'],
             'images.*' => ['required', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
         ], [
+            'shoe_model_id.exists' => 'Model sepatu yang dipilih tidak valid.',
             'name.required' => 'Nama katalog wajib diisi.',
             'collection.required' => 'Koleksi wajib diisi.',
             'price.required' => 'Harga wajib diisi.',
@@ -626,6 +643,7 @@ class KatalogController extends Controller
             'public_id' => $catalog->public_id,
             'slug' => $catalog->slug,
             'name' => $catalog->name,
+            'shoe_model_name' => $catalog->shoeModel?->name,
             'collection' => $this->toKey($collectionLabel),
             'collectionLabel' => $collectionLabel,
             'description' => $catalog->description,
@@ -675,6 +693,8 @@ class KatalogController extends Controller
     {
         return [
             'id' => $catalog->id,
+            'shoe_model_id' => $catalog->shoe_model_id,
+            'shoe_model_name' => $catalog->shoeModel?->name,
             'public_id' => $catalog->public_id,
             'route_key' => $catalog->route_key,
             'slug' => $catalog->slug,

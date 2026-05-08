@@ -12,10 +12,8 @@ export interface CatalogPublicItem {
     route_key: string
     public_id: string
     slug: string
-    code: string
     name: string
-    brand: string
-    brandLabel: string
+    shoe_model_name: string | null
     collection: string
     collectionLabel: string
     description: string | null
@@ -36,12 +34,12 @@ export interface CatalogDetailItem extends CatalogPublicItem {
 
 export interface CatalogAdminItem {
     id: number
+    shoe_model_id: number | null
+    shoe_model_name: string | null
     public_id: string
     route_key: string
     slug: string
     name: string
-    code: string
-    brand: string
     collection: string
     card_image_path: string | null
     card_image_url: string | null
