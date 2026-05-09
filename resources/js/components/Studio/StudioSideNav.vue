@@ -12,7 +12,7 @@
             >
                 <span class="material-symbols-outlined text-2xl transition-transform duration-300 group-hover:scale-110">layers</span>
                 <!-- Custom Tooltip -->
-                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[10px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
+                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[11px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
                     Layers
                     <div class="absolute right-full top-1/2 -translate-y-1/2 border-8 border-transparent border-r-sumi"></div>
                 </span>
@@ -29,7 +29,7 @@
                 title="Artwork"
             >
                 <span class="material-symbols-outlined text-2xl transition-transform duration-300 group-hover:scale-110">palette</span>
-                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[10px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
+                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[11px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
                     Artwork
                     <div class="absolute right-full top-1/2 -translate-y-1/2 border-8 border-transparent border-r-sumi"></div>
                 </span>
@@ -45,7 +45,7 @@
                 title="Text"
             >
                 <span class="material-symbols-outlined text-2xl transition-transform duration-300 group-hover:scale-110">title</span>
-                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[10px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
+                <span class="absolute left-full ml-4 px-3 py-1.5 bg-sumi text-washi text-[11px] font-montserrat font-bold rounded-lg opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 pointer-events-none transition-all duration-300 whitespace-nowrap z-50 uppercase tracking-[0.2em] shadow-xl">
                     Teks
                     <div class="absolute right-full top-1/2 -translate-y-1/2 border-8 border-transparent border-r-sumi"></div>
                 </span>
