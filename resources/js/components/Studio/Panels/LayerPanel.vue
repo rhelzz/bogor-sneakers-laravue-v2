@@ -92,6 +92,48 @@
             <div class="h-[1px] flex-grow bg-gray-100"></div>
         </div>
 
+        <!-- Global Outline Control -->
+        <div v-if="layerIds.length > 0" class="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 flex items-center justify-between transition-all duration-300 hover:shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="relative flex items-center">
+                    <input
+                        type="checkbox"
+                        id="global-outline"
+                        :checked="isGlobalOutlineActive"
+                        @change="toggleGlobalOutline"
+                        class="w-4 h-4 rounded border-gray-300 text-indigo focus:ring-indigo transition-all cursor-pointer"
+                    >
+                </div>
+                <label for="global-outline" class="text-[9px] font-black uppercase text-sumi tracking-widest cursor-pointer hover:text-indigo transition-colors">Outline Semua Layer</label>
+            </div>
+            
+            <transition
+                enter-active-class="transition-all duration-300 ease-out"
+                enter-from-class="opacity-0 translate-x-4 scale-95"
+                enter-to-class="opacity-100 translate-x-0 scale-100"
+            >
+                <div v-if="isGlobalOutlineActive" class="flex items-center gap-3">
+                    <div class="relative w-6 h-6 rounded-full overflow-hidden border-2 border-white shadow-sm hover:scale-110 transition-transform">
+                        <input
+                            type="color"
+                            :value="globalOutlineColor"
+                            @input="updateGlobalOutlineColor"
+                            class="absolute inset-[-4px] w-[200%] h-[200%] cursor-pointer"
+                            title="Warna Outline Global"
+                        >
+                    </div>
+                    <input
+                        type="range"
+                        :value="globalOutlineSize"
+                        @input="updateGlobalOutlineSize"
+                        min="1" max="10"
+                        class="w-20 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo"
+                        title="Ukuran Outline Global"
+                    >
+                </div>
+            </transition>
+        </div>
+
         <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 opacity-30">
             <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center animate-pulse">
                 <span class="material-symbols-outlined text-4xl text-usuzumi">extension</span>
@@ -191,10 +233,11 @@
                                         type="checkbox"
                                         :id="`outline-${id}`"
                                         v-model="layerOutlines[id].active"
+                                        @change="emit('save-history')"
                                         class="w-4 h-4 rounded border-gray-300 text-indigo focus:ring-indigo transition-all cursor-pointer"
                                     >
                                 </div>
-                                <label :for="`outline-${id}`" class="text-[9px] font-black uppercase text-sumi tracking-widest cursor-pointer">Efek Outline</label>
+                                <label :for="`outline-${id}`" class="text-[9px] font-black uppercase text-sumi tracking-widest cursor-pointer hover:text-indigo transition-colors">Efek Outline</label>
                             </div>
                             <transition
                                 enter-active-class="transition-all duration-300 ease-out"
@@ -202,16 +245,18 @@
                                 enter-to-class="opacity-100 translate-x-0 scale-100"
                             >
                                 <div v-if="layerOutlines[id].active" class="flex items-center gap-3">
-                                    <div class="relative w-6 h-6 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                                    <div class="relative w-6 h-6 rounded-full overflow-hidden border-2 border-white shadow-sm hover:scale-110 transition-transform">
                                         <input
                                             type="color"
                                             v-model="layerOutlines[id].color"
+                                            @change="emit('save-history')"
                                             class="absolute inset-[-4px] w-[200%] h-[200%] cursor-pointer"
                                         >
                                     </div>
                                     <input
                                         type="range"
                                         v-model.number="layerOutlines[id].size"
+                                        @change="emit('save-history')"
                                         min="1" max="10"
                                         class="w-20 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo"
                                     >
@@ -241,6 +286,53 @@ const activeLayerPickId = ref<number | null>(null);
 const referenceImage = ref<string | null>(null);
 const extractedPalette = ref<string[]>([]);
 const layerIds = computed(() => currentModelMeta.value?.layers.map(l => l.id) || []);
+
+const isGlobalOutlineActive = computed(() => {
+    if (layerIds.value.length === 0) return false;
+    return layerIds.value.every(id => layerOutlines.value[id]?.active);
+});
+
+const globalOutlineColor = computed(() => {
+    const firstActive = layerIds.value.find(id => layerOutlines.value[id]?.active);
+    return firstActive ? layerOutlines.value[firstActive].color : '#000000';
+});
+
+const globalOutlineSize = computed(() => {
+    const firstActive = layerIds.value.find(id => layerOutlines.value[id]?.active);
+    return firstActive ? layerOutlines.value[firstActive].size : 2;
+});
+
+const toggleGlobalOutline = (e: Event) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    layerIds.value.forEach(id => {
+        if (!layerOutlines.value[id]) {
+            layerOutlines.value[id] = { active: checked, color: '#000000', size: 2 };
+        } else {
+            layerOutlines.value[id].active = checked;
+        }
+    });
+    emit('save-history');
+};
+
+const updateGlobalOutlineColor = (e: Event) => {
+    const color = (e.target as HTMLInputElement).value;
+    layerIds.value.forEach(id => {
+        if (layerOutlines.value[id] && layerOutlines.value[id].active) {
+            layerOutlines.value[id].color = color;
+        }
+    });
+    emit('save-history');
+};
+
+const updateGlobalOutlineSize = (e: Event) => {
+    const size = parseInt((e.target as HTMLInputElement).value);
+    layerIds.value.forEach(id => {
+        if (layerOutlines.value[id] && layerOutlines.value[id].active) {
+            layerOutlines.value[id].size = size;
+        }
+    });
+    emit('save-history');
+};
 
 const FALLBACK_PALETTE = [
     '#1a1a1a', '#f7f5f0', '#7c8c5a', '#2c4a6e', '#d4a5a5', '#3d5a4c', '#8a8a8a', '#4a4a4a',
