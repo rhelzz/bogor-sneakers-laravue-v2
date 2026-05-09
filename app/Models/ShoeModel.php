@@ -25,6 +25,11 @@ class ShoeModel extends Model
         return $this->hasMany(ShoeVariant::class);
     }
 
+    public function types(): HasMany
+    {
+        return $this->hasMany(ShoeType::class);
+    }
+
     public function catalogs(): HasMany
     {
         return $this->hasMany(Catalog::class);

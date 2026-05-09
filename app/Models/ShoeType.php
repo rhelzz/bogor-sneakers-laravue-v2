@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ShoeVariant extends Model
+class ShoeType extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'shoe_model_id',
-        'shoe_type_id',
         'name',
+        'slug',
     ];
 
     public function model(): BelongsTo
@@ -22,13 +22,8 @@ class ShoeVariant extends Model
         return $this->belongsTo(ShoeModel::class, 'shoe_model_id');
     }
 
-    public function type(): BelongsTo
+    public function variants(): HasMany
     {
-        return $this->belongsTo(ShoeType::class, 'shoe_type_id');
-    }
-
-    public function svgs(): HasMany
-    {
-        return $this->hasMany(ShoeVariantSvg::class);
+        return $this->hasMany(ShoeVariant::class);
     }
 }
