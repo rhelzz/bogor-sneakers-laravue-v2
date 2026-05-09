@@ -383,7 +383,7 @@
 
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import {
     dashboard,
     carouselHome,
@@ -397,8 +397,8 @@ import {
 
 const page = usePage();
 const isSidebarOpen = ref(true);
-const isContentMenuOpen = ref(true);
-const isProductMenuOpen = ref(true);
+const isContentMenuOpen = ref(false);
+const isProductMenuOpen = ref(false);
 
 const subMenuItems = computed(() => [
     { label: 'Carousel Home', href: carouselHome.url() },
@@ -414,15 +414,44 @@ const productSubMenuItems = computed(() => [
 ]);
 
 const isUrlActive = (href: string) => {
-    return page.url === href || page.url.startsWith(href + '?');
+    // Exact match or matches as a parent path (e.g. /admin/model-sepatu/1/variants matches /admin/model-sepatu)
+    return page.url === href || page.url.startsWith(href + '/') || page.url.startsWith(href + '?');
 };
+
+const checkActiveAccordion = () => {
+    // Check if any product submenu item is active
+    const isProductActive = productSubMenuItems.value.some(item => isUrlActive(item.href));
+    // Check if any content submenu item is active
+    const isContentActive = subMenuItems.value.some(item => isUrlActive(item.href));
+
+    if (isProductActive) {
+        isProductMenuOpen.value = true;
+        isContentMenuOpen.value = false;
+    } else if (isContentActive) {
+        isContentMenuOpen.value = true;
+        isProductMenuOpen.value = false;
+    } else {
+        // If on dashboard or other pages, close all
+        isProductMenuOpen.value = false;
+        isContentMenuOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    checkActiveAccordion();
+});
+
+// Watch for URL changes to update accordion automatically
+watch(() => page.url, () => {
+    checkActiveAccordion();
+});
 
 const getSubMenuClasses = (href: string) => {
     const active = isUrlActive(href);
     const baseClasses =
         'group relative flex items-center rounded-lg px-4 py-2.5 font-semibold transition-all duration-300 ease-in-out before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white';
     const stateClasses = active
-        ? 'text-[15px] text-white'
+        ? 'text-[15px] text-white bg-white/5'
         : 'text-sm text-slate-400';
 
     return `${baseClasses} ${stateClasses}`;
@@ -434,24 +463,31 @@ const toggleSidebar = () => {
     if (!isSidebarOpen.value) {
         isContentMenuOpen.value = false;
         isProductMenuOpen.value = false;
+    } else {
+        // Re-check which one should be open when opening sidebar
+        checkActiveAccordion();
     }
 };
 
 const toggleContentMenu = () => {
     if (isSidebarOpen.value) {
         isContentMenuOpen.value = !isContentMenuOpen.value;
+        if (isContentMenuOpen.value) isProductMenuOpen.value = false;
     } else {
         isSidebarOpen.value = true;
         isContentMenuOpen.value = true;
+        isProductMenuOpen.value = false;
     }
 };
 
 const toggleProductMenu = () => {
     if (isSidebarOpen.value) {
         isProductMenuOpen.value = !isProductMenuOpen.value;
+        if (isProductMenuOpen.value) isContentMenuOpen.value = false;
     } else {
         isSidebarOpen.value = true;
         isProductMenuOpen.value = true;
+        isContentMenuOpen.value = false;
     }
 };
 </script>
