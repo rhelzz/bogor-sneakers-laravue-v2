@@ -8,7 +8,7 @@
                             {{ activeElement.type === 'text' ? 'text_fields' : 'Category' }}
                         </span>
                     </div>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-black">
+                    <span class="text-[11px] font-black uppercase tracking-widest text-black">
                         Edit {{ activeElement.type === 'text' ? 'Teks' : 'Logo' }}
                     </span>
                 </div>
@@ -29,18 +29,18 @@
                                 @change="$emit('updateImageOutline')"
                                 class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all"
                             >
-                            <label :for="`logo-outline-${activeElement.id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline Logo</label>
+                            <label :for="`logo-outline-${activeElement.id}`" class="text-[11px] font-black uppercase text-sumi tracking-widest cursor-pointer">Outline Logo</label>
                         </div>
                     </div>
 
                     <div v-if="activeElement.outline.active" class="space-y-3 pt-3 border-t border-gray-50 mt-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-[7px] font-black uppercase text-secondary/40 tracking-widest">Warna & Ukuran</span>
+                            <span class="text-[10px] font-black uppercase text-usuzumi tracking-widest opacity-40">Warna & Ukuran</span>
                             <div class="flex items-center gap-2">
                                 <input type="color" v-model="activeElement.outline.color" @input="$emit('updateImageOutline')" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
                                 <div class="flex items-center gap-1 bg-white border border-gray-200 rounded-lg px-2 py-0.5 shadow-sm focus-within:border-primary transition-colors">
-                                    <input type="number" v-model.number="activeElement.outline.size" @input="$emit('updateImageOutline')" min="1" max="15" class="w-8 text-[10px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
-                                    <span class="text-[8px] font-black text-gray-400 select-none">px</span>
+                                    <input type="number" v-model.number="activeElement.outline.size" @input="$emit('updateImageOutline')" min="1" max="15" class="w-8 text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                                    <span class="text-[9px] font-black text-gray-400 select-none">px</span>
                                 </div>
                             </div>
                         </div>
@@ -51,11 +51,11 @@
             <!-- Text Specific Controls -->
             <div v-if="activeElement.type === 'text'" class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest ml-1">Gaya & Konten Teks</label>
+                    <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40">Gaya & Konten Teks</label>
                     <div class="grid gap-2">
                         <select
                             v-model="activeElement.fontFamily"
-                            class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[10px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
+                            class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
                         >
                             <option v-for="font in FONT_OPTIONS" :key="font.value" :value="font.value">
                                 {{ font.label }}
@@ -63,7 +63,7 @@
                         </select>
                         <textarea
                             v-model="activeElement.text"
-                            class="w-full p-4 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-black focus:border-primary focus:ring-0 transition-all resize-none shadow-sm"
+                            class="w-full p-4 bg-white border border-gray-100 rounded-2xl text-[12px] font-bold text-black focus:border-primary focus:ring-0 transition-all resize-none shadow-sm"
                             rows="2"
                             placeholder="Masukkan teks di sini..."
                         ></textarea>
@@ -71,16 +71,16 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                        <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Warna</label>
+                        <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest block mb-2 opacity-40">Warna</label>
                         <input type="color" v-model="activeElement.color" class="w-full h-8 p-0 border-none bg-transparent cursor-pointer">
                     </div>
                     <div class="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                        <label class="text-[8px] font-black uppercase text-secondary/40 tracking-widest block mb-2">Stroke (Warna & Ukuran)</label>
+                        <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest block mb-2 opacity-40">Stroke (Warna & Ukuran)</label>
                         <div class="flex items-center gap-2">
                             <input type="color" v-model="activeElement.strokeColor" class="w-6 h-6 rounded-full border-2 border-white shadow-sm p-0 cursor-pointer overflow-hidden">
                             <div class="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2 py-0.5 shadow-sm focus-within:border-primary transition-colors flex-grow">
-                                <input type="number" v-model.number="activeElement.strokeWidth" min="0" max="15" class="w-full text-[10px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
-                                <span class="text-[8px] font-black text-gray-400 select-none">px</span>
+                                <input type="number" v-model.number="activeElement.strokeWidth" min="0" max="15" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                                <span class="text-[9px] font-black text-gray-400 select-none">px</span>
                             </div>
                         </div>
                     </div>
