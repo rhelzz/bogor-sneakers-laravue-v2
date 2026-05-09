@@ -5,9 +5,9 @@
             <!-- Subtle Radial Gradient -->
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/80 via-transparent to-transparent opacity-100"></div>
             
-            <!-- Soft Brand Glows -->
-            <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-indigo/[0.03] rounded-full blur-[100px] animate-pulse"></div>
-            <div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-matcha/[0.02] rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s"></div>
+            <!-- Soft Brand Glows (Optimized) -->
+            <div class="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-indigo/[0.02] rounded-full blur-[60px]"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-matcha/[0.015] rounded-full blur-[60px]"></div>
             
             <!-- Professional Studio Grid -->
             <div class="absolute inset-0 opacity-[0.04] bg-[size:32px_32px] bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)]"></div>
@@ -18,7 +18,7 @@
         </div>
 
         <!-- Konva Container -->
-        <div ref="konvaContainerRef" class="relative w-full h-full z-10 cursor-grab active:cursor-grabbing"></div>
+        <div ref="konvaContainerRef" class="relative w-full h-full z-10 cursor-grab active:cursor-grabbing will-change-transform"></div>
 
         <!-- Floating Action Overlay -->
         <div class="absolute inset-x-0 bottom-0 pointer-events-none p-10 flex flex-col items-center gap-6 z-20">
