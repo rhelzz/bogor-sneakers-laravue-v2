@@ -6,7 +6,7 @@
                 <h3 class="text-sm font-black text-sumi uppercase tracking-[0.2em] leading-tight">
                     {{ hudTitle }}
                 </h3>
-                <p class="text-[9px] text-usuzumi font-bold mt-1.5 tracking-[0.15em] uppercase opacity-70">{{ hudSubtitle }}</p>
+                <p class="text-[11px] text-usuzumi font-bold mt-1.5 tracking-[0.1em] uppercase opacity-60">{{ hudSubtitle }}</p>
             </div>
 
             <ActiveElementControls 
@@ -33,27 +33,49 @@
         </div>
 
         <!-- Bottom Panel (Price & Action) -->
-        <div class="p-6 border-t border-gray-100 bg-shironeri/50 backdrop-blur-sm">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-usuzumi uppercase tracking-[0.2em]">Estimasi Total</span>
-                    <span class="text-2xl font-black text-sumi mt-1 tracking-tighter">{{ formatCurrency(total) }}</span>
+        <div class="p-6 md:p-8 border-t border-indigo/5 bg-white/90 backdrop-blur-xl relative">
+            <div class="flex flex-col gap-6 relative z-10">
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-indigo animate-pulse"></div>
+                            <span class="text-[10px] font-black text-usuzumi/40 uppercase tracking-[0.2em]">Estimasi Total</span>
+                        </div>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-2xl font-black text-sumi tracking-tight">
+                                {{ formatCurrency(total) }}
+                            </span>
+                            <span class="text-[9px] font-bold text-usuzumi/30 uppercase tracking-widest">IDR</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 bg-indigo/[0.03] px-3 py-2 rounded-xl border border-indigo/5">
+                        <div class="w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center">
+                            <span class="material-symbols-outlined text-indigo text-[12px]">verified</span>
+                        </div>
+                        <span class="text-[8px] font-black text-indigo/60 uppercase tracking-[0.1em] leading-none">Premium<br>Quality</span>
+                    </div>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-indigo text-xl">payments</span>
-                </div>
+                
+                <button 
+                    @click="activeSideTab = 'checkout'" 
+                    class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-500 rounded-2xl flex items-center justify-center shadow-xl shadow-sumi/10 hover:shadow-indigo/20 hover:-translate-y-1 active:translate-y-0 active:scale-95"
+                >
+                    <div class="absolute inset-0 bg-indigo opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Animated Background Shine -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine duration-1000"></div>
+
+                    <span class="relative z-10 flex items-center gap-4">
+                        Finalize Order
+                        <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
+                            <span class="material-symbols-outlined text-[14px] transition-colors duration-500 group-hover:text-indigo">arrow_forward</span>
+                        </div>
+                    </span>
+                </button>
             </div>
             
-            <button 
-                @click="activeSideTab = 'checkout'" 
-                class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95"
-            >
-                <span class="relative z-10 flex items-center gap-3">
-                    Finalize Order
-                    <span class="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1">arrow_forward_ios</span>
-                </span>
-                <div class="absolute inset-0 h-full w-full bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
-            </button>
+            <p class="mt-4 text-[8px] text-center text-usuzumi/30 font-bold uppercase tracking-[0.15em]">Secure Payment Powered by Midtrans</p>
         </div>
     </div>
 </template>
@@ -106,5 +128,14 @@ const total = computed(() => {
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #cbd5e1;
+}
+
+@keyframes shine {
+    100% {
+        transform: translateX(100%);
+    }
+}
+.animate-shine {
+    animation: shine 1.5s infinite;
 }
 </style>
