@@ -242,7 +242,7 @@ const handleFinalCheckout = async () => {
     isSaving.value = true;
 
     try {
-        const previewUrl = await createPreviewURL();
+        const previewUrl = await createPreviewURL(checkoutForm);
         const patternUrl = await createPatternURL();
 
         const timestamp = new Date().getTime();
@@ -400,11 +400,11 @@ const zoomIn = () => {
     
     new Konva.Tween({
         node: stage,
-        duration: 0.4,
-        easing: Konva.Easings.EaseInOut,
+        duration: 0.3,
+        easing: Konva.Easings.BackEaseOut,
         scaleX: newScale,
         scaleY: newScale,
-        onFinish: () => getMainLayer()?.draw()
+        onFinish: () => getMainLayer()?.batchDraw()
     }).play();
 };
 
@@ -417,11 +417,11 @@ const zoomOut = () => {
     
     new Konva.Tween({
         node: stage,
-        duration: 0.4,
+        duration: 0.3,
         easing: Konva.Easings.EaseInOut,
         scaleX: newScale,
         scaleY: newScale,
-        onFinish: () => getMainLayer()?.draw()
+        onFinish: () => getMainLayer()?.batchDraw()
     }).play();
 };
 
