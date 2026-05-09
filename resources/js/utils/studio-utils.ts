@@ -62,14 +62,6 @@ export function drawOutlineLayer(img: HTMLImageElement, color: string, size: num
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, w, h);
 
-    // Punch a hole exactly where the original image will sit
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.drawImage(img, s, s, originalW, originalH);
-
-    // Draw the original image back into the hole
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(img, s, s, originalW, originalH);
-
     return canvas;
 }
 
