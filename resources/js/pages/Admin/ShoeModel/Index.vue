@@ -189,60 +189,79 @@ const deleteModel = (model: ShoeModel) => {
         </div>
 
         <!-- Modal -->
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                <div class="mb-6 flex items-center justify-between">
-                    <h3 class="text-xl font-bold text-slate-800">
-                        {{ editingModel ? 'Edit Model Sepatu' : 'Tambah Model Sepatu' }}
-                    </h3>
-                    <button @click="closeModal" class="text-slate-400 hover:text-slate-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
+        <Transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                <Transition
+                    enter-active-class="transition duration-300 ease-out"
+                    enter-from-class="opacity-0 scale-95 -translate-y-4"
+                    enter-to-class="opacity-100 scale-100 translate-y-0"
+                    leave-active-class="transition duration-200 ease-in"
+                    leave-from-class="opacity-100 scale-100 translate-y-0"
+                    leave-to-class="opacity-0 scale-95 -translate-y-4"
+                    appear
+                >
+                    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                        <div class="mb-6 flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-slate-800">
+                                {{ editingModel ? 'Edit Model Sepatu' : 'Tambah Model Sepatu' }}
+                            </h3>
+                            <button @click="closeModal" class="text-slate-400 hover:text-slate-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
-                <form @submit.prevent="submit" class="space-y-4">
-                    <div>
-                        <label class="mb-1 block text-sm font-bold text-slate-700">Nama Model</label>
-                        <input 
-                            v-model="form.name"
-                            type="text" 
-                            required
-                            placeholder="Contoh: Casual High"
-                            class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
-                        />
-                        <p v-if="form.errors.name" class="mt-1 text-xs text-rose-500">{{ form.errors.name }}</p>
-                    </div>
+                        <form @submit.prevent="submit" class="space-y-4">
+                            <div>
+                                <label class="mb-1 block text-sm font-bold text-slate-700">Nama Model</label>
+                                <input 
+                                    v-model="form.name"
+                                    type="text" 
+                                    required
+                                    placeholder="Contoh: Casual High"
+                                    class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+                                />
+                                <p v-if="form.errors.name" class="mt-1 text-xs text-rose-500">{{ form.errors.name }}</p>
+                            </div>
 
-                    <div class="flex items-center">
-                        <input 
-                            v-model="form.is_active"
-                            id="is_active"
-                            type="checkbox" 
-                            class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <label for="is_active" class="ml-2 text-sm font-medium text-slate-700">Aktifkan model ini</label>
-                    </div>
+                            <div class="flex items-center">
+                                <input 
+                                    v-model="form.is_active"
+                                    id="is_active"
+                                    type="checkbox" 
+                                    class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <label for="is_active" class="ml-2 text-sm font-medium text-slate-700">Aktifkan model ini</label>
+                            </div>
 
-                    <div class="mt-8 flex justify-end gap-3">
-                        <button 
-                            type="button"
-                            @click="closeModal"
-                            class="rounded-xl px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-                        >
-                            Batal
-                        </button>
-                        <button 
-                            type="submit"
-                            :disabled="form.processing"
-                            class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                            {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
-                        </button>
+                            <div class="mt-8 flex justify-end gap-3">
+                                <button 
+                                    type="button"
+                                    @click="closeModal"
+                                    class="rounded-xl px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+                                >
+                                    Batal
+                                </button>
+                                <button 
+                                    type="submit"
+                                    :disabled="form.processing"
+                                    class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
+                                >
+                                    {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </Transition>
             </div>
-        </div>
+        </Transition>
     </AdminLayout>
 </template>
