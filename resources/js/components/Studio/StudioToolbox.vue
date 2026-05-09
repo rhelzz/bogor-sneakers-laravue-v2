@@ -1,11 +1,13 @@
 <template>
-    <div class="w-[320px] md:w-[340px] flex-shrink-0 bg-white border-l border-gray-100 flex flex-col h-full shadow-[-20px_0_50px_rgba(0,0,0,0.03)]">
-        <div class="p-6 border-b border-gray-50">
-            <h3 class="text-sm font-black text-black uppercase tracking-widest flex items-center gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                {{ hudTitle }}
-            </h3>
-            <p class="text-[10px] text-secondary font-bold mt-1 tracking-widest uppercase opacity-60">{{ hudSubtitle }}</p>
+    <div class="w-[320px] md:w-[350px] flex-shrink-0 bg-white border-l border-gray-200 flex flex-col h-full shadow-[-10px_0_30px_rgba(0,0,0,0.02)] font-montserrat">
+        <!-- Header Panel -->
+        <div class="p-6 pb-4">
+            <div class="flex flex-col">
+                <h3 class="text-sm font-black text-sumi uppercase tracking-[0.2em] leading-tight">
+                    {{ hudTitle }}
+                </h3>
+                <p class="text-[9px] text-usuzumi font-bold mt-1.5 tracking-[0.15em] uppercase opacity-70">{{ hudSubtitle }}</p>
+            </div>
 
             <ActiveElementControls 
                 @remove="$emit('removeElement')"
@@ -13,35 +15,44 @@
             />
         </div>
 
-        <div class="flex-grow overflow-y-auto custom-scrollbar p-6">
+        <!-- Content Panel -->
+        <div class="flex-grow overflow-y-auto custom-scrollbar px-6 py-2">
             <LayerPanel 
                 v-if="activeSideTab === 'layers'" 
-                @updateLayer="(id) => $emit('updateLayer', id)"
-                @saveHistory="$emit('saveHistory')"
+                @update-layer="(id) => $emit('update-layer', id)"
+                @save-history="$emit('save-history')"
             />
             <ArtworkPanel 
                 v-if="activeSideTab === 'artwork'" 
-                @addMedia="(id) => $emit('addMedia', id)"
+                @add-media="(id) => $emit('add-media', id)"
             />
             <TextPanel 
                 v-if="activeSideTab === 'text'" 
-                @addText="$emit('addText')"
+                @add-text="$emit('add-text')"
             />
         </div>
 
-        <div class="p-8 border-t border-gray-50 bg-white">
+        <!-- Bottom Panel (Price & Action) -->
+        <div class="p-6 border-t border-gray-100 bg-shironeri/50 backdrop-blur-sm">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-secondary uppercase tracking-[0.2em] opacity-60">Estimated Total</span>
-                    <span class="text-2xl font-black text-black mt-1 tracking-tighter">{{ formatCurrency(total) }}</span>
+                    <span class="text-[9px] font-black text-usuzumi uppercase tracking-[0.2em]">Estimasi Total</span>
+                    <span class="text-2xl font-black text-sumi mt-1 tracking-tighter">{{ formatCurrency(total) }}</span>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary">payments</span>
+                <div class="w-10 h-10 rounded-xl bg-indigo/10 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-indigo text-xl">payments</span>
                 </div>
             </div>
-            <button @click="activeSideTab = 'checkout'" class="w-full h-14 bg-black text-white font-black text-[11px] uppercase tracking-widest hover:bg-primary hover:text-black transition-all rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-black/10 active:scale-95">
-                Finalize Order
-                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+            
+            <button 
+                @click="activeSideTab = 'checkout'" 
+                class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-300 rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95"
+            >
+                <span class="relative z-10 flex items-center gap-3">
+                    Finalize Order
+                    <span class="material-symbols-outlined text-lg transition-transform duration-300 group-hover:translate-x-1">arrow_forward_ios</span>
+                </span>
+                <div class="absolute inset-0 h-full w-full bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
             </button>
         </div>
     </div>
@@ -58,7 +69,7 @@ import ActiveElementControls from './Panels/ActiveElementControls.vue';
 
 const { activeSideTab, checkoutForm } = useStudioStore();
 
-defineEmits(['removeElement', 'updateImageOutline', 'updateLayer', 'saveHistory', 'addMedia', 'addText']);
+defineEmits(['remove-element', 'update-image-outline', 'update-layer', 'save-history', 'add-media', 'add-text']);
 
 const hudTitle = computed(() => {
     if (activeSideTab.value === 'layers') return 'Aksen Warna';
@@ -81,3 +92,19 @@ const total = computed(() => {
     return t;
 });
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+</style>

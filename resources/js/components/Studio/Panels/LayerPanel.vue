@@ -1,23 +1,30 @@
 <template>
-    <div class="space-y-4">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Daftar Layer</span>
+    <div class="space-y-6 font-montserrat">
+        <div class="flex items-center justify-between">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-usuzumi">Panel Layer</span>
+            <div class="h-[1px] flex-grow ml-4 bg-gray-100"></div>
         </div>
         
         <!-- Image Reference Section -->
-        <div class="mb-8 pb-6 border-b border-gray-100">
+        <div class="bg-shironeri rounded-3xl p-5 border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-sm text-secondary">image_search</span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-secondary opacity-60">Ref. Gambar</span>
+                    <div class="w-8 h-8 rounded-xl bg-indigo/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-base text-indigo">image_search</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-sumi">Referensi Gambar</span>
+                        <span class="text-[8px] font-medium text-usuzumi">Ekstraksi warna dari foto</span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button
-                        v-if="referenceImage"
-                        @click="clearReferenceImage"
-                        class="text-[9px] font-black text-red-500 uppercase hover:underline"
-                    >Hapus</button>
-                </div>
+                <button
+                    v-if="referenceImage"
+                    @click="clearReferenceImage"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 hover:text-red-500 transition-all active:scale-90"
+                    title="Hapus Referensi"
+                >
+                    <span class="material-symbols-outlined text-base">delete_sweep</span>
+                </button>
             </div>
 
             <div v-if="!referenceImage" class="relative group">
@@ -27,82 +34,107 @@
                     accept="image/*"
                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 >
-                <div class="py-6 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center gap-2 bg-gray-50/50 group-hover:bg-white group-hover:border-primary transition-all">
-                    <span class="material-symbols-outlined text-gray-300">add_photo_alternate</span>
-                    <span class="text-[8px] font-black text-secondary uppercase tracking-tighter">Klik untuk tambah referensi</span>
+                <div class="py-10 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center gap-3 bg-white/50 group-hover:bg-white group-hover:border-indigo group-hover:shadow-lg transition-all duration-500">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo/5 transition-all duration-500">
+                        <span class="material-symbols-outlined text-gray-300 group-hover:text-indigo transition-colors">add_photo_alternate</span>
+                    </div>
+                    <span class="text-[9px] font-bold text-usuzumi uppercase tracking-widest text-center px-4">Upload foto untuk<br>mengambil palet warna</span>
                 </div>
             </div>
 
-            <div v-else class="space-y-4">
-                <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50">
+            <div v-else class="space-y-5">
+                <div class="relative group rounded-2xl overflow-hidden border border-gray-100 aspect-video bg-gray-50 shadow-inner">
                     <img
                         :src="referenceImage"
                         @click="pickColorFromRef"
-                        class="w-full h-full object-contain cursor-crosshair transition-transform active:scale-95"
-                        title="Klik pada gambar untuk mengambil warna ke layer aktif"
+                        class="w-full h-full object-contain cursor-crosshair transition-all duration-500 hover:scale-105 active:scale-95"
+                        title="Klik untuk mengambil warna"
                     >
+                    <div class="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-indigo/20 rounded-2xl transition-all duration-500"></div>
                 </div>
 
                 <!-- Extracted Palette -->
-                <div v-if="extractedPalette.length > 0" class="space-y-2">
+                <div v-if="extractedPalette.length > 0" class="space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-[8px] font-black uppercase text-secondary tracking-widest opacity-50">Ekstraksi Warna</span>
-                        <div class="flex items-center gap-3">
+                        <span class="text-[8px] font-black uppercase text-usuzumi tracking-widest">Palet Terdeteksi</span>
+                        <div class="flex items-center gap-2">
                             <button
                                 @click="randomizeFromRef"
-                                class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
+                                class="h-7 px-3 rounded-lg bg-white border border-gray-100 text-[8px] font-black text-indigo uppercase flex items-center gap-1.5 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all"
                             >
-                                <span class="material-symbols-outlined text-[10px]">casino</span>
-                                Acak Palet
+                                <span class="material-symbols-outlined text-[12px]">casino</span>
+                                Acak
                             </button>
                             <button
                                 @click="applyExtractedPalette"
-                                class="text-[8px] font-black text-primary uppercase hover:underline flex items-center gap-1"
+                                class="h-7 px-3 rounded-lg bg-indigo text-washi text-[8px] font-black uppercase flex items-center gap-1.5 hover:shadow-lg hover:shadow-indigo/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all"
                             >
-                                <span class="material-symbols-outlined text-[10px]">auto_fix</span>
+                                <span class="material-symbols-outlined text-[12px]">auto_fix</span>
                                 Terapkan
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-6 gap-1.5">
+                    <div class="grid grid-cols-6 gap-2">
                         <button
                             v-for="color in extractedPalette"
                             :key="`ext-${color}`"
-                            class="aspect-square rounded-lg border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
+                            class="aspect-square rounded-lg border-2 border-white shadow-sm hover:scale-125 hover:rotate-3 hover:shadow-md transition-all duration-300 active:scale-90"
                             :style="{ backgroundColor: color }"
-                            @click="activeLayerPickId !== null ? setLayerColor(activeLayerPickId, color) : showToast('Pilih layer aksen dulu')"
+                            @click="activeLayerPickId !== null ? setLayerColor(activeLayerPickId, color) : showToast('Pilih layer dulu')"
                         ></button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 opacity-20">
-            <span class="material-symbols-outlined text-6xl mb-4 text-secondary">extension</span>
-            <p class="text-xs font-black uppercase tracking-widest text-secondary">Loading Layers...</p>
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-usuzumi">Aksen Sepatu</span>
+            <div class="h-[1px] flex-grow bg-gray-100"></div>
         </div>
 
-        <div v-else class="grid gap-2">
+        <div v-if="layerIds.length === 0" class="flex flex-col items-center justify-center py-20 opacity-30">
+            <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center animate-pulse">
+                <span class="material-symbols-outlined text-4xl text-usuzumi">extension</span>
+            </div>
+            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-usuzumi mt-4">Menyiapkan Layer...</p>
+        </div>
+
+        <div v-else class="grid gap-3">
             <div
                 v-for="id in layerIds"
                 :key="`layer-${id}`"
-                class="group relative overflow-hidden rounded-xl border transition-all duration-300"
+                class="group relative overflow-hidden rounded-2xl border transition-all duration-500"
                 :class="activeLayerPickId === id
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-gray-100 bg-white hover:border-gray-200 cursor-pointer'"
+                    ? 'border-indigo bg-indigo/[0.02] shadow-md'
+                    : 'border-gray-100 bg-white hover:border-indigo/30 hover:shadow-sm cursor-pointer'"
                 @click="activeLayerPickId = activeLayerPickId === id ? null : id"
             >
-                <div class="p-3 flex items-center justify-between relative z-10">
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded bg-gray-50 flex items-center justify-center text-[9px] font-black text-secondary">
+                <!-- Selection Indicator -->
+                <div 
+                    class="absolute left-0 top-0 w-1 h-full bg-indigo transition-transform duration-500"
+                    :class="activeLayerPickId === id ? 'scale-y-100' : 'scale-y-0'"
+                ></div>
+
+                <div class="p-4 flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-3">
+                        <div 
+                            class="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition-all duration-500 group-hover:scale-110"
+                            :style="{ 
+                                backgroundColor: layerColors[id] + '20', 
+                                color: layerColors[id]
+                            }"
+                        >
                             {{ id }}
                         </div>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Aksen {{ id }}</span>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-sumi">Aksen {{ id }}</span>
+                            <span class="text-[8px] font-medium text-usuzumi uppercase tracking-tighter">{{ layerColors[id] }}</span>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-2" @click.stop>
-                        <div class="flex items-center bg-white rounded-lg px-2 py-1 border border-gray-100 shadow-sm focus-within:border-primary transition-colors">
-                            <span class="text-[9px] font-bold text-gray-400 mr-1">#</span>
+                    <div class="flex items-center gap-3" @click.stop>
+                        <div class="flex items-center bg-gray-50/50 rounded-xl px-3 py-1.5 border border-gray-100 focus-within:border-indigo focus-within:bg-white transition-all duration-300">
+                            <span class="text-[10px] font-bold text-gray-300 mr-1">#</span>
                             <input
                                 type="text"
                                 :value="layerColors[id]?.replace('#', '')"
@@ -110,13 +142,13 @@
                                     const val = (e.target as HTMLInputElement).value;
                                     if (val.length === 6 || val.length === 3) setLayerColor(id, '#' + val)
                                 }"
-                                class="w-12 bg-transparent border-none p-0 text-[10px] font-black uppercase tracking-tighter focus:ring-0"
+                                class="w-14 bg-transparent border-none p-0 text-[11px] font-black uppercase tracking-widest text-sumi focus:ring-0"
                                 maxlength="6"
                             >
                         </div>
-                        <div class="relative w-7 h-7 group/picker">
+                        <div class="relative w-9 h-9 group/picker">
                             <div
-                                class="w-full h-full rounded-full border-2 border-white shadow-sm transition-transform group-hover/picker:scale-110 cursor-pointer"
+                                class="w-full h-full rounded-full border-4 border-white shadow-md transition-all duration-500 group-hover/picker:scale-110 cursor-pointer"
                                 :style="{ backgroundColor: layerColors[id] || '#ffffff' }"
                             ></div>
                             <input
@@ -130,41 +162,61 @@
                     </div>
                 </div>
 
-                <transition name="expand">
-                    <div v-if="activeLayerPickId === id" class="px-3 pb-3 pt-1 border-t border-gray-100/50 space-y-3">
-                        <div class="grid grid-cols-8 gap-1.5">
-                            <button
-                                v-for="color in randomPalette"
-                                :key="color"
-                                class="w-full aspect-square rounded-md border border-white shadow-sm hover:scale-110 transition-transform active:scale-90"
-                                :style="{ backgroundColor: color }"
-                                @click.stop="setLayerColor(id, color)"
-                            ></button>
+                <transition
+                    enter-active-class="transition-all duration-500 ease-out"
+                    leave-active-class="transition-all duration-300 ease-in"
+                    enter-from-class="max-h-0 opacity-0 translate-y-[-10px]"
+                    enter-to-class="max-h-[300px] opacity-100 translate-y-0"
+                    leave-from-class="max-h-[300px] opacity-100 translate-y-0"
+                    leave-to-class="max-h-0 opacity-0 translate-y-[-10px]"
+                >
+                    <div v-if="activeLayerPickId === id" class="px-4 pb-4 pt-1 border-t border-gray-50 space-y-4">
+                        <div class="space-y-2">
+                            <span class="text-[8px] font-black uppercase text-usuzumi tracking-[0.2em]">Palet Rekomendasi</span>
+                            <div class="grid grid-cols-8 gap-2">
+                                <button
+                                    v-for="color in randomPalette"
+                                    :key="color"
+                                    class="w-full aspect-square rounded-lg border-2 border-white shadow-sm hover:scale-125 hover:rotate-6 transition-all duration-300 active:scale-90"
+                                    :style="{ backgroundColor: color }"
+                                    @click.stop="setLayerColor(id, color)"
+                                ></button>
+                            </div>
                         </div>
 
-                        <div class="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-100/50" @click.stop>
-                            <div class="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    :id="`outline-${id}`"
-                                    v-model="layerOutlines[id].active"
-                                    class="w-3.5 h-3.5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer"
-                                >
-                                <label :for="`outline-${id}`" class="text-[8px] font-black uppercase text-secondary tracking-widest cursor-pointer">Outline</label>
+                        <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between" @click.stop>
+                            <div class="flex items-center gap-3">
+                                <div class="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        :id="`outline-${id}`"
+                                        v-model="layerOutlines[id].active"
+                                        class="w-4 h-4 rounded border-gray-300 text-indigo focus:ring-indigo transition-all cursor-pointer"
+                                    >
+                                </div>
+                                <label :for="`outline-${id}`" class="text-[9px] font-black uppercase text-sumi tracking-widest cursor-pointer">Efek Outline</label>
                             </div>
-                            <div v-if="layerOutlines[id].active" class="flex items-center gap-2">
-                                <input
-                                    type="color"
-                                    v-model="layerOutlines[id].color"
-                                    class="w-5 h-5 rounded-full overflow-hidden border-none p-0 cursor-pointer shadow-sm"
-                                >
-                                <input
-                                    type="range"
-                                    v-model.number="layerOutlines[id].size"
-                                    min="1" max="10"
-                                    class="w-16 accent-black"
-                                >
-                            </div>
+                            <transition
+                                enter-active-class="transition-all duration-300 ease-out"
+                                enter-from-class="opacity-0 translate-x-4 scale-95"
+                                enter-to-class="opacity-100 translate-x-0 scale-100"
+                            >
+                                <div v-if="layerOutlines[id].active" class="flex items-center gap-3">
+                                    <div class="relative w-6 h-6 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                                        <input
+                                            type="color"
+                                            v-model="layerOutlines[id].color"
+                                            class="absolute inset-[-4px] w-[200%] h-[200%] cursor-pointer"
+                                        >
+                                    </div>
+                                    <input
+                                        type="range"
+                                        v-model.number="layerOutlines[id].size"
+                                        min="1" max="10"
+                                        class="w-20 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo"
+                                    >
+                                </div>
+                            </transition>
                         </div>
                     </div>
                 </transition>
@@ -191,12 +243,12 @@ const extractedPalette = ref<string[]>([]);
 const layerIds = computed(() => currentModelMeta.value?.layers.map(l => l.id) || []);
 
 const FALLBACK_PALETTE = [
-    '#000000', '#ffffff', '#d0ff00', '#ff0000', '#0000ff', '#808080', '#a855f7', '#f97316',
-    '#7c8c5a', '#d97781', '#4a9d6f', '#1a1a1a', '#f7f5f0', '#888888', '#b4b4b4', '#5a6b6a'
+    '#1a1a1a', '#f7f5f0', '#7c8c5a', '#2c4a6e', '#d4a5a5', '#3d5a4c', '#8a8a8a', '#4a4a4a',
+    '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b', '#475569', '#334155', '#1e293b', '#0f172a'
 ];
 const randomPalette = ref(FALLBACK_PALETTE);
 
-const emit = defineEmits(['updateLayer', 'saveHistory']);
+const emit = defineEmits(['update-layer', 'save-history']);
 
 onMounted(() => {
     referenceImage.value = localStorage.getItem('studio_ref_image');
@@ -208,8 +260,8 @@ onMounted(() => {
 
 const setLayerColor = (id: number, color: string) => {
     layerColors.value[id] = color;
-    emit('updateLayer', id);
-    emit('saveHistory');
+    emit('update-layer', id);
+    emit('save-history');
 };
 
 const saveReferenceImage = async (e: Event) => {
@@ -223,6 +275,7 @@ const saveReferenceImage = async (e: Event) => {
         localStorage.setItem('studio_ref_image', dataUrl);
         extractedPalette.value = await generatePaletteFromDataUrl(dataUrl);
         localStorage.setItem('studio_extracted_palette', JSON.stringify(extractedPalette.value));
+        showToast('Palet warna berhasil diekstrak!');
     };
     reader.readAsDataURL(file);
 };
@@ -232,6 +285,7 @@ const clearReferenceImage = () => {
     extractedPalette.value = [];
     localStorage.removeItem('studio_ref_image');
     localStorage.removeItem('studio_extracted_palette');
+    showToast('Referensi dihapus');
 };
 
 const applyExtractedPalette = () => {
@@ -240,24 +294,24 @@ const applyExtractedPalette = () => {
         const color = extractedPalette.value[index % extractedPalette.value.length];
         setLayerColor(id, color);
     });
-    showToast('Tema warna diterapkan!');
+    showToast('Tema warna dari foto diterapkan!');
 };
 
 const randomizeFromRef = () => {
     if (extractedPalette.value.length === 0) {
-        showToast('Upload referensi gambar dulu');
+        showToast('Upload foto dulu');
         return;
     }
     layerIds.value.forEach(id => {
         const randomColor = extractedPalette.value[Math.floor(Math.random() * extractedPalette.value.length)];
         setLayerColor(id, randomColor);
     });
-    showToast('Warna diacak dari referensi!');
+    showToast('Warna diacak dari foto!');
 };
 
 const pickColorFromRef = (e: MouseEvent) => {
     if (activeLayerPickId.value === null) {
-        showToast('Pilih layer aksen terlebih dahulu');
+        showToast('Pilih layer aksen dulu');
         return;
     }
 
@@ -275,18 +329,41 @@ const pickColorFromRef = (e: MouseEvent) => {
     const pixel = ctx.getImageData(x, y, 1, 1).data;
     const hex = '#' + ((1 << 24) + (pixel[0] << 16) + (pixel[1] << 8) + pixel[2]).toString(16).slice(1);
     setLayerColor(activeLayerPickId.value, hex);
+    showToast(`Warna ${hex} dipilih!`);
 };
 </script>
 
 <style scoped>
-.expand-enter-active, .expand-leave-active {
-    transition: all 0.3s ease;
-    max-height: 200px;
-    opacity: 1;
-    overflow: hidden;
+/* Scrollbar Styling for internal use if needed */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
 }
-.expand-enter-from, .expand-leave-to {
-    max-height: 0;
-    opacity: 0;
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Range Input Styling */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #4f46e5;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
 }
 </style>
