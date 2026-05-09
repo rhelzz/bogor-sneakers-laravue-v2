@@ -6,6 +6,7 @@ import katalogCe320b from './katalog'
 import preOrderHome1a388a from './pre-order-home'
 import whatsappAdmins183620 from './whatsapp-admins'
 import modelSepatu9e70d3 from './model-sepatu'
+import shoeTypes from './shoe-types'
 import variants from './variants'
 /**
 * @see \App\Http\Controllers\DashboardController::dashboard
@@ -640,6 +641,7 @@ katalog: Object.assign(katalog, katalogCe320b),
 preOrderHome: Object.assign(preOrderHome, preOrderHome1a388a),
 whatsappAdmins: Object.assign(whatsappAdmins, whatsappAdmins183620),
 modelSepatu: Object.assign(modelSepatu, modelSepatu9e70d3),
+shoeTypes: Object.assign(shoeTypes, shoeTypes),
 variants: Object.assign(variants, variants),
 }
 
