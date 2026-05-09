@@ -116,7 +116,6 @@ const {
 // UI Alerts State
 const showFastTrackAlert = ref(false);
 const showCustomBoxAlert = ref(false);
-const hasSeenAddonPopups = ref(false);
 
 // Actions
 const fetchCatalog = async () => {
@@ -390,28 +389,56 @@ const confirmFastTrack = (val: boolean) => {
 const confirmCustomBox = (val: boolean) => {
     checkoutForm.customBoxEnabled = val;
     showCustomBoxAlert.value = false;
-    hasSeenAddonPopups.value = true;
 };
 
 const zoomIn = () => {
     const stage = getStage();
-    const scale = stage!.scaleX() * 1.2;
-    stage?.scale({ x: scale, y: scale });
-    getMainLayer()?.draw();
+    if (!stage) return;
+    
+    const oldScale = stage.scaleX();
+    const newScale = oldScale * 1.4;
+    
+    new Konva.Tween({
+        node: stage,
+        duration: 0.4,
+        easing: Konva.Easings.EaseInOut,
+        scaleX: newScale,
+        scaleY: newScale,
+        onFinish: () => getMainLayer()?.draw()
+    }).play();
 };
 
 const zoomOut = () => {
     const stage = getStage();
-    const scale = stage!.scaleX() / 1.2;
-    stage?.scale({ x: scale, y: scale });
-    getMainLayer()?.draw();
+    if (!stage) return;
+    
+    const oldScale = stage.scaleX();
+    const newScale = oldScale / 1.4;
+    
+    new Konva.Tween({
+        node: stage,
+        duration: 0.4,
+        easing: Konva.Easings.EaseInOut,
+        scaleX: newScale,
+        scaleY: newScale,
+        onFinish: () => getMainLayer()?.draw()
+    }).play();
 };
 
 const resetZoom = () => {
     const stage = getStage();
-    stage?.scale({ x: 1, y: 1 });
-    stage?.position({ x: 0, y: 0 });
-    getMainLayer()?.draw();
+    if (!stage) return;
+    
+    new Konva.Tween({
+        node: stage,
+        duration: 0.5,
+        easing: Konva.Easings.BackEaseOut,
+        scaleX: 1,
+        scaleY: 1,
+        x: 0,
+        y: 0,
+        onFinish: () => getMainLayer()?.draw()
+    }).play();
 };
 
 const showShare = () => showToast('Link share disalin ke clipboard');
@@ -491,7 +518,7 @@ watch([activeFolderKey, currentModel], () => {
     }
 });
 watch(activeSideTab, (newTab) => {
-    if (newTab === 'checkout' && !hasSeenAddonPopups.value) {
+    if (newTab === 'checkout') {
         showFastTrackAlert.value = true;
     }
 });
