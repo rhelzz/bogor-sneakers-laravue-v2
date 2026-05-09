@@ -33,7 +33,7 @@
                             @add-media="handleAddMedia"
                             @add-text="handleAddText"
                         />
-                        <div v-else class="w-[360px] sm:w-[420px] md:w-[480px] flex-shrink-0 bg-white border-l border-gray-100 flex flex-col h-full shadow-[-30px_0_60px_rgba(0,0,0,0.05)]">
+                        <div v-else class="w-[340px] sm:w-[380px] md:w-[400px] flex-shrink-0 bg-white border-l border-indigo/5 flex flex-col h-full shadow-[-20px_0_40px_rgba(0,0,0,0.03)] relative z-30">
                             <CheckoutForm @checkout="handleFinalCheckout" />
                         </div>
                     </transition>
