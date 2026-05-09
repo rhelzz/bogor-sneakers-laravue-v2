@@ -15,10 +15,12 @@ class ShoeVariantController extends Controller
 {
     public function index($shoeModelId): Response
     {
-        $shoeModel = ShoeModel::findOrFail($shoeModelId);
+        $shoeModel = ShoeModel::with(['types'])->findOrFail($shoeModelId);
+        
         return Inertia::render('Admin/ShoeVariant/Index', [
             'shoeModel' => $shoeModel,
-            'variants' => $shoeModel->variants()->with('svgs')->get(),
+            'variants' => $shoeModel->variants()->with(['svgs', 'type'])->get(),
+            'types' => $shoeModel->types,
         ]);
     }
 
@@ -27,10 +29,12 @@ class ShoeVariantController extends Controller
         $shoeModel = ShoeModel::findOrFail($shoeModelId);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'shoe_type_id' => 'nullable|exists:shoe_types,id',
         ]);
 
         $shoeModel->variants()->create([
             'name' => $validated['name'],
+            'shoe_type_id' => $validated['shoe_type_id'] ?? null,
         ]);
 
         return redirect()->back()->with('success', 'Varian berhasil dibuat.');
@@ -71,13 +75,31 @@ class ShoeVariantController extends Controller
 
     public function destroy($shoeVariantId): RedirectResponse
     {
-        $shoeVariant = ShoeVariant::findOrFail($shoeVariantId);
-        // Optional: Delete physical files
-        foreach ($shoeVariant->svgs as $svg) {
-            Storage::disk('public_path')->delete($svg->file_path);
-        }
+        $shoeVariant = ShoeVariant::with('model')->findOrFail($shoeVariantId);
+        
+        // Delete physical directory
+        $modelSlug = $shoeVariant->model->slug;
+        $variantId = $shoeVariant->id;
+        Storage::disk('public_path')->deleteDirectory("shoes-svg/{$modelSlug}/{$variantId}");
         
         $shoeVariant->delete();
         return redirect()->back()->with('success', 'Varian berhasil dihapus.');
+    }
+
+    /**
+     * Move all variants of a model from one type (or null) to another type.
+     */
+    public function moveAllToType(Request $request, $shoeModelId): RedirectResponse
+    {
+        $request->validate([
+            'from_type_id' => 'nullable|exists:shoe_types,id',
+            'to_type_id' => 'required|exists:shoe_types,id',
+        ]);
+
+        ShoeVariant::where('shoe_model_id', $shoeModelId)
+            ->where('shoe_type_id', $request->from_type_id)
+            ->update(['shoe_type_id' => $request->to_type_id]);
+
+        return redirect()->back()->with('success', 'Semua varian berhasil dipindahkan.');
     }
 }

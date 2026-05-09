@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\PreOrderHomeController;
 use App\Http\Controllers\ShoeModelController;
+use App\Http\Controllers\ShoeTypeController;
 use App\Http\Controllers\ShoeVariantController;
 use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
@@ -78,6 +79,13 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/model-sepatu/{shoeModel}/variants', [ShoeVariantController::class, 'index'])->name('admin.model-sepatu.variants');
     Route::post('/model-sepatu/{shoeModel}/variants', [ShoeVariantController::class, 'store'])->name('admin.model-sepatu.variants.store');
+    Route::post('/model-sepatu/{shoeModel}/variants/move-all', [ShoeVariantController::class, 'moveAllToType'])->name('admin.model-sepatu.variants.move-all');
+    
+    // Shoe Type (Jenis) Routes
+    Route::post('/model-sepatu/{shoeModel}/types', [ShoeTypeController::class, 'store'])->name('admin.model-sepatu.types.store');
+    Route::put('/shoe-types/{shoeType}', [ShoeTypeController::class, 'update'])->name('admin.shoe-types.update');
+    Route::delete('/shoe-types/{shoeType}', [ShoeTypeController::class, 'destroy'])->name('admin.shoe-types.destroy');
+
     Route::post('/variants/{shoeVariant}/svgs', [ShoeVariantController::class, 'uploadSvgs'])->name('admin.variants.svgs.upload');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
 });
