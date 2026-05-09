@@ -6,6 +6,9 @@ import { loadImage, drawFilledLayer, drawOutlineLayer } from '../utils/studio-ut
 import type { DesignElement } from '../types/studio';
 
 const CANVAS_SIZE = 1024;
+const MIN_STAGE_SCALE = 0.35;
+const MAX_STAGE_SCALE = 4;
+const WHEEL_ZOOM_SENSITIVITY = 0.0025;
 
 export function useKonvaRenderer() {
     const { 
@@ -27,6 +30,9 @@ export function useKonvaRenderer() {
     let elementsGroup: Konva.Group | null = null;
     let transformer: Konva.Transformer | null = null;
     let assetLoadVersion = 0;
+    let viewFrame = 0;
+    let pendingView: { scale: number; x: number; y: number } | null = null;
+    let activeViewTween: Konva.Tween | null = null;
 
     const layerSourceImages = ref<Record<number, HTMLImageElement>>({});
     const isSyncing = ref(false);
@@ -45,7 +51,9 @@ export function useKonvaRenderer() {
         const pixelRatio = window.devicePixelRatio || 1;
         stage.setAttr('pixelRatio', pixelRatio);
 
-        mainLayer = new Konva.Layer();
+        mainLayer = new Konva.Layer({
+            imageSmoothingEnabled: true
+        });
         stage.add(mainLayer);
 
         shoeGroup = new Konva.Group();
@@ -74,6 +82,131 @@ export function useKonvaRenderer() {
         setupEvents();
     };
 
+    const clampScale = (scale: number) => Math.min(MAX_STAGE_SCALE, Math.max(MIN_STAGE_SCALE, scale));
+
+    const drawMainLayer = () => {
+        mainLayer?.batchDraw();
+    };
+
+    const applyStageView = (scale: number, position: { x: number; y: number }) => {
+        if (!stage) return;
+
+        stage.scale({ x: scale, y: scale });
+        stage.position(position);
+        drawMainLayer();
+    };
+
+    const scheduleStageView = (scale: number, position: { x: number; y: number }) => {
+        pendingView = {
+            scale,
+            x: position.x,
+            y: position.y
+        };
+
+        if (viewFrame) {
+            return;
+        }
+
+        viewFrame = window.requestAnimationFrame(() => {
+            viewFrame = 0;
+
+            if (!pendingView) {
+                return;
+            }
+
+            applyStageView(pendingView.scale, {
+                x: pendingView.x,
+                y: pendingView.y
+            });
+            pendingView = null;
+        });
+    };
+
+    const stopStageTweens = () => {
+        activeViewTween?.destroy();
+        activeViewTween = null;
+    };
+
+    const zoomToPoint = (nextScale: number, point: { x: number; y: number }, animated = false, duration = 0.25) => {
+        if (!stage) return;
+
+        const oldScale = pendingView?.scale ?? stage.scaleX();
+        const oldPosition = {
+            x: pendingView?.x ?? stage.x(),
+            y: pendingView?.y ?? stage.y()
+        };
+        const newScale = clampScale(nextScale);
+
+        if (Math.abs(newScale - oldScale) < 0.001) {
+            return;
+        }
+
+        const stagePoint = {
+            x: (point.x - oldPosition.x) / oldScale,
+            y: (point.y - oldPosition.y) / oldScale,
+        };
+        const position = {
+            x: point.x - stagePoint.x * newScale,
+            y: point.y - stagePoint.y * newScale,
+        };
+
+        stopStageTweens();
+
+        if (!animated) {
+            scheduleStageView(newScale, position);
+            return;
+        }
+
+        pendingView = null;
+
+        activeViewTween = new Konva.Tween({
+            node: stage,
+            duration,
+            easing: Konva.Easings.EaseOut,
+            scaleX: newScale,
+            scaleY: newScale,
+            x: position.x,
+            y: position.y,
+            onFinish: () => {
+                drawMainLayer();
+                activeViewTween?.destroy();
+                activeViewTween = null;
+            }
+        });
+        activeViewTween.play();
+    };
+
+    const zoomBy = (factor: number, animated = true) => {
+        if (!stage) return;
+
+        zoomToPoint(stage.scaleX() * factor, {
+            x: stage.width() / 2,
+            y: stage.height() / 2
+        }, animated);
+    };
+
+    const resetView = () => {
+        if (!stage) return;
+
+        stopStageTweens();
+
+        activeViewTween = new Konva.Tween({
+            node: stage,
+            duration: 0.35,
+            easing: Konva.Easings.EaseOut,
+            scaleX: 1,
+            scaleY: 1,
+            x: 0,
+            y: 0,
+            onFinish: () => {
+                drawMainLayer();
+                activeViewTween?.destroy();
+                activeViewTween = null;
+            }
+        });
+        activeViewTween.play();
+    };
+
     const setupEvents = () => {
         if (!stage) return;
 
@@ -100,37 +233,31 @@ export function useKonvaRenderer() {
                     transformer?.nodes([target as Konva.Shape]);
                 }
             }
-            mainLayer?.draw();
+            drawMainLayer();
         });
 
         stage.draggable(true);
 
         stage.on('wheel', (e) => {
             e.evt.preventDefault();
-            const oldScale = stage!.scaleX();
-            const pointer = stage!.getPointerPosition()!;
+            if (!stage) return;
 
-            const mousePointTo = {
-                x: (pointer.x - stage!.x()) / oldScale,
-                y: (pointer.y - stage!.y()) / oldScale,
-            };
+            const pointer = stage.getPointerPosition();
 
-            const newScale = e.evt.deltaY < 0 ? oldScale * 1.05 : oldScale / 1.05;
-            stage!.scale({ x: newScale, y: newScale });
+            if (!pointer) {
+                return;
+            }
 
-            const newPos = {
-                x: pointer.x - mousePointTo.x * newScale,
-                y: pointer.y - mousePointTo.y * newScale,
-            };
-            stage!.position(newPos);
-            mainLayer?.draw();
+            const delta = Math.max(-60, Math.min(60, e.evt.deltaY));
+            const factor = Math.exp(-delta * WHEEL_ZOOM_SENSITIVITY);
+            zoomToPoint((pendingView?.scale ?? stage.scaleX()) * factor, pointer, false);
         });
     };
 
     const deselect = () => {
         transformer?.nodes([]);
         activeElement.value = null;
-        mainLayer?.draw();
+        drawMainLayer();
     };
 
     const saveToHistory = () => {
@@ -181,7 +308,7 @@ export function useKonvaRenderer() {
         ctx.drawImage(filledCanvas, 0, 0);
 
         konvaLayers.forEach(konvaImg => konvaImg.image(canvas));
-        mainLayer?.draw();
+        drawMainLayer();
     };
 
     // Auto-sync store to canvas
@@ -202,7 +329,7 @@ export function useKonvaRenderer() {
                 shoeGroup.destroyChildren();
                 elementsGroup?.destroyChildren();
                 layerSourceImages.value = {};
-                mainLayer?.draw();
+                drawMainLayer();
             }
 
             isSyncing.value = false;
@@ -250,6 +377,11 @@ export function useKonvaRenderer() {
                     layerOutlines.value[layer.id] = { active: false, color: '#000000', size: 2 };
                 }
 
+                const hitCanvas = document.createElement('canvas');
+                hitCanvas.width = 1;
+                hitCanvas.height = 1;
+                const hitCtx = hitCanvas.getContext('2d');
+
                 const konvaLayer = new Konva.Image({
                     image: img,
                     width: CANVAS_SIZE,
@@ -265,10 +397,9 @@ export function useKonvaRenderer() {
                         if (!pointer) return;
                         const transform = shape.getAbsoluteTransform().copy().invert();
                         const point = transform.point(pointer);
-                        
-                        const hitCanvas = document.createElement('canvas');
-                        hitCanvas.width = 1; hitCanvas.height = 1;
-                        const hitCtx = hitCanvas.getContext('2d')!;
+
+                        if (!hitCtx) return;
+                        hitCtx.clearRect(0, 0, 1, 1);
                         hitCtx.drawImage(canvas, point.x, point.y, 1, 1, 0, 0, 1, 1);
                         if (hitCtx.getImageData(0, 0, 1, 1).data[3] > 10) {
                             context.beginPath(); context.rect(0, 0, shape.width(), shape.height());
@@ -284,7 +415,7 @@ export function useKonvaRenderer() {
                 return;
             }
 
-            mainLayer?.draw();
+            drawMainLayer();
             saveToHistory();
         } catch (err) {
             if (!isStaleLoad()) {
@@ -458,11 +589,31 @@ export function useKonvaRenderer() {
         a.click();
     };
 
+    const destroyStage = () => {
+        if (viewFrame) {
+            window.cancelAnimationFrame(viewFrame);
+            viewFrame = 0;
+        }
+
+        pendingView = null;
+        stopStageTweens();
+        stage?.destroy();
+        stage = null;
+        mainLayer = null;
+        shoeGroup = null;
+        elementsGroup = null;
+        transformer = null;
+    };
+
+    onUnmounted(destroyStage);
+
     return {
         initStage,
         loadAssets,
         updateLayer,
         saveToHistory,
+        zoomBy,
+        resetView,
         createPreviewURL,
         createPatternURL,
         downloadURL,

@@ -103,6 +103,8 @@ const {
     loadAssets,
     updateLayer,
     saveToHistory,
+    zoomBy,
+    resetView,
     createPreviewURL,
     createPatternURL,
     downloadURL,
@@ -392,53 +394,15 @@ const confirmCustomBox = (val: boolean) => {
 };
 
 const zoomIn = () => {
-    const stage = getStage();
-    if (!stage) return;
-    
-    const oldScale = stage.scaleX();
-    const newScale = oldScale * 1.4;
-    
-    new Konva.Tween({
-        node: stage,
-        duration: 0.3,
-        easing: Konva.Easings.BackEaseOut,
-        scaleX: newScale,
-        scaleY: newScale,
-        onFinish: () => getMainLayer()?.batchDraw()
-    }).play();
+    zoomBy(1.4);
 };
 
 const zoomOut = () => {
-    const stage = getStage();
-    if (!stage) return;
-    
-    const oldScale = stage.scaleX();
-    const newScale = oldScale / 1.4;
-    
-    new Konva.Tween({
-        node: stage,
-        duration: 0.3,
-        easing: Konva.Easings.EaseInOut,
-        scaleX: newScale,
-        scaleY: newScale,
-        onFinish: () => getMainLayer()?.batchDraw()
-    }).play();
+    zoomBy(1 / 1.4);
 };
 
 const resetZoom = () => {
-    const stage = getStage();
-    if (!stage) return;
-    
-    new Konva.Tween({
-        node: stage,
-        duration: 0.5,
-        easing: Konva.Easings.BackEaseOut,
-        scaleX: 1,
-        scaleY: 1,
-        x: 0,
-        y: 0,
-        onFinish: () => getMainLayer()?.draw()
-    }).play();
+    resetView();
 };
 
 const showShare = () => showToast('Link share disalin ke clipboard');
