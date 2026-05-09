@@ -76,38 +76,73 @@ export function drawOutlineLayer(img: HTMLImageElement, color: string, size: num
 export const generatePaletteFromDataUrl = (dataUrl: string): Promise<string[]> => {
     return new Promise((resolve) => {
         const img = new Image();
+        img.crossOrigin = 'Anonymous';
         img.onload = () => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
+            if (!ctx) return resolve([]);
 
-            if (!ctx) {
-                resolve([]);
-                return;
+            // Ukuran sampel kecil untuk performa, tapi cukup detail
+            const S = 100;
+            canvas.width = S;
+            canvas.height = S;
+            ctx.drawImage(img, 0, 0, S, S);
+
+            const data = ctx.getImageData(0, 0, S, S).data;
+            const colorCounts: Record<string, number> = {};
+            
+            // 1. Quantization & Counting
+            // Kita gunakan bitwise shift untuk grouping warna yang sangat mirip (32 levels per channel)
+            for (let i = 0; i < data.length; i += 4) {
+                const a = data[i + 3];
+                if (a < 128) continue; // Skip transparan
+
+                const r = data[i] >> 3;
+                const g = data[i + 1] >> 3;
+                const b = data[i + 2] >> 3;
+                const key = (r << 10) | (g << 5) | b;
+                colorCounts[key] = (colorCounts[key] || 0) + 1;
             }
 
-            canvas.width = 100;
-            canvas.height = 100;
-            ctx.drawImage(img, 0, 0, 100, 100);
+            // 2. Sort by popularity
+            const sortedColors = Object.entries(colorCounts)
+                .map(([key, count]) => ({
+                    r: (Number(key) >> 10) << 3,
+                    g: ((Number(key) >> 5) & 31) << 3,
+                    b: (Number(key) & 31) << 3,
+                    count
+                }))
+                .sort((a, b) => b.count - a.count);
 
-            const imageData = ctx.getImageData(0, 0, 100, 100).data;
-            const colors = new Set<string>();
+            // 3. Filter for diversity (Min Distance check)
+            const palette: string[] = [];
+            const rgbPalette: {r: number, g: number, b: number}[] = [];
+            const minDistance = 60; // Ambang batas jarak warna (Euclidean)
 
-            for (let i = 0; i < imageData.length; i += 40) {
-                const r = imageData[i];
-                const g = imageData[i+1];
-                const b = imageData[i+2];
+            for (const col of sortedColors) {
+                // Lewati jika terlalu dekat dengan warna yang sudah ada di palet
+                const isTooClose = rgbPalette.some(p => {
+                    const distance = Math.sqrt(
+                        Math.pow(p.r - col.r, 2) + 
+                        Math.pow(p.g - col.g, 2) + 
+                        Math.pow(p.b - col.b, 2)
+                    );
+                    return distance < minDistance;
+                });
 
-                const qr = Math.round(r / 15) * 15;
-                const qg = Math.round(g / 15) * 15;
-                const qb = Math.round(b / 15) * 15;
+                if (!isTooClose) {
+                    const hex = '#' + [col.r, col.g, col.b]
+                        .map(x => x.toString(16).padStart(2, '0'))
+                        .join('');
+                    palette.push(hex);
+                    rgbPalette.push(col);
+                }
 
-                const hex = '#' + ((1 << 24) + (qr << 16) + (qg << 8) + qb).toString(16).slice(1);
-                colors.add(hex);
-
-                if (colors.size >= 12) break;
+                if (palette.length >= 16) break; // Ambil maksimal 16 warna
             }
 
-            resolve(Array.from(colors));
+            // Jika palet terlalu sedikit, turunkan jarak dan coba lagi (opsional)
+            resolve(palette);
         };
         img.src = dataUrl;
     });

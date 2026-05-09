@@ -1,4 +1,4 @@
-import { ref, onUnmounted, nextTick } from 'vue';
+import { ref, onUnmounted, nextTick, watch } from 'vue';
 import Konva from 'konva';
 import { useStudioStore } from './useStudioStore';
 import { useStudioHistory } from './useStudioHistory';
@@ -155,7 +155,8 @@ export function useKonvaRenderer() {
         const img = layerSourceImages.value[id];
         if (!img || !shoeGroup) return;
 
-        const konvaImg = shoeGroup.findOne(`.layer-${id}`) as Konva.Image;
+        // More robust lookup
+        const konvaImg = shoeGroup.getChildren().find(node => node.name() === `layer-${id}`) as Konva.Image;
         if (!konvaImg) return;
 
         const canvas = document.createElement('canvas');
@@ -177,6 +178,15 @@ export function useKonvaRenderer() {
         konvaImg.image(canvas);
         mainLayer?.draw();
     };
+
+    // Auto-sync store to canvas
+    watch(layerColors, (newColors) => {
+        Object.keys(newColors).forEach(id => updateLayer(Number(id)));
+    }, { deep: true });
+
+    watch(layerOutlines, (newOutlines) => {
+        Object.keys(newOutlines).forEach(id => updateLayer(Number(id)));
+    }, { deep: true });
 
     const loadAssets = async () => {
         if (!currentModelMeta.value || !shoeGroup || !stage) return;
