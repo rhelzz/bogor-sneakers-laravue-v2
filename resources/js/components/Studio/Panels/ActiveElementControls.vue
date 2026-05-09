@@ -18,7 +18,7 @@
             </div>
 
             <!-- Image/Logo Specific Controls -->
-            <div v-if="activeElement.type === 'image'" class="space-y-3">
+            <div v-if="activeElement.type === 'image' && activeElement.outline" class="space-y-3">
                 <div class="p-3 bg-white rounded-xl border border-gray-100/50 space-y-4 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">

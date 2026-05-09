@@ -26,6 +26,7 @@ export function useKonvaRenderer() {
     let shoeGroup: Konva.Group | null = null;
     let elementsGroup: Konva.Group | null = null;
     let transformer: Konva.Transformer | null = null;
+    let assetLoadVersion = 0;
 
     const layerSourceImages = ref<Record<number, HTMLImageElement>>({});
     const isSyncing = ref(false);
@@ -156,8 +157,12 @@ export function useKonvaRenderer() {
         if (!img || !shoeGroup) return;
 
         // More robust lookup
-        const konvaImg = shoeGroup.getChildren().find(node => node.name() === `layer-${id}`) as Konva.Image;
-        if (!konvaImg) return;
+        const konvaLayers = shoeGroup.getChildren()
+            .filter(node => node.name() === `layer-${id}`) as Konva.Image[];
+
+        if (konvaLayers.length === 0) {
+            return;
+        }
 
         const canvas = document.createElement('canvas');
         canvas.width = CANVAS_SIZE;
@@ -175,7 +180,7 @@ export function useKonvaRenderer() {
         const filledCanvas = drawFilledLayer(img, color, CANVAS_SIZE, CANVAS_SIZE);
         ctx.drawImage(filledCanvas, 0, 0);
 
-        konvaImg.image(canvas);
+        konvaLayers.forEach(konvaImg => konvaImg.image(canvas));
         mainLayer?.draw();
     };
 
@@ -189,7 +194,21 @@ export function useKonvaRenderer() {
     }, { deep: true });
 
     const loadAssets = async () => {
-        if (!currentModelMeta.value || !shoeGroup || !stage) return;
+        const loadVersion = ++assetLoadVersion;
+        const isStaleLoad = () => loadVersion !== assetLoadVersion;
+
+        if (!currentModelMeta.value || !shoeGroup || !stage) {
+            if (shoeGroup && stage) {
+                shoeGroup.destroyChildren();
+                elementsGroup?.destroyChildren();
+                layerSourceImages.value = {};
+                mainLayer?.draw();
+            }
+
+            isSyncing.value = false;
+
+            return;
+        }
 
         isSyncing.value = true;
         shoeGroup.destroyChildren();
@@ -203,6 +222,11 @@ export function useKonvaRenderer() {
 
             if (baseFile) {
                 const img = await loadImage(baseUrl + baseFile);
+
+                if (isStaleLoad()) {
+                    return;
+                }
+
                 shoeGroup.add(new Konva.Image({
                     image: img,
                     width: CANVAS_SIZE,
@@ -215,6 +239,11 @@ export function useKonvaRenderer() {
 
             for (const layer of meta.layers) {
                 const img = await loadImage(baseUrl + layer.file);
+
+                if (isStaleLoad()) {
+                    return;
+                }
+
                 layerSourceImages.value[layer.id] = img;
 
                 if (!layerOutlines.value[layer.id]) {
@@ -250,13 +279,22 @@ export function useKonvaRenderer() {
                 shoeGroup.add(konvaLayer);
                 updateLayer(layer.id);
             }
+
+            if (isStaleLoad()) {
+                return;
+            }
+
             mainLayer?.draw();
             saveToHistory();
         } catch (err) {
-            console.error(err);
-            showToast('Gagal memuat aset model');
+            if (!isStaleLoad()) {
+                console.error(err);
+                showToast('Gagal memuat aset model');
+            }
         } finally {
-            isSyncing.value = false;
+            if (!isStaleLoad()) {
+                isSyncing.value = false;
+            }
         }
     };
 

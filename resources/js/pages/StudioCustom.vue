@@ -139,11 +139,6 @@ const fetchCatalog = async () => {
         console.error(err);
     } finally {
         catalogLoading.value = false;
-
-        // Load assets if stage already initialized
-        if (getStage()) {
-            loadAssets();
-        }
     }
 };
 
@@ -490,7 +485,7 @@ watch(activeElement, (newEl) => {
     }
 }, { deep: true });
 
-watch(currentModel, () => {
+watch([activeFolderKey, currentModel], () => {
     if (getStage()) {
         loadAssets();
     }

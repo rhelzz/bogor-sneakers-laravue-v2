@@ -10,8 +10,8 @@
             </div>
 
             <ActiveElementControls 
-                @remove="$emit('removeElement')"
-                @updateImageOutline="$emit('updateImageOutline')"
+                @remove="$emit('remove-element')"
+                @updateImageOutline="$emit('update-image-outline')"
             />
         </div>
 

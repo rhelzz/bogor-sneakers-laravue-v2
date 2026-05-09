@@ -151,10 +151,14 @@ const activeVariantLabel = computed(() => {
 
 const selectFolder = (key: string) => {
     activeFolderKey.value = key;
+
+    const folder = catalogFolders.value.find(f => f.key === key);
+    currentModel.value = folder?.models[0]?.id ?? null;
+
     isModelOpen.value = false;
 };
 
-const selectVariant = (id: string) => {
+const selectVariant = (id: number | string) => {
     currentModel.value = id;
     isVariantOpen.value = false;
 };
@@ -164,6 +168,7 @@ const handleClickOutside = (event: MouseEvent) => {
     if (modelDropdownRef.value && !modelDropdownRef.value.contains(event.target as Node)) {
         isModelOpen.value = false;
     }
+
     if (variantDropdownRef.value && !variantDropdownRef.value.contains(event.target as Node)) {
         isVariantOpen.value = false;
     }
