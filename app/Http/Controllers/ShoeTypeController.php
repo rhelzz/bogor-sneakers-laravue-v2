@@ -47,8 +47,8 @@ class ShoeTypeController extends Controller
         // Cleanup physical files for all variants in this type
         foreach ($shoeType->variants as $variant) {
             $modelSlug = $variant->model->slug;
-            $variantId = $variant->id;
-            \Illuminate\Support\Facades\Storage::disk('public_path')->deleteDirectory("shoes-svg/{$modelSlug}/{$variantId}");
+            $variantSlug = Str::slug($variant->name);
+            \Illuminate\Support\Facades\Storage::disk('public_path')->deleteDirectory("shoes-svg/{$modelSlug}/{$variantSlug}");
         }
 
         $shoeType->delete();
