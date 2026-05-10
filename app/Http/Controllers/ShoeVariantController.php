@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Support\Str;
+
 class ShoeVariantController extends Controller
 {
     public function index($shoeModelId): Response
@@ -40,6 +42,65 @@ class ShoeVariantController extends Controller
         return redirect()->back()->with('success', 'Varian berhasil dibuat.');
     }
 
+    public function update(Request $request, $shoeVariantId): RedirectResponse
+    {
+        $shoeVariant = ShoeVariant::with(['model', 'svgs'])->findOrFail($shoeVariantId);
+        $oldNameSlug = \Illuminate\Support\Str::slug($shoeVariant->name);
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'shoe_type_id' => 'nullable|exists:shoe_types,id',
+        ]);
+
+        $newNameSlug = \Illuminate\Support\Str::slug($validated['name']);
+        $modelSlug = $shoeVariant->model->slug;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            if ($oldNameSlug !== $newNameSlug) {
+                $pathByOldSlug = public_path("shoes-svg/{$modelSlug}/{$oldNameSlug}");
+                $pathById = public_path("shoes-svg/{$modelSlug}/{$shoeVariant->id}");
+                $newPath = public_path("shoes-svg/{$modelSlug}/{$newNameSlug}");
+
+                // Find which directory exists (could be by slug or by ID if it was created before refactor)
+                $sourcePath = null;
+                $oldPart = null;
+
+                if (is_dir($pathByOldSlug)) {
+                    $sourcePath = $pathByOldSlug;
+                    $oldPart = $oldNameSlug;
+                } elseif (is_dir($pathById)) {
+                    $sourcePath = $pathById;
+                    $oldPart = $shoeVariant->id;
+                }
+
+                if ($sourcePath && $sourcePath !== $newPath) {
+                    if (!\Illuminate\Support\Facades\File::moveDirectory($sourcePath, $newPath)) {
+                        throw new \Exception("Gagal mengubah nama direktori varian ke {$newNameSlug}");
+                    }
+
+                    // Update SVG paths in database for this variant
+                    foreach ($shoeVariant->svgs as $svg) {
+                        $newFilePath = str_replace("shoes-svg/{$modelSlug}/{$oldPart}/", "shoes-svg/{$modelSlug}/{$newNameSlug}/", $svg->file_path);
+                        $svg->update(['file_path' => $newFilePath]);
+                    }
+                }
+            }
+
+            $shoeVariant->update([
+                'name' => $validated['name'],
+                'shoe_type_id' => $validated['shoe_type_id'] ?? null,
+            ]);
+
+            \Illuminate\Support\Facades\DB::commit();
+            return redirect()->back()->with('success', 'Varian berhasil diperbarui.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('ShoeVariant update failed: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['name' => 'Gagal memperbarui varian: ' . $e->getMessage()]);
+        }
+    }
+
     /**
      * Bulk upload SVGs to a variant.
      */
@@ -52,13 +113,13 @@ class ShoeVariantController extends Controller
 
         if ($request->hasFile('files')) {
             $modelSlug = $shoeVariant->model->slug;
-            $variantId = $shoeVariant->id;
+            $variantSlug = Str::slug($shoeVariant->name);
 
             foreach ($request->file('files') as $file) {
                 $fileName = $file->getClientOriginalName();
-                // Store in public/shoes-svg/{model-slug}/{variant-id}/{filename}
+                // Store in public/shoes-svg/{model-slug}/{variant-name}/{filename}
                 $path = $file->storeAs(
-                    "shoes-svg/{$modelSlug}/{$variantId}",
+                    "shoes-svg/{$modelSlug}/{$variantSlug}",
                     $fileName,
                     'public_path'
                 );
@@ -79,8 +140,8 @@ class ShoeVariantController extends Controller
         
         // Delete physical directory
         $modelSlug = $shoeVariant->model->slug;
-        $variantId = $shoeVariant->id;
-        Storage::disk('public_path')->deleteDirectory("shoes-svg/{$modelSlug}/{$variantId}");
+        $variantSlug = Str::slug($shoeVariant->name);
+        Storage::disk('public_path')->deleteDirectory("shoes-svg/{$modelSlug}/{$variantSlug}");
         
         $shoeVariant->delete();
         return redirect()->back()->with('success', 'Varian berhasil dihapus.');

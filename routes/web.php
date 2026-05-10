@@ -87,5 +87,6 @@ Route::prefix('admin')->group(function () {
     Route::delete('/shoe-types/{shoeType}', [ShoeTypeController::class, 'destroy'])->name('admin.shoe-types.destroy');
 
     Route::post('/variants/{shoeVariant}/svgs', [ShoeVariantController::class, 'uploadSvgs'])->name('admin.variants.svgs.upload');
+    Route::put('/variants/{shoeVariant}', [ShoeVariantController::class, 'update'])->name('admin.variants.update');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
 });
