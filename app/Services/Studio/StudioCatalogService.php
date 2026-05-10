@@ -46,13 +46,14 @@ class StudioCatalogService
             ->map(function (string $modelPath): ?array {
                 $modelRaw = basename($modelPath);
                 $modelId = $modelRaw;
-                $modelLabel = $modelRaw;
+                $modelLabel = $this->toFolderLabel($modelRaw);
 
                 if (ctype_digit($modelRaw)) {
                     $modelId = (int) $modelRaw;
                     $modelLabel = sprintf('M%d', $modelId);
                 } elseif (preg_match('/M(\d+)/i', $modelRaw, $idMatches)) {
                     $modelId = (int) $idMatches[1];
+                    // Keep the original label for M-prefixed folders
                     $modelLabel = $modelRaw;
                 }
 
