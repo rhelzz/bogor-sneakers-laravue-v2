@@ -556,7 +556,7 @@ whatsappAdmins.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
     whatsappAdmins.form = whatsappAdminsForm
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
 export const modelSepatu = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -571,7 +571,7 @@ modelSepatu.definition = {
 
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
 modelSepatu.url = (options?: RouteQueryOptions) => {
@@ -580,7 +580,7 @@ modelSepatu.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
 modelSepatu.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -589,7 +589,7 @@ modelSepatu.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
 modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -599,7 +599,7 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
     const modelSepatuForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -609,7 +609,7 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
         modelSepatuForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -618,7 +618,7 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\ShoeModelController::modelSepatu
- * @see app/Http/Controllers/ShoeModelController.php:14
+ * @see app/Http/Controllers/ShoeModelController.php:18
  * @route '/admin/model-sepatu'
  */
         modelSepatuForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
