@@ -79,11 +79,20 @@ const uploadForm = useForm({
     files: [] as File[],
 });
 
-const openVariantModal = () => {
-    variantForm.reset();
-    // Auto select type if we are in a type tab
-    if (typeof activeTab.value === 'number') {
-        variantForm.shoe_type_id = activeTab.value;
+const openVariantModal = (variant: ShoeVariant | null | any = null) => {
+    // Safeguard: If variant is an Event object (from @click="openVariantModal"), treat it as null
+    const actualVariant = (variant && variant.id && typeof variant.id === 'number') ? variant : null;
+    
+    selectedVariant.value = actualVariant;
+    if (actualVariant) {
+        variantForm.name = actualVariant.name;
+        variantForm.shoe_type_id = actualVariant.shoe_type_id;
+    } else {
+        variantForm.reset();
+        // Auto select type if we are in a type tab
+        if (typeof activeTab.value === 'number') {
+            variantForm.shoe_type_id = activeTab.value;
+        }
     }
     showVariantModal.value = true;
 };
@@ -131,12 +140,21 @@ const submitVariant = () => {
     
     // Fake loading 1 second
     setTimeout(() => {
-        variantForm.post(modelSepatu.variants.store.url(props.shoeModel.id), {
-            onSuccess: () => closeModals(),
-            onFinish: () => {
-                isFakeLoading.value = false;
-            }
-        });
+        if (selectedVariant.value) {
+            variantForm.put(variantsRoute.update.url(selectedVariant.value.id), {
+                onSuccess: () => closeModals(),
+                onFinish: () => {
+                    isFakeLoading.value = false;
+                }
+            });
+        } else {
+            variantForm.post(modelSepatu.variants.store.url(props.shoeModel.id), {
+                onSuccess: () => closeModals(),
+                onFinish: () => {
+                    isFakeLoading.value = false;
+                }
+            });
+        }
     }, 1000);
 };
 
@@ -263,7 +281,7 @@ const getLayerTypeLabel = (fileName: string) => {
                         <span>Kelola Jenis</span>
                     </button>
                     <button
-                        @click="openVariantModal"
+                        @click="openVariantModal()"
                         class="flex items-center space-x-2 rounded-xl bg-indigo-600 px-5 py-2.5 font-bold text-white shadow-sm transition-all duration-200 hover:bg-indigo-700"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -339,6 +357,15 @@ const getLayerTypeLabel = (fileName: string) => {
                             </div>
                         </div>
                         <div class="flex space-x-2">
+                            <button
+                                @click="openVariantModal(variant)"
+                                class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600"
+                                title="Edit Varian"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
                             <button
                                 @click="openUploadModal(variant)"
                                 class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
@@ -425,7 +452,9 @@ const getLayerTypeLabel = (fileName: string) => {
                 >
                     <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl text-left">
                         <div class="mb-6 flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-slate-800">Tambah Varian Baru</h3>
+                            <h3 class="text-xl font-bold text-slate-800">
+                                {{ selectedVariant ? 'Edit Varian' : 'Tambah Varian Baru' }}
+                            </h3>
                             <button @click="closeModals" class="text-slate-400 hover:text-slate-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -466,7 +495,7 @@ const getLayerTypeLabel = (fileName: string) => {
                                     :disabled="isFakeLoading || variantForm.processing"
                                     class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
                                 >
-                                    {{ (isFakeLoading || variantForm.processing) ? 'Menyimpan...' : 'Simpan Varian' }}
+                                    {{ (isFakeLoading || variantForm.processing) ? 'Menyimpan...' : (selectedVariant ? 'Update Varian' : 'Simpan Varian') }}
                                 </button>
                             </div>
                         </form>
