@@ -105,7 +105,7 @@ class ShoeManagementTest extends TestCase
         $variant = $model->variants()->create(['name' => 'V1']);
         
         // Mock some files
-        $dir = "shoes-svg/{$model->slug}/{$variant->id}";
+        $dir = "shoes-svg/{$model->slug}/v1";
         Storage::disk('public_path')->put("{$dir}/test.svg", 'content');
         
         $this->assertTrue(Storage::disk('public_path')->exists("{$dir}/test.svg"));
@@ -126,8 +126,8 @@ class ShoeManagementTest extends TestCase
         $v1 = $model->variants()->create(['name' => 'V1', 'shoe_type_id' => $type->id]);
         $v2 = $model->variants()->create(['name' => 'V2', 'shoe_type_id' => $type->id]);
 
-        $dir1 = "shoes-svg/{$model->slug}/{$v1->id}";
-        $dir2 = "shoes-svg/{$model->slug}/{$v2->id}";
+        $dir1 = "shoes-svg/{$model->slug}/v1";
+        $dir2 = "shoes-svg/{$model->slug}/v2";
         
         Storage::disk('public_path')->put("{$dir1}/f1.svg", 'c');
         Storage::disk('public_path')->put("{$dir2}/f2.svg", 'c');
@@ -141,5 +141,106 @@ class ShoeManagementTest extends TestCase
         
         $this->assertFalse(Storage::disk('public_path')->exists($dir1));
         $this->assertFalse(Storage::disk('public_path')->exists($dir2));
+    }
+
+    /** @test */
+    public function test_it_deletes_physical_directory_when_model_is_deleted()
+    {
+        $model = ShoeModel::create(['name' => 'Aero', 'slug' => 'aero']);
+        
+        $dir = "shoes-svg/{$model->slug}";
+        Storage::disk('public_path')->put("{$dir}/variant1/test.svg", 'content');
+        
+        $this->assertTrue(Storage::disk('public_path')->exists("{$dir}/variant1/test.svg"));
+
+        $response = $this->delete(route('admin.model-sepatu.destroy', $model->id));
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('shoe_models', ['id' => $model->id]);
+        $this->assertFalse(Storage::disk('public_path')->exists($dir));
+    }
+
+    /** @test */
+    public function test_it_renames_physical_directory_when_model_is_renamed()
+    {
+        // Don't fake 'public_path' to test real File operations
+        $model = ShoeModel::create(['name' => 'Aero', 'slug' => 'aero']);
+        $variant = $model->variants()->create(['name' => 'V1']);
+        $svg = $variant->svgs()->create([
+            'file_name' => 'test.svg',
+            'file_path' => "shoes-svg/aero/v1/test.svg",
+        ]);
+
+        $oldDirPath = public_path("shoes-svg/aero");
+        $newDirPath = public_path("shoes-svg/aero-new");
+        
+        if (!is_dir($oldDirPath)) {
+            mkdir($oldDirPath . "/v1", 0777, true);
+        }
+        file_put_contents($oldDirPath . "/v1/test.svg", 'content');
+
+        $response = $this->put(route('admin.model-sepatu.update', $model->id), [
+            'name' => 'Aero New',
+            'is_active' => true,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('shoe_models', ['name' => 'Aero New', 'slug' => 'aero-new']);
+        
+        // Check filesystem
+        $this->assertFalse(is_dir($oldDirPath));
+        $this->assertTrue(is_dir($newDirPath));
+        $this->assertTrue(file_exists($newDirPath . "/v1/test.svg"));
+        
+        // Check database path update
+        $this->assertDatabaseHas('shoe_variant_svgs', [
+            'id' => $svg->id,
+            'file_path' => "shoes-svg/aero-new/v1/test.svg",
+        ]);
+
+        // Cleanup
+        \Illuminate\Support\Facades\File::deleteDirectory($newDirPath);
+    }
+
+    /** @test */
+    public function test_it_renames_physical_directory_when_variant_is_renamed()
+    {
+        $model = ShoeModel::create(['name' => 'Aero', 'slug' => 'aero']);
+        $variant = $model->variants()->create(['name' => 'V1']);
+        $svg = $variant->svgs()->create([
+            'file_name' => 'test.svg',
+            'file_path' => "shoes-svg/aero/v1/test.svg",
+        ]);
+
+        $modelDirPath = public_path("shoes-svg/aero");
+        $oldVariantPath = $modelDirPath . "/v1";
+        $newVariantPath = $modelDirPath . "/v1-new";
+
+        if (!is_dir($oldVariantPath)) {
+            mkdir($oldVariantPath, 0777, true);
+        }
+        file_put_contents($oldVariantPath . "/test.svg", 'content');
+
+        // Use the newly added route
+        $response = $this->put(route('admin.variants.update', $variant->id), [
+            'name' => 'V1 New',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('shoe_variants', ['name' => 'V1 New']);
+        
+        // Check filesystem
+        $this->assertFalse(is_dir($oldVariantPath));
+        $this->assertTrue(is_dir($newVariantPath));
+        $this->assertTrue(file_exists($newVariantPath . "/test.svg"));
+        
+        // Check database path update
+        $this->assertDatabaseHas('shoe_variant_svgs', [
+            'id' => $svg->id,
+            'file_path' => "shoes-svg/aero/v1-new/test.svg",
+        ]);
+
+        // Cleanup
+        \Illuminate\Support\Facades\File::deleteDirectory($modelDirPath);
     }
 }

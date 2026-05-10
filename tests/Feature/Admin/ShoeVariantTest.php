@@ -89,8 +89,8 @@ class ShoeVariantTest extends TestCase
             'file_name' => '_aksen1.svg',
         ]);
 
-        Storage::disk('public_path')->assertExists("shoes-svg/test-model/{$variant->id}/_base.svg");
-        Storage::disk('public_path')->assertExists("shoes-svg/test-model/{$variant->id}/_aksen1.svg");
+        Storage::disk('public_path')->assertExists("shoes-svg/test-model/varian-1/_base.svg");
+        Storage::disk('public_path')->assertExists("shoes-svg/test-model/varian-1/_aksen1.svg");
     }
 
     public function test_admin_can_delete_variant()
@@ -100,7 +100,7 @@ class ShoeVariantTest extends TestCase
         $variant = $this->shoeModel->variants()->create(['name' => 'To Be Deleted']);
         $variant->svgs()->create([
             'file_name' => 'test.svg',
-            'file_path' => "shoes-svg/test-model/{$variant->id}/test.svg",
+            'file_path' => "shoes-svg/test-model/to-be-deleted/test.svg",
         ]);
 
         $response = $this->actingAs($this->admin)
