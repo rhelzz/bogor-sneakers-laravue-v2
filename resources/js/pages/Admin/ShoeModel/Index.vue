@@ -56,10 +56,16 @@ const submit = () => {
     if (editingModel.value) {
         form.put(modelSepatu.update.url(editingModel.value.id), {
             onSuccess: () => closeModal(),
+            onError: (errors) => {
+                console.error("Update failed:", errors);
+            }
         });
     } else {
         form.post(modelSepatu.store.url(), {
             onSuccess: () => closeModal(),
+            onError: (errors) => {
+                console.error("Creation failed:", errors);
+            }
         });
     }
 };
@@ -228,6 +234,7 @@ const deleteModel = (model: ShoeModel) => {
                                     required
                                     placeholder="Contoh: Casual High"
                                     class="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+                                    :class="{'border-rose-500': form.errors.name}"
                                 />
                                 <p v-if="form.errors.name" class="mt-1 text-xs text-rose-500">{{ form.errors.name }}</p>
                             </div>
