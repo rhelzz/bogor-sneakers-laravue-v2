@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CarouselSlideController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryKaryaController;
@@ -34,6 +35,13 @@ Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
 Route::get('/api/studio-custom/catalog', [StudioAssetController::class, 'catalog'])->name('studio-custom.catalog');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
+
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/add', [CartController::class, 'add'])->name('cart.add');
+    Route::patch('/items/{itemId}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/items/{itemId}', [CartController::class, 'remove'])->name('cart.remove');
+});
 
 // Admin Carousel Routes
 Route::prefix('admin')->group(function () {
