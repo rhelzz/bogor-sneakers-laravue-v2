@@ -21,7 +21,9 @@ use App\Http\Controllers\ShippingController;
 
 Route::prefix('shipping')->group(function () {
     Route::get('/destinations', [ShippingController::class, 'searchDestinations']);
+    Route::get('/couriers', [ShippingController::class, 'getCouriers']);
     Route::post('/calculate', [ShippingController::class, 'calculateCost']);
+    Route::post('/track', [ShippingController::class, 'trackAWB']);
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('home');

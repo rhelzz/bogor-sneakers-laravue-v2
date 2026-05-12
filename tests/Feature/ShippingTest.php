@@ -38,6 +38,16 @@ class ShippingTest extends TestCase
     }
 
     /** @test */
+    public function test_it_can_get_supported_couriers()
+    {
+        $response = $this->getJson('/shipping/couriers');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(9, 'data')
+            ->assertJsonPath('data.0.code', 'jne');
+    }
+
+    /** @test */
     public function test_it_can_calculate_domestic_shipping_cost()
     {
         Http::fake([
@@ -71,6 +81,59 @@ class ShippingTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.0.code', 'jne')
             ->assertJsonPath('data.0.cost', 10000);
+    }
+
+    /** @test */
+    public function test_it_rejects_unsupported_courier_in_calculation()
+    {
+        $response = $this->postJson('/shipping/calculate', [
+            'origin' => 114,
+            'destination' => 200,
+            'weight' => 1000,
+            'courier' => 'grab',
+            'price' => 'lowest'
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['courier']);
+    }
+
+    /** @test */
+    public function test_it_can_track_awb()
+    {
+        Http::fake([
+            '*/waybill/track*' => Http::response([
+                'meta' => [
+                    'message' => 'Success Track Waybill',
+                    'code' => 200,
+                    'status' => 'success'
+                ],
+                'data' => [
+                    'summary' => [
+                        'waybill_number' => '123456789',
+                        'courier_code' => 'jne',
+                        'status' => 'DELIVERED'
+                    ]
+                ]
+            ], 200)
+        ]);
+
+        $response = $this->postJson('/shipping/track', [
+            'waybill' => '123456789',
+            'courier' => 'jne'
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.summary.status', 'DELIVERED');
+    }
+
+    /** @test */
+    public function test_it_validates_tracking_request()
+    {
+        $response = $this->postJson('/shipping/track', []);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['waybill', 'courier']);
     }
 
     /** @test */

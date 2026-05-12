@@ -17,6 +17,27 @@ class RajaOngkirService
     }
 
     /**
+     * Get list of supported couriers.
+     *
+     * @return array
+     */
+    public function getSupportedCouriers(): array
+    {
+        return config('services.rajaongkir.supported_couriers', []);
+    }
+
+    /**
+     * Validate if a courier code is supported.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function isValidCourier(string $code): bool
+    {
+        return array_key_exists($code, $this->getSupportedCouriers());
+    }
+
+    /**
      * Search for domestic destinations.
      *
      * @param string $search
@@ -71,6 +92,33 @@ class RajaOngkirService
             return $response->json();
         } catch (\Exception $e) {
             Log::error('RajaOngkir Calculate Error: ' . $e->getMessage());
+            return [
+                'meta' => ['code' => 500, 'status' => 'error', 'message' => 'Internal Server Error'],
+                'data' => null
+            ];
+        }
+    }
+
+    /**
+     * Track AWB (Waybill).
+     *
+     * @param string $waybill
+     * @param string $courier
+     * @return array
+     */
+    public function trackAWB(string $waybill, string $courier): array
+    {
+        try {
+            $response = Http::withoutVerifying()->asForm()->withHeaders([
+                'key' => $this->apiKey
+            ])->post("{$this->baseUrl}/waybill/track", [
+                'waybill' => $waybill,
+                'courier' => $courier
+            ]);
+
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('RajaOngkir Track Error: ' . $e->getMessage());
             return [
                 'meta' => ['code' => 500, 'status' => 'error', 'message' => 'Internal Server Error'],
                 'data' => null

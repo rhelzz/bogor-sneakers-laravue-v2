@@ -50,6 +50,17 @@ return [
     'rajaongkir' => [
         'key' => env('RAJAONGKIR_API_KEY'),
         'base_url' => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
+        'supported_couriers' => [
+            'jne' => ['name' => 'JNE', 'supports_awb' => true],
+            'sicepat' => ['name' => 'SiCepat', 'supports_awb' => true],
+            'sap' => ['name' => 'SAP Express', 'supports_awb' => true],
+            'ninja' => ['name' => 'Ninja Xpress', 'supports_awb' => true],
+            'jnt' => ['name' => 'J&T Express', 'supports_awb' => true],
+            'tiki' => ['name' => 'TIKI', 'supports_awb' => true],
+            'wahana' => ['name' => 'Wahana Express', 'supports_awb' => true],
+            'pos' => ['name' => 'POS Indonesia', 'supports_awb' => true],
+            'lion' => ['name' => 'Lion Parcel', 'supports_awb' => true],
+        ],
     ],
 
 ];
