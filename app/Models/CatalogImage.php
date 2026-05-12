@@ -34,6 +34,13 @@ class CatalogImage extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * @var list<string>
+     */
+    protected $appends = [
+        'image_url',
+    ];
+
     public function catalog(): BelongsTo
     {
         return $this->belongsTo(Catalog::class);

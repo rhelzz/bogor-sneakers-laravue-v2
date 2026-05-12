@@ -649,7 +649,10 @@ class KatalogController extends Controller
             'description' => $catalog->description,
             'price' => (int) $catalog->price,
             'status' => $catalog->status,
-            'sizes' => $catalog->sizes->pluck('size_eu')->map(fn (mixed $size): int => (int) $size)->values()->all(),
+            'sizes' => $catalog->sizes->map(fn (\App\Models\CatalogSize $size): array => [
+                'id' => $size->id,
+                'size' => (int) $size->size_eu,
+            ])->values()->all(),
             'popularity' => (int) $catalog->popularity_score,
             'card_image_url' => $catalog->card_image_url,
             'image_url' => $catalog->primary_image_url,
@@ -714,7 +717,10 @@ class KatalogController extends Controller
             'popularity_score' => (int) $catalog->popularity_score,
             'is_active' => (bool) $catalog->is_active,
             'sort_order' => (int) $catalog->sort_order,
-            'sizes' => $catalog->sizes->pluck('size_eu')->map(fn (mixed $size): int => (int) $size)->values()->all(),
+            'sizes' => $catalog->sizes->map(fn (\App\Models\CatalogSize $size): array => [
+                'id' => $size->id,
+                'size' => (int) $size->size_eu,
+            ])->values()->all(),
             'images' => $catalog->images
                 ->sortBy('position')
                 ->values()

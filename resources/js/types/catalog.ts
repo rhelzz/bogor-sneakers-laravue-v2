@@ -19,7 +19,7 @@ export interface CatalogPublicItem {
     description: string | null
     price: number
     status: CatalogStatus
-    sizes: number[]
+    sizes: Array<{ id: number; size: number }>
     popularity: number
     card_image_url: string | null
     image_url: string | null
@@ -55,7 +55,7 @@ export interface CatalogAdminItem {
     popularity_score: number
     is_active: boolean
     sort_order: number
-    sizes: number[]
+    sizes: Array<{ id: number; size: number }>
     images: CatalogImageItem[]
     created_at: string | null
     updated_at: string | null
