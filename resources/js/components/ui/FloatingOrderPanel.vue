@@ -1,7 +1,7 @@
 <template>
   <button
     aria-label="Lacak pesanan"
-    class="fixed top-6 right-6 z-50 group md:right-auto md:left-1/2 md:translate-x-62"
+    class="fixed top-6 right-[5.5rem] z-50 group md:right-auto md:left-1/2 md:translate-x-[15.5rem]"
     @click="orderOpen = !orderOpen"
   >
     <span class="w-12 h-12 rounded-full bg-washi/90 border border-sumi/10 text-usuzumi flex items-center justify-center transition-all duration-300 group-hover:text-sumi shadow-lg backdrop-blur-md">
