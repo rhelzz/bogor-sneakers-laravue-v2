@@ -36,11 +36,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        /** @var \App\Services\CartService $cartService */
+        $cartService = app(\App\Services\CartService::class);
+        $cart = $request->attributes->get('cart');
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
+            ],
+            'cart' => $cart ? $cartService->getCart($cart) : [
+                'items' => [],
+                'total' => 0,
+                'count' => 0,
             ],
             'floatingContacts' => fn (): array => $this->resolveFloatingContacts(),
         ];
