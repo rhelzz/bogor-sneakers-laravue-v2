@@ -224,8 +224,8 @@ const resetDesign = () => {
 const validateCheckout = () => {
     checkoutForm.formTouched = true;
 
-    if (!checkoutForm.name || !checkoutForm.phone || !checkoutForm.email || !checkoutForm.shoeSize || !checkoutForm.address) {
-        showToast('Mohon lengkapi data diri dan alamat');
+    if (!checkoutForm.name || !checkoutForm.phone || !checkoutForm.email || !checkoutForm.shoeSize || !checkoutForm.address || !checkoutForm.addressDetail || !checkoutForm.courier) {
+        showToast('Mohon lengkapi data diri, alamat, dan kurir');
         activeSideTab.value = 'checkout';
 
         return;
@@ -253,7 +253,7 @@ const handleFinalCheckout = async () => {
         downloadURL(previewUrl, `PREVIEW_${safeName}_${timestamp}.png`);
         downloadURL(patternUrl, `POLA_${safeName}_${timestamp}.png`);
 
-        const totalEst = 899000 + (checkoutForm.fastTrackEnabled ? 125000 : 0) + (checkoutForm.customBoxEnabled ? 65000 : 0);
+        const totalEst = 899000 + (checkoutForm.fastTrackEnabled ? 125000 : 0) + (checkoutForm.customBoxEnabled ? 65000 : 0) + checkoutForm.shippingCost;
 
         const waMessage = encodeURIComponent([
             WHATSAPP_INTRO,
@@ -264,8 +264,11 @@ const handleFinalCheckout = async () => {
             `Size: ${checkoutForm.shoeSize}`,
             `Fast Track: ${checkoutForm.fastTrackEnabled ? 'Ya' : 'Tidak'}`,
             `Custom Box: ${checkoutForm.customBoxEnabled ? 'Ya' : 'Tidak'}`,
+            `Ongkir (${checkoutForm.courier.toUpperCase()}): ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(checkoutForm.shippingCost)}`,
             `Total Est: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalEst)}`,
-            `Alamat: ${checkoutForm.address}`
+            `Destinasi: ${checkoutForm.address}`,
+            `Alamat Lengkap: ${checkoutForm.addressDetail}`,
+            `Kurir: ${checkoutForm.courier.toUpperCase()}`
         ].join('\n'));
 
         window.open(`https://wa.me/6285511223344?text=${waMessage}`, '_blank');

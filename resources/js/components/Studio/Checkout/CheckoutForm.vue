@@ -96,17 +96,96 @@
                 <div class="relative group">
                     <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Shipping Address <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <textarea
-                            v-model="checkoutForm.address"
-                            rows="3"
+                        <input
+                            v-model="addressSearch"
+                            type="text"
                             required
                             :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.address}"
-                            class="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20 resize-none"
-                            placeholder="Alamat lengkap..."
-                        ></textarea>
-                        <span class="material-symbols-outlined absolute left-4 top-5 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">location_on</span>
+                            class="w-full h-12 pl-12 pr-6 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20"
+                            placeholder="Cari kecamatan/kota (min. 3 karakter)..."
+                            @input="handleAddressInput"
+                        >
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">location_on</span>
+                        
+                        <!-- Suggestions Dropdown -->
+                        <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[100] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                            <button
+                                v-for="item in suggestions"
+                                :key="item.id"
+                                @click="selectDestination(item)"
+                                class="w-full text-left px-5 py-4 hover:bg-indigo/5 transition-colors border-b border-indigo/5 last:border-0"
+                            >
+                                <p class="text-[13px] font-bold text-sumi">{{ item.label }}</p>
+                                <p class="text-[10px] text-usuzumi/50 font-medium uppercase tracking-wider mt-1">{{ item.subdistrict_name }}, {{ item.city_name }}</p>
+                            </button>
+                        </div>
+
+                        <!-- Loading/Empty State -->
+                        <div v-if="isSearching" class="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div class="w-4 h-4 border-2 border-indigo/20 border-t-indigo rounded-full animate-spin"></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Detailed Address -->
+                <div class="relative group">
+                    <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Detail Alamat (Nama Jalan, No Rumah, dll) <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <textarea
+                            v-model="checkoutForm.addressDetail"
+                            rows="2"
+                            required
+                            :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.addressDetail}"
+                            class="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20 resize-none"
+                            placeholder="Contoh: Jl. Merdeka No. 10, RT 01/RW 02..."
+                        ></textarea>
+                        <span class="material-symbols-outlined absolute left-4 top-5 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">home</span>
+                    </div>
+                </div>
+
+                <!-- Courier Selection -->
+                <transition name="panel-slide">
+                    <div v-if="checkoutForm.destinationId" class="relative group">
+                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Pilih Kurir <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <!-- Custom Dropdown Trigger -->
+                            <button
+                                @click="isCourierDropdownOpen = !isCourierDropdownOpen"
+                                type="button"
+                                :class="[
+                                    'w-full h-12 px-5 rounded-2xl border transition-all text-[13px] font-bold flex items-center justify-between group',
+                                    checkoutForm.courier ? 'bg-white border-indigo/20 shadow-sm' : 'bg-shironeri/50 border-indigo/10',
+                                    checkoutForm.formTouched && !checkoutForm.courier ? 'border-red-200 bg-red-50/30' : ''
+                                ]"
+                            >
+                                <span :class="checkoutForm.courier ? 'text-sumi' : 'text-usuzumi/30'">
+                                    {{ selectedCourierName || 'Pilih Kurir' }}
+                                </span>
+                                <span 
+                                    class="material-symbols-outlined text-usuzumi/30 text-lg transition-transform duration-300"
+                                    :class="isCourierDropdownOpen ? 'rotate-180' : ''"
+                                >expand_more</span>
+                            </button>
+
+                            <!-- Custom Dropdown Menu -->
+                            <transition name="dropdown-slide">
+                                <div v-if="isCourierDropdownOpen" class="absolute z-[110] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-2xl shadow-2xl overflow-hidden py-2">
+                                    <div class="max-h-60 overflow-y-auto custom-scrollbar">
+                                        <button
+                                            v-for="c in checkoutForm.availableCouriers"
+                                            :key="c.code"
+                                            @click="selectCourier(c)"
+                                            class="w-full text-left px-5 py-3 hover:bg-indigo/5 transition-colors flex items-center justify-between group"
+                                        >
+                                            <span class="text-[13px] font-bold text-sumi group-hover:text-indigo">{{ c.name }}</span>
+                                            <span v-if="checkoutForm.courier === c.code" class="material-symbols-outlined text-indigo text-lg">check_circle</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </transition>
+                        </div>
+                    </div>
+                </transition>
             </div>
 
             <!-- Addons Section (Compact) -->
@@ -179,6 +258,14 @@
                         <span>Premium Box</span>
                         <span class="text-indigo font-black">+{{ formatCurrency(65000) }}</span>
                     </div>
+                    <div v-if="checkoutForm.shippingCost > 0" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest">
+                        <span>Shipping ({{ checkoutForm.courier.toUpperCase() }})</span>
+                        <span class="text-indigo font-black">+{{ formatCurrency(checkoutForm.shippingCost) }}</span>
+                    </div>
+                    <div v-else-if="checkoutForm.isCalculatingShipping" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest animate-pulse">
+                        <span>Calculating Shipping...</span>
+                        <span class="text-usuzumi/20">--</span>
+                    </div>
                 </div>
 
                 <div class="pt-4 border-t border-indigo/5 flex justify-between items-center">
@@ -216,18 +303,151 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useStudioStore } from '../../../composables/useStudioStore';
+import { computed, ref, onMounted } from 'vue';
+import { useStudioStore, ORIGIN_ID } from '../../../composables/useStudioStore';
 import { formatCurrency } from '../../../utils/studio-utils';
 
 const { checkoutForm, activeSideTab, isSaving } = useStudioStore();
 
+// Shipping State
+const addressSearch = ref(checkoutForm.address || '');
+const suggestions = ref<any[]>([]);
+const isSearching = ref(false);
+const showSuggestions = ref(false);
+const isCourierDropdownOpen = ref(false);
+let searchTimeout: any = null;
+let abortController: AbortController | null = null;
+
 const shoeSizes = Array.from({ length: 11 }, (_, i) => 35 + i);
+
+const selectedCourierName = computed(() => {
+    const courier = checkoutForm.availableCouriers.find(c => c.code === checkoutForm.courier);
+    return courier ? courier.name : '';
+});
+
+const selectCourier = (courier: any) => {
+    checkoutForm.courier = courier.code;
+    isCourierDropdownOpen.value = false;
+    calculateShippingCost();
+};
+
+const calculateShippingCost = async () => {
+    if (!checkoutForm.destinationId || !checkoutForm.courier) return;
+
+    checkoutForm.isCalculatingShipping = true;
+    try {
+        const response = await fetch('/shipping/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
+            },
+            body: JSON.stringify({
+                origin: ORIGIN_ID,
+                destination: checkoutForm.destinationId,
+                weight: 1000, // 1kg
+                courier: checkoutForm.courier,
+                price: 'lowest'
+            })
+        });
+
+        const result = await response.json();
+        if (result.meta.code === 200 && Array.isArray(result.data)) {
+            // Find REG service
+            const regService = result.data.find((s: any) => s.service === 'REG');
+            if (regService) {
+                checkoutForm.shippingCost = regService.cost;
+            } else {
+                // Fallback to first available if REG not found, or 0
+                checkoutForm.shippingCost = result.data[0]?.cost || 0;
+            }
+        }
+    } catch (err) {
+        console.error('Failed to calculate shipping:', err);
+    } finally {
+        checkoutForm.isCalculatingShipping = false;
+    }
+};
+
+const handleAddressInput = () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    
+    if (addressSearch.value.length < 3) {
+        suggestions.value = [];
+        showSuggestions.value = false;
+        return;
+    }
+
+    searchTimeout = setTimeout(() => {
+        fetchDestinations();
+    }, 500); // 500ms Debounce
+};
+
+const fetchDestinations = async () => {
+    // Cancel previous request if still pending
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+
+    isSearching.value = true;
+    showSuggestions.value = true;
+
+    try {
+        const response = await fetch(`/shipping/destinations?search=${encodeURIComponent(addressSearch.value)}`, {
+            signal: abortController.signal
+        });
+        const result = await response.json();
+        
+        if (result.meta.code === 200) {
+            suggestions.value = result.data;
+        }
+    } catch (err: any) {
+        if (err.name !== 'AbortError') {
+            console.error('Failed to fetch destinations:', err);
+        }
+    } finally {
+        isSearching.value = false;
+    }
+};
+
+const selectDestination = (item: any) => {
+    addressSearch.value = item.label;
+    checkoutForm.address = item.label;
+    checkoutForm.destinationId = item.id;
+    showSuggestions.value = false;
+    
+    // Fetch couriers once destination is selected
+    fetchCouriers();
+
+    // If courier already selected, recalculate cost
+    if (checkoutForm.courier) {
+        calculateShippingCost();
+    }
+};
+
+const fetchCouriers = async () => {
+    try {
+        const response = await fetch('/shipping/couriers');
+        const result = await response.json();
+        if (result.meta.code === 200) {
+            checkoutForm.availableCouriers = result.data;
+        }
+    } catch (err) {
+        console.error('Failed to fetch couriers:', err);
+    }
+};
+
+// If address already exists in store, fetch couriers
+onMounted(() => {
+    if (checkoutForm.destinationId) {
+        fetchCouriers();
+    }
+});
 
 const totalLabel = computed(() => {
     let total = 899000;
     if (checkoutForm.fastTrackEnabled) total += 125000;
     if (checkoutForm.customBoxEnabled) total += 65000;
+    total += checkoutForm.shippingCost;
     return formatCurrency(total);
 });
 
@@ -246,5 +466,13 @@ defineEmits(['checkout']);
 }
 .group-hover\:animate-shine {
     animation: shine 1.5s infinite;
+}
+
+.dropdown-slide-enter-active, .dropdown-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dropdown-slide-enter-from, .dropdown-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 </style>

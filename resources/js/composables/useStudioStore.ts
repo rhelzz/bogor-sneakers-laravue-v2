@@ -1,6 +1,9 @@
 import { ref, computed, reactive } from 'vue';
 import type { CatalogFolder, CatalogModel, LayerOutline, DesignElement } from '../types/studio';
 
+// Constants
+export const ORIGIN_ID = 8137;
+
 // Central State
 const catalogFolders = ref<CatalogFolder[]>([]);
 const catalogLoading = ref(false);
@@ -22,6 +25,12 @@ const checkoutForm = reactive({
     phone: '',
     email: '',
     address: '',
+    addressDetail: '',
+    destinationId: null as number | null,
+    courier: '',
+    availableCouriers: [] as any[],
+    shippingCost: 0,
+    isCalculatingShipping: false,
     shoeSize: '',
     fastTrackEnabled: false,
     customBoxEnabled: false,
@@ -55,6 +64,9 @@ export function useStudioStore() {
     };
 
     return {
+        // Constants
+        ORIGIN_ID,
+
         // State
         catalogFolders,
         catalogLoading,
