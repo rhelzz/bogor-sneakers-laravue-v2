@@ -4,6 +4,7 @@
         <FloatingMenuNav current-page="katalog" />
         <FloatingAdminPanel :contacts="contacts" />
         <FloatingOrderPanel :orders="orders" />
+        <FloatingCartButton />
 
         <section
             class="min-h-screen bg-[radial-gradient(circle_at_1px_1px,rgba(26,26,26,0.06)_1px,transparent_0)] bg-size-[24px_24px] px-4 pt-28 pb-14 sm:px-6 lg:px-10"
@@ -183,13 +184,13 @@
                                     class="grid grid-cols-4 gap-2 sm:grid-cols-5"
                                 >
                                     <button
-                                        v-for="size in availableSizes"
-                                        :key="size"
+                                        v-for="sizeObj in availableSizes"
+                                        :key="sizeObj.id"
                                         class="rounded-md border px-2 py-2 text-xs transition"
-                                        :class="sizeButtonClass(size)"
-                                        @click="selectSize(size)"
+                                        :class="sizeButtonClass(sizeObj.id)"
+                                        @click="selectSize(sizeObj.id)"
                                     >
-                                        {{ size }}
+                                        {{ sizeObj.size }}
                                     </button>
                                 </div>
                             </div>
@@ -211,9 +212,16 @@
                                 <button
                                     class="rounded-full px-5 py-2.5 text-xs tracking-widest uppercase transition"
                                     :class="ctaClass"
-                                    :disabled="product.status === 'habis'"
+                                    :disabled="product.status === 'habis' || cartState.loading"
+                                    @click="addToCart"
                                 >
-                                    {{ ctaText }}
+                                    <template v-if="cartState.loading">
+                                        <i class="bi bi-arrow-repeat mr-2 inline-block animate-spin"></i>
+                                        Menambahkan...
+                                    </template>
+                                    <template v-else>
+                                        {{ ctaText }}
+                                    </template>
                                 </button>
                             </div>
                         </div>
@@ -250,8 +258,10 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
+import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
+import { cartState } from '@/stores/cart';
 import type { CatalogDetailItem, CatalogStatus } from '@/types/catalog';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 
@@ -297,7 +307,7 @@ const orders = ref<FloatingOrder[]>([
 
 const galleryImages = computed(() => product.value?.images ?? []);
 
-const selectedSize = ref<number | null>(null);
+const selectedSizeId = ref<number | null>(null);
 const currentImageIndex = ref(0);
 const isGalleryHovered = ref(false);
 const supportsHover = ref(false);
@@ -308,7 +318,7 @@ let galleryInterval: ReturnType<typeof setInterval> | undefined;
 watch(
     product,
     (value) => {
-        selectedSize.value = value?.sizes[0] ?? null;
+        selectedSizeId.value = value?.sizes[0]?.id ?? null;
         currentImageIndex.value = 0;
     },
     { immediate: true },
@@ -454,19 +464,25 @@ const ctaText = computed(() => {
 });
 
 const ctaClass = computed(() => {
-    if (product.value?.status === 'habis') {
+    if (product.value?.status === 'habis' || cartState.loading) {
         return 'cursor-not-allowed border border-sumi/20 bg-sumi/5 text-hai';
     }
 
     return 'bg-sumi text-washi hover:opacity-85';
 });
 
-const selectSize = (size: number) => {
-    if (!product.value?.sizes.includes(size)) {
-        return;
-    }
+const selectSize = (sizeId: number) => {
+    selectedSizeId.value = sizeId;
+};
 
-    selectedSize.value = size;
+const addToCart = async () => {
+    if (!product.value || !selectedSizeId.value || cartState.loading) return;
+
+    try {
+        await cartState.addItem(product.value.id, selectedSizeId.value);
+    } catch (error) {
+        // Error is handled in store
+    }
 };
 
 const statusText = (status: CatalogStatus) => {
@@ -489,12 +505,8 @@ const statusBadgeClass = (status: CatalogStatus) => {
     return 'bg-sumi text-washi shadow-sm';
 };
 
-const sizeButtonClass = (size: number) => {
-    if (!product.value?.sizes.includes(size)) {
-        return 'cursor-not-allowed border-sumi/10 bg-sumi/5 text-hai/50';
-    }
-
-    if (selectedSize.value === size) {
+const sizeButtonClass = (sizeId: number) => {
+    if (selectedSizeId.value === sizeId) {
         return 'border-sumi bg-sumi text-washi';
     }
 

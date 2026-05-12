@@ -4,6 +4,7 @@
         <FloatingMenuNav current-page="katalog" />
         <FloatingAdminPanel :contacts="contacts" />
         <FloatingOrderPanel :orders="orders" />
+        <FloatingCartButton />
 
         <section
             class="flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-washi"
@@ -476,14 +477,14 @@
                                         class="mt-1.5 flex flex-wrap gap-1"
                                     >
                                         <span
-                                            v-for="size in product.sizes.slice(
+                                            v-for="sizeObj in product.sizes.slice(
                                                 0,
                                                 6,
                                             )"
-                                            :key="`${product.id}-${size}`"
+                                            :key="`${product.id}-${sizeObj.id}`"
                                             class="rounded bg-sumi/6 px-1.5 py-0.5 text-[10px] text-usuzumi"
                                         >
-                                            {{ size }}
+                                            {{ sizeObj.size }}
                                         </span>
                                     </div>
                                 </div>
@@ -607,6 +608,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
+import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
 import type { CatalogPublicItem, CatalogStatus } from '@/types/catalog';
@@ -745,7 +747,7 @@ const filteredProducts = computed(() => {
 
         const matchesSize =
             selectedSizes.value.length === 0 ||
-            selectedSizes.value.some((size) => product.sizes.includes(size));
+            selectedSizes.value.some((size) => product.sizes.some(s => s.size === size));
 
         const matchesCollection =
             selectedCollections.value.length === 0 ||
