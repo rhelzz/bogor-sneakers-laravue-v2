@@ -38,6 +38,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { Link } from '@inertiajs/vue3'
 
 import type { FloatingNavPage } from '@/types/floating-ui'
@@ -51,6 +52,12 @@ interface NavItem {
 defineProps<{
   currentPage: FloatingNavPage
 }>()
+
+const isMounted = ref(false)
+
+onMounted(() => {
+  isMounted.value = true
+})
 
 const navItems: NavItem[] = [
   { key: 'home', href: '/', label: 'Home' },
