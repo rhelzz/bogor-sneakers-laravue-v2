@@ -91,6 +91,13 @@ class KatalogController extends Controller
                 ->get(['id', 'name'])
                 ->values()
                 ->all(),
+            'collections' => Catalog::query()
+                ->distinct()
+                ->whereNotNull('collection')
+                ->where('collection', '<>', '')
+                ->orderBy('collection')
+                ->pluck('collection')
+                ->all(),
         ]);
     }
 

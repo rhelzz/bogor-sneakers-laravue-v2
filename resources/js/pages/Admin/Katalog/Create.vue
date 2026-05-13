@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { katalog } from '@/routes/admin';
@@ -11,6 +11,7 @@ interface ShoeModel {
 
 const props = defineProps<{
     shoeModels: ShoeModel[];
+    collections: string[];
 }>();
 
 const isSubmitting = ref(false);
@@ -58,6 +59,46 @@ const selectedModel = computed(() =>
 const selectModel = (id: number) => {
     form.shoe_model_id = id;
     isDropdownOpen.value = false;
+};
+
+// Collection Dropdown Logic
+const isCollectionDropdownOpen = ref(false);
+const isAddingNewCollection = ref(false);
+const newCollectionName = ref('');
+const newCollectionInput = ref<HTMLInputElement | null>(null);
+const localCollections = ref([...props.collections]);
+
+const selectCollection = (collection: string) => {
+    form.collection = collection;
+    isCollectionDropdownOpen.value = false;
+    isAddingNewCollection.value = false;
+};
+
+const startAddingCollection = () => {
+    isAddingNewCollection.value = true;
+    nextTick(() => {
+        newCollectionInput.value?.focus();
+    });
+};
+
+const addNewCollection = () => {
+    const name = newCollectionName.value.trim();
+    if (name) {
+        if (!localCollections.value.includes(name)) {
+            localCollections.value.push(name);
+            localCollections.value.sort();
+        }
+        form.collection = name;
+        newCollectionName.value = '';
+        isAddingNewCollection.value = false;
+        isCollectionDropdownOpen.value = false;
+    }
+};
+
+const handleCollectionBlur = () => {
+    if (!newCollectionName.value.trim()) {
+        isAddingNewCollection.value = false;
+    }
 };
 
 const formattedPrice = computed({
@@ -404,31 +445,113 @@ const submit = () => {
                                     </div>
                                 </div>
 
-                                <!-- Collection -->
+                                <!-- Collection Dropdown -->
                                 <div class="space-y-2">
                                     <label
                                         class="text-sm font-bold text-slate-700"
-                                        >Kategori</label
+                                        >Koleksi</label
                                     >
-                                    <select
-                                        v-model="form.collection"
-                                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition-all outline-none focus:border-indigo-500 focus:bg-white"
-                                        required
-                                    >
-                                        <option value="" disabled>
-                                            Pilih Koleksi
-                                        </option>
-                                        <option value="Lifestyle">
-                                            Lifestyle
-                                        </option>
-                                        <option value="Running">Running</option>
-                                        <option value="Basketball">
-                                            Basketball
-                                        </option>
-                                        <option value="Skateboarding">
-                                            Skateboarding
-                                        </option>
-                                    </select>
+                                    <div class="relative">
+                                        <button
+                                            type="button"
+                                            @click="isCollectionDropdownOpen = !isCollectionDropdownOpen"
+                                            class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm transition-all outline-none focus:border-indigo-500 focus:bg-white"
+                                            :class="{ 'ring-2 ring-indigo-500/10 border-indigo-500': isCollectionDropdownOpen }"
+                                        >
+                                            <span :class="form.collection ? 'text-slate-900' : 'text-slate-400'">
+                                                {{ form.collection || 'Pilih Koleksi' }}
+                                            </span>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5 text-slate-400 transition-transform duration-300"
+                                                :class="{ 'rotate-180': isCollectionDropdownOpen }"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Dropdown Menu -->
+                                        <transition
+                                            enter-active-class="transition duration-200 ease-in-out"
+                                            enter-from-class="transform scale-95 opacity-0 -translate-y-2"
+                                            enter-to-class="transform scale-100 opacity-100 translate-y-0"
+                                            leave-active-class="transition duration-150 ease-in-out"
+                                            leave-from-class="transform scale-100 opacity-100 translate-y-0"
+                                            leave-to-class="transform scale-95 opacity-0 -translate-y-2"
+                                        >
+                                            <div
+                                                v-if="isCollectionDropdownOpen"
+                                                class="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                                            >
+                                                <div class="max-h-60 overflow-y-auto py-1">
+                                                    <button
+                                                        v-for="item in localCollections"
+                                                        :key="item"
+                                                        type="button"
+                                                        @click="selectCollection(item)"
+                                                        class="flex w-full items-center px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                                        :class="{ 'bg-indigo-50 text-indigo-600 font-bold': form.collection === item }"
+                                                    >
+                                                        {{ item }}
+                                                    </button>
+                                                    <div v-if="localCollections.length === 0 && !isAddingNewCollection" class="px-4 py-3 text-xs text-slate-400 text-center italic">
+                                                        Belum ada koleksi
+                                                    </div>
+                                                </div>
+
+                                                <!-- Action Bottom -->
+                                                <div class="border-t border-slate-100 p-2">
+                                                    <transition
+                                                        enter-active-class="transition duration-300 ease-out"
+                                                        enter-from-class="transform opacity-0 translate-y-2"
+                                                        enter-to-class="transform opacity-100 translate-y-0"
+                                                        leave-active-class="transition duration-200 ease-in"
+                                                        leave-from-class="transform opacity-100 translate-y-0"
+                                                        leave-to-class="transform opacity-0 translate-y-2"
+                                                        mode="out-in"
+                                                    >
+                                                        <div v-if="isAddingNewCollection" :key="'input'" class="flex items-center gap-2 p-1">
+                                                            <input
+                                                                ref="newCollectionInput"
+                                                                v-model="newCollectionName"
+                                                                type="text"
+                                                                placeholder="Nama koleksi..."
+                                                                class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+                                                                @keyup.enter="addNewCollection"
+                                                                @blur="handleCollectionBlur"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                @click="addNewCollection"
+                                                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white transition-colors hover:bg-indigo-700"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                        <button
+                                                            v-else
+                                                            :key="'button'"
+                                                            type="button"
+                                                            @click="startAddingCollection"
+                                                            class="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-50"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            <span>Tambah Koleksi</span>
+                                                        </button>
+                                                    </transition>
+                                                </div>
+                                            </div>
+                                        </transition>
+                                    </div>
+                                    <!-- Overlay to close dropdown -->
+                                    <div v-if="isCollectionDropdownOpen" @click="isCollectionDropdownOpen = false; isAddingNewCollection = false" class="fixed inset-0 z-40 cursor-default"></div>
                                 </div>
 
                                 <!-- Shoe Model Dropdown -->
