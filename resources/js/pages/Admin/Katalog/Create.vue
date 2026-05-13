@@ -33,9 +33,10 @@ const form = useForm({
 // Watch min_size to handle disabled state logic
 watch(() => form.min_size, (newMin) => {
     const minVal = typeof newMin === 'number' ? newMin : parseInt(newMin as string);
-    
+
     if (isNaN(minVal)) {
         form.max_size = '';
+
         return;
     }
 });
@@ -44,7 +45,9 @@ const handleMaxSizeBlur = () => {
     const minVal = typeof form.min_size === 'number' ? form.min_size : parseInt(form.min_size as string);
     const maxVal = typeof form.max_size === 'number' ? form.max_size : parseInt(form.max_size as string);
 
-    if (isNaN(minVal) || isNaN(maxVal)) return;
+    if (isNaN(minVal) || isNaN(maxVal)) {
+        return;
+    }
 
     if (maxVal <= minVal) {
         form.max_size = minVal + 1;
@@ -52,7 +55,7 @@ const handleMaxSizeBlur = () => {
 };
 
 const isDropdownOpen = ref(false);
-const selectedModel = computed(() => 
+const selectedModel = computed(() =>
     props.shoeModels.find(m => m.id === form.shoe_model_id)
 );
 
@@ -83,11 +86,13 @@ const startAddingCollection = () => {
 
 const addNewCollection = () => {
     const name = newCollectionName.value.trim();
+
     if (name) {
         if (!localCollections.value.includes(name)) {
             localCollections.value.push(name);
             localCollections.value.sort();
         }
+
         form.collection = name;
         newCollectionName.value = '';
         isAddingNewCollection.value = false;
@@ -114,7 +119,7 @@ const detailPreviews = ref<string[]>([]);
 
 const handleThumbnailUpload = (event: Event) => {
     const file = (event.target as HTMLInputElement).files?.[0];
-    
+
     if (file) {
         form.thumbnail = file;
         thumbnailPreview.value = URL.createObjectURL(file);
@@ -143,12 +148,15 @@ const removeDetailImage = (index: number) => {
 };
 
 const submit = () => {
-    if (isSubmitting.value) return;
+    if (isSubmitting.value) {
+        return;
+    }
 
     const min = typeof form.min_size === 'number' ? form.min_size : parseInt(form.min_size as string);
     const max = typeof form.max_size === 'number' ? form.max_size : parseInt(form.max_size as string);
-    
+
     const sizes: number[] = [];
+
     if (!isNaN(min) && !isNaN(max) && min <= max) {
         for (let s = min; s <= max; s++) {
             sizes.push(s);
@@ -166,7 +174,7 @@ const submit = () => {
             forceFormData: true,
             onSuccess: () => {
                 isSubmitting.value = false;
-                // Redirection is handled by Inertia via the controller normally, 
+                // Redirection is handled by Inertia via the controller normally,
                 // but we can ensure it if needed or the controller redirect will kick in.
             },
             onError: () => {
@@ -175,7 +183,10 @@ const submit = () => {
             },
             onFinish: () => {
                 // Keep submitting true if successful to prevent double clicks during redirect
-                if (form.wasSuccessful) return;
+                if (form.wasSuccessful) {
+                    return;
+                }
+
                 isSubmitting.value = false;
             }
         });
@@ -409,7 +420,7 @@ const submit = () => {
                 </div>
 
                 <!-- KOLOM KANAN: Settings & Sidebar -->
-                <div class="w-full space-y-6 lg:w-[380px]">
+                <div class="w-full space-y-6 lg:w-95">
                     <!-- Card: Pricing & Specs -->
                     <div class="sticky top-6 space-y-6">
                         <div
