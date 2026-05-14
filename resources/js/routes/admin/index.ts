@@ -8,6 +8,7 @@ import whatsappAdmins183620 from './whatsapp-admins'
 import modelSepatu9e70d3 from './model-sepatu'
 import shoeTypes from './shoe-types'
 import variants from './variants'
+import orders from './orders'
 /**
 * @see \App\Http\Controllers\DashboardController::dashboard
  * @see app/Http/Controllers/DashboardController.php:12
@@ -643,6 +644,7 @@ whatsappAdmins: Object.assign(whatsappAdmins, whatsappAdmins183620),
 modelSepatu: Object.assign(modelSepatu, modelSepatu9e70d3),
 shoeTypes: Object.assign(shoeTypes, shoeTypes),
 variants: Object.assign(variants, variants),
+orders: Object.assign(orders, orders),
 }
 
 export default admin
