@@ -10,9 +10,77 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class OrderController extends Controller
 {
+    /**
+     * Display a listing of orders (Admin).
+     */
+    public function adminIndex(): Response
+    {
+        $orders = Order::query()
+            ->with(['items'])
+            ->latest()
+            ->get()
+            ->map(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'customer_name' => $order->customer_name,
+                    'customer_phone' => $order->customer_phone,
+                    'total_amount' => $order->total_amount,
+                    'status' => $order->status,
+                    'status_label' => $order->status_label,
+                    'item_count' => $order->items->count(),
+                    'created_at' => $order->created_at->format('d M Y H:i'),
+                ];
+            });
+
+        return Inertia::render('Admin/Orders/Index', [
+            'orders' => $orders,
+            'statusOptions' => Order::getStatusLabels(),
+        ]);
+    }
+
+    /**
+     * Display the specified order (Admin).
+     */
+    public function adminShow(Order $order): Response
+    {
+        $order->load(['items.catalog']);
+
+        return Inertia::render('Admin/Orders/Show', [
+            'order' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->customer_name,
+                'customer_phone' => $order->customer_phone,
+                'customer_address' => $order->customer_address,
+                'notes' => $order->notes,
+                'subtotal' => $order->subtotal,
+                'shipping_cost' => $order->shipping_cost,
+                'total_amount' => $order->total_amount,
+                'status' => $order->status,
+                'status_label' => $order->status_label,
+                'created_at' => $order->created_at->format('d M Y H:i'),
+                'items' => $order->items->map(function (OrderItem $item) {
+                    return [
+                        'id' => $item->id,
+                        'product_name' => $item->product_name,
+                        'size' => $item['size'],
+                        'price' => $item->price,
+                        'quantity' => $item->quantity,
+                        'subtotal' => $item->subtotal,
+                        'image_url' => $item->catalog?->primary_image_url,
+                    ];
+                }),
+            ],
+            'statusOptions' => Order::getStatusLabels(),
+        ]);
+    }
+
     /**
      * Handle public checkout.
      */

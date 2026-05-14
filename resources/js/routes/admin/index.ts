@@ -8,7 +8,7 @@ import whatsappAdmins183620 from './whatsapp-admins'
 import modelSepatu9e70d3 from './model-sepatu'
 import shoeTypes from './shoe-types'
 import variants from './variants'
-import orders from './orders'
+import ordersB47e5f from './orders'
 /**
 * @see \App\Http\Controllers\DashboardController::dashboard
  * @see app/Http/Controllers/DashboardController.php:12
@@ -633,6 +633,84 @@ modelSepatu.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     modelSepatu.form = modelSepatuForm
+/**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+export const orders = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: orders.url(options),
+    method: 'get',
+})
+
+orders.definition = {
+    methods: ["get","head"],
+    url: '/admin/orders',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+orders.url = (options?: RouteQueryOptions) => {
+    return orders.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+orders.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: orders.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+orders.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: orders.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+    const ordersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: orders.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+        ordersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: orders.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\OrderController::orders
+ * @see app/Http/Controllers/OrderController.php:21
+ * @route '/admin/orders'
+ */
+        ordersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: orders.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    orders.form = ordersForm
 const admin = {
     dashboard: Object.assign(dashboard, dashboard),
 carouselHome: Object.assign(carouselHome, carouselHomeA7ebd0),
@@ -644,7 +722,7 @@ whatsappAdmins: Object.assign(whatsappAdmins, whatsappAdmins183620),
 modelSepatu: Object.assign(modelSepatu, modelSepatu9e70d3),
 shoeTypes: Object.assign(shoeTypes, shoeTypes),
 variants: Object.assign(variants, variants),
-orders: Object.assign(orders, orders),
+orders: Object.assign(orders, ordersB47e5f),
 }
 
 export default admin

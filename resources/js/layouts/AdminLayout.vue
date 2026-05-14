@@ -86,6 +86,43 @@
                     </span>
                 </Link>
 
+                <!-- Manajemen Pesanan -->
+                <Link
+                    :href="orders.url()"
+                    class="group flex items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
+                    :class="{ 
+                        'justify-center': !isSidebarOpen,
+                        'bg-white/10 text-white': isUrlActive(orders.url())
+                    }"
+                >
+                    <div
+                        class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                        :class="{ 'bg-indigo-600': isUrlActive(orders.url()) }"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2.5"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                            />
+                        </svg>
+                    </div>
+                    <span
+                        v-if="isSidebarOpen"
+                        class="ml-4 flex-1 truncate font-semibold tracking-wide"
+                    >
+                        Manajemen Pesanan
+                    </span>
+                    <!-- Unverified badge count could be added here if passed via shared props -->
+                </Link>
+
                 <!-- Manajemen Produk -->
                 <div class="space-y-1">
                     <button
@@ -393,6 +430,7 @@ import {
     whatsappAdmins,
     katalog,
     modelSepatu,
+    orders,
 } from '@/routes/admin';
 
 const page = usePage();

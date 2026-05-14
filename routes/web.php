@@ -103,5 +103,7 @@ Route::prefix('admin')->group(function () {
     Route::put('/variants/{shoeVariant}', [ShoeVariantController::class, 'update'])->name('admin.variants.update');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
 
+    Route::get('/orders', [OrderController::class, 'adminIndex'])->name('admin.orders');
+    Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update-status');
 });
