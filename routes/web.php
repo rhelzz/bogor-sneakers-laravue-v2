@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PreOrderHomeController;
 use App\Http\Controllers\ShoeModelController;
 use App\Http\Controllers\ShoeTypeController;
@@ -35,6 +36,8 @@ Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
 Route::get('/api/studio-custom/catalog', [StudioAssetController::class, 'catalog'])->name('studio-custom.catalog');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
+
+Route::post('/api/checkout', [OrderController::class, 'checkout'])->name('api.checkout');
 
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
@@ -99,4 +102,6 @@ Route::prefix('admin')->group(function () {
     Route::post('/variants/{shoeVariant}/svgs', [ShoeVariantController::class, 'uploadSvgs'])->name('admin.variants.svgs.upload');
     Route::put('/variants/{shoeVariant}', [ShoeVariantController::class, 'update'])->name('admin.variants.update');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
+
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update-status');
 });

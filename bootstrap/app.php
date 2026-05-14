@@ -22,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'shipping/*',
             'cart/*',
+            'api/checkout',
+            'admin/orders/*',
         ]);
 
         $middleware->encryptCookies(except: [
