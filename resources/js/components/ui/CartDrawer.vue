@@ -125,6 +125,7 @@
             <span class="text-xl font-bold text-matcha">{{ formatPrice(subtotal) }}</span>
           </div>
           <button
+            @click="goToCheckout"
             class="w-full rounded-full bg-sumi py-4 text-sm font-bold tracking-widest text-washi transition-all hover:bg-usuzumi shadow-lg hover:shadow-xl active:scale-[0.98]"
           >
             LANJUT KE CHECKOUT
@@ -141,13 +142,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { cartState } from '@/stores/cart'
+import { router } from '@inertiajs/vue3'
 
 const props = defineProps<{
   isOpen: boolean
   items: any[]
 }>()
 
-defineEmits(['close'])
+const emit = defineEmits(['close'])
 
 const isMounted = ref(false)
 
@@ -165,6 +167,11 @@ const formatPrice = (price: number) => {
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(price)
+}
+
+const goToCheckout = () => {
+  emit('close')
+  router.visit('/checkout')
 }
 </script>
 
