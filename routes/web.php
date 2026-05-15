@@ -36,6 +36,7 @@ Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
 Route::get('/api/studio-custom/catalog', [StudioAssetController::class, 'catalog'])->name('studio-custom.catalog');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
+Route::inertia('/checkout', 'Checkout')->name('checkout');
 
 Route::post('/api/checkout', [OrderController::class, 'checkout'])->name('api.checkout');
 
@@ -103,7 +104,7 @@ Route::prefix('admin')->group(function () {
     Route::put('/variants/{shoeVariant}', [ShoeVariantController::class, 'update'])->name('admin.variants.update');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
 
-    Route::get('/orders', [OrderController::class, 'adminIndex'])->name('admin.orders');
-    Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update-status');
+    Route::get('/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
 });
