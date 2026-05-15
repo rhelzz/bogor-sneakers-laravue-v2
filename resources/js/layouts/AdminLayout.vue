@@ -86,18 +86,18 @@
                     </span>
                 </Link>
 
-                <!-- Manajemen Pesanan -->
+                <!-- Pesanan -->
                 <Link
-                    :href="orders.url()"
+                    :href="orderRoutes.index.url()"
                     class="group flex items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
                     :class="{ 
                         'justify-center': !isSidebarOpen,
-                        'bg-white/10 text-white': isUrlActive(orders.url())
+                        'bg-white/10 text-white': isUrlActive(orderRoutes.index.url())
                     }"
                 >
                     <div
                         class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
-                        :class="{ 'bg-indigo-600': isUrlActive(orders.url()) }"
+                        :class="{ 'bg-indigo-600': isUrlActive(orderRoutes.index.url()) }"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -116,11 +116,10 @@
                     </div>
                     <span
                         v-if="isSidebarOpen"
-                        class="ml-4 flex-1 truncate font-semibold tracking-wide"
+                        class="ml-4 truncate font-semibold tracking-wide"
                     >
-                        Manajemen Pesanan
+                        Pesanan
                     </span>
-                    <!-- Unverified badge count could be added here if passed via shared props -->
                 </Link>
 
                 <!-- Manajemen Produk -->
@@ -430,8 +429,8 @@ import {
     whatsappAdmins,
     katalog,
     modelSepatu,
-    orders,
 } from '@/routes/admin';
+import orderRoutes from '@/routes/admin/orders';
 
 const page = usePage();
 const isSidebarOpen = ref(true);
