@@ -1,50 +1,109 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import CustomSelect from '@/components/admin/ui/CustomSelect.vue';
+import orderRoutes from '@/routes/admin/orders';
 import CustomInput from '@/components/admin/ui/CustomInput.vue';
-import { orders as orderRoutes } from '@/routes/admin';
+import CustomSelect from '@/components/admin/ui/CustomSelect.vue';
+import CustomDatePicker from '@/components/admin/ui/CustomDatePicker.vue';
+import { debounce } from 'lodash';
 
 interface OrderItem {
     id: number;
     order_number: string;
     customer_name: string;
     customer_phone: string;
+    customer_address: string;
     total_amount: number;
     status: string;
     status_label: string;
     item_count: number;
     created_at: string;
+    notes?: string;
 }
 
 const props = defineProps<{
     orders: OrderItem[];
     statusOptions: Record<string, string>;
+    initialFilters?: Record<string, any>;
 }>();
 
-const searchQuery = ref('');
-const statusFilter = ref('all');
+const today = new Date().toISOString().split('T')[0];
 
-const filterOptions = computed(() => {
-    return {
-        'all': 'Semua Status',
-        ...props.statusOptions
-    };
+// Filters State (Synced with Backend)
+const filters = ref({
+    search: props.initialFilters?.search || '',
+    status: props.initialFilters?.status || 'all',
+    date_from: props.initialFilters?.date_from || '',
+    date_to: props.initialFilters?.date_to || today,
+    notes_filter: props.initialFilters?.notes_filter || 'all',
+    region: props.initialFilters?.region || 'all',
+    item_count: props.initialFilters?.item_count || 'all',
+    sort_by: props.initialFilters?.sort_by || 'created_at',
+    sort_order: props.initialFilters?.sort_order || 'desc',
 });
 
-const filteredOrders = computed(() => {
-    return props.orders.filter(order => {
-        const matchesSearch = 
-            order.order_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            order.customer_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            order.customer_phone.includes(searchQuery.value);
-        
-        const matchesStatus = statusFilter.value === 'all' || order.status === statusFilter.value;
-        
-        return matchesSearch && matchesStatus;
+// Dropdown Options
+const statusFilterOptions = computed(() => ({
+    'all': 'Semua Status',
+    ...props.statusOptions
+}));
+
+const itemCountOptions = {
+    'all': 'Semua Jumlah',
+    '1': '1 Item',
+    '2': '2 Item',
+    '3+': '3+ Item'
+};
+
+const notesOptions = {
+    'all': 'Semua Pesanan',
+    'with_notes': 'Ada Catatan Khusus',
+    'no_notes': 'Tanpa Catatan'
+};
+
+const regionOptions = {
+    'all': 'Semua Wilayah',
+    'bogor': 'Area Bogor',
+    'outside': 'Luar Bogor'
+};
+
+// Request Logic
+const updateFilters = debounce(() => {
+    router.get(orderRoutes.index.url(), filters.value, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
     });
-});
+}, 300);
+
+// Watch for changes in filters
+watch(() => filters.value, () => {
+    updateFilters();
+}, { deep: true });
+
+const toggleSort = (column: string) => {
+    if (filters.value.sort_by === column) {
+        filters.value.sort_order = filters.value.sort_order === 'asc' ? 'desc' : 'asc';
+    } else {
+        filters.value.sort_by = column;
+        filters.value.sort_order = 'asc';
+    }
+};
+
+const resetFilters = () => {
+    filters.value = {
+        search: '',
+        status: 'all',
+        date_from: '',
+        date_to: today,
+        notes_filter: 'all',
+        region: 'all',
+        item_count: 'all',
+        sort_by: 'created_at',
+        sort_order: 'desc',
+    };
+};
 
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -95,27 +154,85 @@ const getStatusBadge = (status: string) => {
             </div>
 
             <!-- Filter Bar -->
-            <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row md:items-end md:justify-between">
-                <div class="relative flex-1 max-w-md">
-                    <CustomInput 
-                        v-model="searchQuery"
-                        label="Cari Pesanan"
-                        placeholder="No. Order, Nama, atau Telepon..."
-                    >
-                        <template #icon>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </template>
-                    </CustomInput>
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <!-- Row 1 -->
+                    <div class="lg:col-span-2">
+                        <CustomInput
+                            v-model="filters.search"
+                            label="Cari Pesanan"
+                            placeholder="No. Order, Nama, atau Telepon..."
+                        >
+                            <template #icon>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </template>
+                        </CustomInput>
+                    </div>
+
+                    <div>
+                        <CustomSelect
+                            v-model="filters.status"
+                            :options="statusFilterOptions"
+                            label="Filter Status"
+                        />
+                    </div>
+
+                    <div>
+                        <CustomSelect
+                            v-model="filters.item_count"
+                            :options="itemCountOptions"
+                            label="Jumlah Item"
+                        />
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div>
+                        <CustomDatePicker
+                            v-model="filters.date_from"
+                            label="Dari Tanggal"
+                            placeholder="Mulai"
+                            :max-date="filters.date_to || today"
+                        />
+                    </div>
+                    <div>
+                        <CustomDatePicker
+                            v-model="filters.date_to"
+                            label="Sampai Tanggal"
+                            placeholder="Selesai"
+                            :max-date="today"
+                        />
+                    </div>
+                    <div>
+                        <CustomSelect
+                            v-model="filters.notes_filter"
+                            :options="notesOptions"
+                            label="Status Catatan"
+                        />
+                    </div>
+                    <div>
+                        <CustomSelect
+                            v-model="filters.region"
+                            :options="regionOptions"
+                            label="Wilayah Pengiriman"
+                        />
+                    </div>
                 </div>
 
-                <div class="w-full md:w-64">
-                    <CustomSelect 
-                        v-model="statusFilter"
-                        :options="filterOptions"
-                        label="Filter Status"
-                    />
+                <div class="mt-6 flex items-center justify-between border-t border-slate-50 pt-6">
+                    <p class="text-sm font-semibold text-slate-500">
+                        Menampilkan <span class="text-indigo-600">{{ orders.length }}</span> Pesanan
+                    </p>
+                    <button 
+                        @click="resetFilters"
+                        class="group flex items-center space-x-2 rounded-xl bg-slate-50 px-6 py-2.5 text-xs font-bold text-slate-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-600"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Reset Semua Filter</span>
+                    </button>
                 </div>
             </div>
 
@@ -125,23 +242,64 @@ const getStatusBadge = (status: string) => {
                     <table class="w-full border-collapse text-left">
                         <thead>
                             <tr class="border-b border-slate-200 bg-slate-50 text-xs font-bold tracking-wider text-slate-500 uppercase">
-                                <th class="px-6 py-4">No. Order</th>
-                                <th class="px-6 py-4">Pelanggan</th>
-                                <th class="px-6 py-4">Waktu Pesan</th>
-                                <th class="px-6 py-4">Total</th>
+                                <th @click="toggleSort('order_number')" class="cursor-pointer px-6 py-4 transition-colors hover:bg-slate-100">
+                                    <div class="flex items-center space-x-2">
+                                        <span>No. Order</span>
+                                        <svg v-if="filters.sort_by === 'order_number'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="filters.sort_order === 'asc' ? '' : 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('customer_name')" class="cursor-pointer px-6 py-4 transition-colors hover:bg-slate-100">
+                                    <div class="flex items-center space-x-2">
+                                        <span>Pelanggan</span>
+                                        <svg v-if="filters.sort_by === 'customer_name'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="filters.sort_order === 'asc' ? '' : 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('created_at')" class="cursor-pointer px-6 py-4 transition-colors hover:bg-slate-100">
+                                    <div class="flex items-center space-x-2">
+                                        <span>Waktu Pesan</span>
+                                        <svg v-if="filters.sort_by === 'created_at'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="filters.sort_order === 'asc' ? '' : 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th @click="toggleSort('total_amount')" class="cursor-pointer px-6 py-4 transition-colors hover:bg-slate-100">
+                                    <div class="flex items-center space-x-2">
+                                        <span>Total</span>
+                                        <svg v-if="filters.sort_by === 'total_amount'" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" :class="filters.sort_order === 'asc' ? '' : 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                        </svg>
+                                    </div>
+                                </th>
                                 <th class="px-6 py-4 text-center">Status</th>
                                 <th class="px-6 py-4 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr v-for="order in filteredOrders" :key="order.id" class="group transition-colors hover:bg-slate-50">
+                        <tbody class="divide-y divide-slate-100 relative">
+                            <tr v-for="order in orders" :key="order.id" class="group transition-colors hover:bg-slate-50">
                                 <td class="px-6 py-4">
-                                    <p class="font-black tracking-wider text-indigo-600">{{ order.order_number }}</p>
+                                    <div class="flex items-center space-x-2">
+                                        <p class="font-black tracking-wider text-indigo-600">{{ order.order_number }}</p>
+                                        <div v-if="order.notes" class="group relative">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                            </svg>
+                                            <div class="invisible absolute bottom-full left-0 z-50 mb-2 w-48 rounded-lg bg-slate-900 p-2 text-[10px] font-bold text-white opacity-0 transition-all group-hover:visible group-hover:opacity-100">
+                                                {{ order.notes }}
+                                                <div class="absolute top-full left-2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <p class="text-[10px] font-bold text-slate-400">{{ order.item_count }} Item</p>
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="font-bold text-slate-800">{{ order.customer_name }}</p>
-                                    <p class="text-xs text-slate-500">{{ order.customer_phone }}</p>
+                                    <p class="max-w-[180px] truncate text-[10px] font-medium text-slate-400" :title="order.customer_address">
+                                        {{ order.customer_address }}
+                                    </p>
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="text-sm font-medium text-slate-600">{{ order.created_at }}</p>
@@ -150,7 +308,7 @@ const getStatusBadge = (status: string) => {
                                     <p class="font-black text-slate-900">{{ formatCurrency(order.total_amount) }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span 
+                                    <span
                                         class="inline-flex items-center rounded-full border px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-sm"
                                         :class="getStatusBadge(order.status)"
                                     >
@@ -160,7 +318,7 @@ const getStatusBadge = (status: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end">
-                                        <Link 
+                                        <Link
                                             :href="orderRoutes.show.url({ order: order.id })"
                                             class="flex items-center space-x-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm transition-all duration-300 hover:bg-indigo-600 hover:shadow-indigo-200"
                                         >
@@ -172,7 +330,7 @@ const getStatusBadge = (status: string) => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-if="filteredOrders.length === 0">
+                            <tr v-if="orders.length === 0">
                                 <td colspan="6" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center justify-center text-slate-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-4 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,3 +347,4 @@ const getStatusBadge = (status: string) => {
         </div>
     </AdminLayout>
 </template>
+
