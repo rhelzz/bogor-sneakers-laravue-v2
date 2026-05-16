@@ -36,22 +36,36 @@
                         
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div class="relative group">
-                                <label class="text-[9px] font-black uppercase text-hai tracking-[0.2em] mb-1.5 block ml-1">Nama Lengkap</label>
                                 <input
                                     v-model="form.customer_name"
                                     type="text"
-                                    class="w-full h-11 px-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all text-xs font-bold"
-                                    placeholder="Masukkan nama lengkap"
+                                    id="customer_name"
+                                    class="peer w-full h-12 px-4 pt-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all duration-300 ease-in-out text-[11px] font-bold outline-none placeholder-transparent"
+                                    placeholder="Nama Lengkap"
                                 >
+                                <label
+                                    for="customer_name"
+                                    class="absolute left-4 top-1 text-[8px] font-black uppercase text-hai tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[11px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-matcha"
+                                >
+                                    Nama Lengkap
+                                </label>
                             </div>
                             <div class="relative group">
-                                <label class="text-[9px] font-black uppercase text-hai tracking-[0.2em] mb-1.5 block ml-1">WhatsApp</label>
                                 <input
                                     v-model="form.customer_phone"
                                     type="text"
-                                    class="w-full h-11 px-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all text-xs font-bold"
-                                    placeholder="0812xxxxxxxx"
+                                    id="customer_phone"
+                                    class="peer w-full h-12 px-4 pt-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all duration-300 ease-in-out text-[11px] font-bold outline-none placeholder-transparent"
+                                    placeholder="WhatsApp"
+                                    @input="validatePhoneInput"
+                                    @blur="formatPhoneOnBlur"
                                 >
+                                <label
+                                    for="customer_phone"
+                                    class="absolute left-4 top-1 text-[8px] font-black uppercase text-hai tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[11px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-matcha"
+                                >
+                                    WhatsApp
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -66,16 +80,39 @@
                         <div class="grid gap-4">
                             <!-- Destination Search -->
                             <div class="relative">
-                                <label class="text-[9px] font-black uppercase text-hai tracking-[0.2em] mb-1.5 block ml-1">Kecamatan / Kota</label>
-                                <div class="relative">
+                                <!-- Validation Hint (Above) -->
+                                <p v-if="!destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions" class="text-[7px] font-black uppercase text-red-500 tracking-widest mb-1.5 ml-1 animate-fade-in">
+                                    Mohon pilih dari daftar saran
+                                </p>
+
+                                <div class="relative group">
                                     <input
                                         v-model="addressSearch"
                                         type="text"
-                                        class="w-full h-11 pl-11 pr-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all text-xs font-bold"
+                                        id="address_search"
+                                        class="peer w-full h-12 pl-11 pr-10 pt-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white transition-all duration-300 ease-in-out text-[11px] font-bold outline-none placeholder-transparent"
+                                        :class="[
+                                            destinationId ? 'border-matcha/30 ring-4 ring-matcha/5' : 'focus:border-matcha focus:ring-4 focus:ring-matcha/5',
+                                            !destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions ? 'border-red-400' : ''
+                                        ]"
                                         placeholder="Cari kecamatan atau kota..."
                                         @input="handleAddressInput"
+                                        @blur="validateAddressSelection"
                                     >
-                                    <i class="bi bi-geo-alt absolute left-4 top-1/2 -translate-y-1/2 text-hai text-sm"></i>
+                                    <i class="bi bi-geo-alt absolute left-4 top-1/2 -translate-y-1/2 text-hai text-sm transition-colors duration-300 ease-in-out peer-focus:text-matcha"></i>
+                                    
+                                    <!-- Status Icon -->
+                                    <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                        <i v-if="destinationId" class="bi bi-check-circle-fill text-matcha text-sm animate-fade-in"></i>
+                                        <div v-else-if="isSearching" class="w-3.5 h-3.5 border-2 border-sumi/20 border-t-sumi rounded-full animate-spin"></div>
+                                    </div>
+
+                                    <label
+                                        for="address_search"
+                                        class="absolute left-11 top-1 text-[8px] font-black uppercase text-hai tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[11px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-matcha"
+                                    >
+                                        Kecamatan / Kota
+                                    </label>
 
                                     <!-- Suggestions Dropdown -->
                                     <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[50] left-0 right-0 mt-2 bg-white border border-sumi/10 rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto">
@@ -89,22 +126,24 @@
                                             <p class="text-[9px] text-hai font-medium uppercase tracking-wider mt-0.5">{{ item.subdistrict_name }}, {{ item.city_name }}</p>
                                         </button>
                                     </div>
-                                    
-                                    <div v-if="isSearching" class="absolute right-4 top-1/2 -translate-y-1/2">
-                                        <div class="w-3.5 h-3.5 border-2 border-sumi/20 border-t-sumi rounded-full animate-spin"></div>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Detailed Address -->
                             <div class="relative group">
-                                <label class="text-[9px] font-black uppercase text-hai tracking-[0.2em] mb-1.5 block ml-1">Alamat Lengkap</label>
                                 <textarea
                                     v-model="addressDetail"
+                                    id="address_detail"
                                     rows="2"
-                                    class="w-full p-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all text-xs font-bold resize-none"
-                                    placeholder="Nama jalan, nomor rumah, RT/RW, dll."
+                                    class="peer w-full p-4 pt-6 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all duration-300 ease-in-out text-[11px] font-bold resize-none outline-none placeholder-transparent"
+                                    placeholder="Alamat Lengkap"
                                 ></textarea>
+                                <label
+                                    for="address_detail"
+                                    class="absolute left-4 top-2 text-[8px] font-black uppercase text-hai tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-[11px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-matcha"
+                                >
+                                    Alamat Lengkap
+                                </label>
                             </div>
 
                             <!-- Courier Selection -->
@@ -115,7 +154,7 @@
                                         v-for="c in availableCouriers"
                                         :key="c.code"
                                         @click="selectCourier(c)"
-                                        class="flex flex-col items-center justify-center py-2.5 rounded-xl border transition-all duration-300"
+                                        class="flex flex-col items-center justify-center py-2.5 rounded-xl border transition-all duration-300 ease-in-out"
                                         :class="courier === c.code ? 'border-matcha bg-matcha/5 ring-4 ring-matcha/5' : 'border-sumi/10 bg-shironeri hover:border-sumi/30'"
                                     >
                                         <span class="text-[10px] font-black uppercase tracking-widest text-sumi">{{ c.name }}</span>
@@ -134,10 +173,17 @@
                         <div class="relative group">
                             <textarea
                                 v-model="form.notes"
+                                id="notes"
                                 rows="2"
-                                class="w-full p-4 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all text-xs font-bold resize-none"
-                                placeholder="Contoh: Titip ke satpam, minta box tambahan, dll."
+                                class="peer w-full p-4 pt-6 rounded-xl border border-sumi/10 bg-shironeri focus:bg-white focus:border-matcha focus:ring-4 focus:ring-matcha/5 transition-all duration-300 ease-in-out text-[11px] font-bold resize-none outline-none placeholder-transparent"
+                                placeholder="Catatan Tambahan"
                             ></textarea>
+                            <label
+                                for="notes"
+                                class="absolute left-4 top-2 text-[8px] font-black uppercase text-hai tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-[11px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-matcha"
+                            >
+                                Catatan Tambahan (Opsional)
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -197,17 +243,51 @@
                         </div>
                     </div>
 
-                    <button
-                        @click="handleCheckout"
-                        :disabled="isSubmitting || cartState.count === 0"
-                        class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 rounded-xl flex items-center justify-center gap-3 shadow-xl shadow-sumi/10 hover:bg-matcha hover:text-sumi active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <span v-if="isSubmitting" class="w-4 h-4 border-2 border-washi/20 border-t-washi rounded-full animate-spin"></span>
-                        <span v-else class="flex items-center gap-2">
-                            Pesan Sekarang
-                            <i class="bi bi-arrow-right text-base transition-transform group-hover:translate-x-1"></i>
-                        </span>
-                    </button>
+                    <div class="space-y-4">
+                        <!-- S&K Checkbox -->
+                        <div class="flex items-start gap-3 px-1">
+                            <div class="relative flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="agreed_to_terms"
+                                    v-model="form.agreedToTerms"
+                                    class="h-4 w-4 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                                >
+                                <div 
+                                    class="h-4 w-4 rounded border transition-all duration-300 flex items-center justify-center"
+                                    :class="form.agreedToTerms ? 'bg-matcha border-matcha' : 'bg-shironeri border-sumi/20'"
+                                >
+                                    <i 
+                                        v-if="form.agreedToTerms"
+                                        class="bi bi-check-lg text-white text-[10px] animate-fade-in"
+                                    ></i>
+                                </div>
+                            </div>
+                            <label for="agreed_to_terms" class="text-[9px] font-bold text-hai uppercase tracking-widest leading-relaxed cursor-pointer select-none">
+                                Saya menyetujui <span class="text-sumi underline">Syarat dan Ketentuan</span> yang berlaku di Bogor Sneakers.
+                            </label>
+                        </div>
+
+                        <button
+                            @click="handleCheckout"
+                            :disabled="isSubmitting || cartState.count === 0 || !isFormValid"
+                            class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 rounded-xl flex items-center justify-center gap-3 shadow-xl shadow-sumi/10 hover:bg-matcha hover:text-sumi active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span v-if="isSubmitting" class="w-4 h-4 border-2 border-washi/20 border-t-washi rounded-full animate-spin"></span>
+                            <span v-else class="flex items-center gap-2">
+                                Pesan Sekarang
+                                <i class="bi bi-arrow-right text-base transition-transform group-hover:translate-x-1"></i>
+                            </span>
+                        </button>
+                        
+                        <!-- Dynamic Information Hint -->
+                        <div v-if="!isFormValid && !isSubmitting" class="flex items-center justify-center gap-2 animate-fade-in">
+                            <i class="bi bi-info-circle text-[10px] text-hai"></i>
+                            <p class="text-[8px] text-hai font-bold uppercase tracking-widest">
+                                Silakan lengkapi: <span class="text-sumi underline">{{ missingFieldsLabel }}</span>
+                            </p>
+                        </div>
+                    </div>
                     
                     <p class="text-[9px] text-center text-hai font-bold uppercase tracking-widest">
                         Konfirmasi pembayaran via WhatsApp
@@ -241,6 +321,7 @@ const form = reactive({
     items: [] as any[],
     shipping_cost: 0,
     courier: '',
+    agreedToTerms: false,
 });
 
 // Shipping Logic
@@ -255,6 +336,73 @@ const availableCouriers = ref<any[]>([]);
 const shippingCost = ref(0);
 const isCalculatingShipping = ref(false);
 const isSubmitting = ref(false);
+
+const isFormValid = computed(() => {
+    return !!(
+        form.customer_name &&
+        form.customer_phone.replace(/\D/g, '').length >= 10 &&
+        destinationId.value &&
+        addressDetail.value &&
+        courier.value &&
+        form.agreedToTerms &&
+        !isCalculatingShipping.value
+    );
+});
+
+const missingFieldsLabel = computed(() => {
+    if (!form.customer_name) return 'Nama Lengkap';
+    if (form.customer_phone.replace(/\D/g, '').length < 10) return 'Nomor WhatsApp';
+    if (!destinationId.value) return 'Pilih Kecamatan/Kota';
+    if (!addressDetail.value) return 'Alamat Lengkap';
+    if (!courier.value) return 'Pilih Kurir';
+    if (!form.agreedToTerms) return 'Setujui Syarat & Ketentuan';
+    return '';
+});
+
+const validateAddressSelection = () => {
+    // Small delay to allow selectDestination to trigger first if a suggestion was clicked
+    setTimeout(() => {
+        if (!destinationId.value && addressSearch.value.length > 0) {
+            // If they typed but didn't select from suggestions, clear or keep search but mark invalid
+            showSuggestions.value = false;
+        }
+    }, 200);
+};
+
+const validatePhoneInput = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    // Remove non-digits
+    let value = input.value.replace(/\D/g, '');
+    
+    // Max 13 digits
+    if (value.length > 13) {
+        value = value.substring(0, 13);
+    }
+    
+    form.customer_phone = value;
+};
+
+const formatPhoneOnBlur = () => {
+    let value = form.customer_phone.replace(/\D/g, '');
+    
+    // Check if it starts with 0 or 62 to normalize
+    if (value.startsWith('0')) {
+        value = value.substring(1);
+    } else if (value.startsWith('62')) {
+        value = value.substring(2);
+    }
+
+    // Standard Indonesian length is usually 10-13 digits total (including prefix)
+    // If it's exactly 12 digits after normalization (making it 13 digits with '0' prefix)
+    if (value.length === 12) {
+        // Format: +62 xxx-xxxx-xxxx-x
+        const part1 = value.substring(0, 3);
+        const part2 = value.substring(3, 7);
+        const part3 = value.substring(7, 11);
+        const part4 = value.substring(11, 12);
+        form.customer_phone = `+62 ${part1}-${part2}-${part3}-${part4}`;
+    }
+};
 
 let searchTimeout: any = null;
 let abortController: AbortController | null = null;

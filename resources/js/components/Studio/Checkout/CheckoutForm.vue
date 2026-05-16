@@ -21,48 +21,68 @@
              <div class="grid gap-6">
                 <!-- Name -->
                 <div class="relative group">
-                    <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Nama Lengkap <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <input
                             v-model="checkoutForm.name"
                             type="text"
+                            id="name"
                             required
                             :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.name}"
-                            class="w-full h-12 pl-12 pr-6 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20"
-                            placeholder="Contoh: Muhammad Rizky"
+                            class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                            placeholder="Nama Lengkap"
                         >
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">person</span>
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">person</span>
+                        <label
+                            for="name"
+                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                        >
+                            Nama Lengkap <span class="text-red-500">*</span>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Contact Grid -->
-                <div class="grid gap-6">
+                <div class="grid gap-6 sm:grid-cols-2">
                     <div class="relative group">
-                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">WhatsApp <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input
                                 v-model="checkoutForm.phone"
                                 type="text"
+                                id="phone"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.phone}"
-                                class="w-full h-12 pl-12 pr-6 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20"
-                                placeholder="0812xxxxxxxx"
+                                class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                                placeholder="WhatsApp"
+                                @input="validatePhoneInput"
+                                @blur="formatPhoneOnBlur"
                             >
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">call</span>
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">call</span>
+                            <label
+                                for="phone"
+                                class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                            >
+                                WhatsApp <span class="text-red-500">*</span>
+                            </label>
                         </div>
                     </div>
                     <div class="relative group">
-                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Email <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <input
                                 v-model="checkoutForm.email"
                                 type="email"
+                                id="email"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.email}"
-                                class="w-full h-12 pl-12 pr-6 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20"
-                                placeholder="email@contoh.com"
+                                class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                                placeholder="Email"
                             >
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">mail</span>
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">mail</span>
+                            <label
+                                for="email"
+                                class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                            >
+                                Email <span class="text-red-500">*</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -70,23 +90,29 @@
                 <!-- Size & Info -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="relative group">
-                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Shoe Size <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <select
                                 v-model="checkoutForm.shoeSize"
+                                id="shoe_size"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.shoeSize}"
-                                class="w-full h-12 px-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold appearance-none cursor-pointer"
+                                class="peer w-full h-14 pl-5 pr-10 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold appearance-none cursor-pointer outline-none"
                             >
-                                <option value="">Pilih</option>
+                                <option value="" disabled selected hidden></option>
                                 <option v-for="size in shoeSizes" :key="size" :value="String(size)">Size {{ size }}</option>
                             </select>
-                            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg pointer-events-none">expand_more</span>
+                            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg pointer-events-none transition-all duration-300 ease-in-out peer-focus:text-indigo">expand_more</span>
+                            <label
+                                for="shoe_size"
+                                class="absolute left-5 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                                :class="checkoutForm.shoeSize ? 'top-2 text-[9px] font-black uppercase tracking-[0.15em]' : 'top-4.5 text-[13px] font-bold normal-case tracking-normal'"
+                            >
+                                Shoe Size <span class="text-red-500">*</span>
+                            </label>
                         </div>
                     </div>
                     <div class="relative group opacity-50 grayscale">
-                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Status</label>
-                        <div class="h-12 flex items-center px-5 bg-shironeri/50 border border-indigo/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-matcha">
+                        <div class="h-14 flex items-center px-5 bg-shironeri/50 border border-indigo/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-matcha">
                             In Stock
                         </div>
                     </div>
@@ -94,18 +120,41 @@
 
                 <!-- Address -->
                 <div class="relative group">
-                    <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Shipping Address <span class="text-red-500">*</span></label>
+                    <!-- Validation Hint (Above) -->
+                    <p v-if="!checkoutForm.destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions" class="text-[7px] font-black uppercase text-red-500 tracking-widest mb-1.5 ml-1 animate-fade-in">
+                        Pilih dari daftar saran
+                    </p>
+
                     <div class="relative">
                         <input
                             v-model="addressSearch"
                             type="text"
+                            id="address_search"
                             required
-                            :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.address}"
-                            class="w-full h-12 pl-12 pr-6 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20"
-                            placeholder="Cari kecamatan/kota (min. 3 karakter)..."
+                            :class="[
+                                'peer w-full h-14 pl-12 pr-10 pt-5 rounded-2xl border transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none',
+                                checkoutForm.destinationId ? 'border-indigo/30 bg-white ring-4 ring-indigo/5' : 'border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5',
+                                checkoutForm.formTouched && !checkoutForm.address ? 'border-red-200 bg-red-50/30' : '',
+                                !checkoutForm.destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions ? 'border-red-400' : ''
+                            ]"
+                            placeholder="Shipping Address"
                             @input="handleAddressInput"
+                            @blur="validateAddressSelection"
                         >
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">location_on</span>
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">location_on</span>
+                        
+                        <!-- Status Icon -->
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                            <span v-if="checkoutForm.destinationId" class="material-symbols-outlined text-matcha text-xl animate-fade-in">check_circle</span>
+                            <div v-else-if="isSearching" class="w-4 h-4 border-2 border-indigo/20 border-t-indigo rounded-full animate-spin"></div>
+                        </div>
+
+                        <label
+                            for="address_search"
+                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                        >
+                            Shipping Address <span class="text-red-500">*</span>
+                        </label>
                         
                         <!-- Suggestions Dropdown -->
                         <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[100] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
@@ -119,27 +168,28 @@
                                 <p class="text-[10px] text-usuzumi/50 font-medium uppercase tracking-wider mt-1">{{ item.subdistrict_name }}, {{ item.city_name }}</p>
                             </button>
                         </div>
-
-                        <!-- Loading/Empty State -->
-                        <div v-if="isSearching" class="absolute right-4 top-1/2 -translate-y-1/2">
-                            <div class="w-4 h-4 border-2 border-indigo/20 border-t-indigo rounded-full animate-spin"></div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Detailed Address -->
                 <div class="relative group">
-                    <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Detail Alamat (Nama Jalan, No Rumah, dll) <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <textarea
                             v-model="checkoutForm.addressDetail"
+                            id="address_detail"
                             rows="2"
                             required
                             :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.addressDetail}"
-                            class="w-full pl-12 pr-6 py-4 rounded-[1.5rem] border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all text-[13px] font-bold placeholder:text-usuzumi/20 resize-none"
-                            placeholder="Contoh: Jl. Merdeka No. 10, RT 01/RW 02..."
+                            class="peer w-full pl-12 pr-6 py-6 rounded-[1.5rem] border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent resize-none outline-none"
+                            placeholder="Detail Alamat"
                         ></textarea>
-                        <span class="material-symbols-outlined absolute left-4 top-5 text-usuzumi/30 text-lg group-focus-within:text-indigo transition-colors">home</span>
+                        <span class="material-symbols-outlined absolute left-4 top-6 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">home</span>
+                        <label
+                            for="address_detail"
+                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-6 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                        >
+                            Detail Alamat <span class="text-red-500">*</span>
+                        </label>
                     </div>
                 </div>
 
@@ -153,7 +203,7 @@
                                 @click="isCourierDropdownOpen = !isCourierDropdownOpen"
                                 type="button"
                                 :class="[
-                                    'w-full h-12 px-5 rounded-2xl border transition-all text-[13px] font-bold flex items-center justify-between group',
+                                    'w-full h-14 px-5 rounded-2xl border transition-all duration-300 ease-in-out text-[13px] font-bold flex items-center justify-between group',
                                     checkoutForm.courier ? 'bg-white border-indigo/20 shadow-sm' : 'bg-shironeri/50 border-indigo/10',
                                     checkoutForm.formTouched && !checkoutForm.courier ? 'border-red-200 bg-red-50/30' : ''
                                 ]"
@@ -162,8 +212,8 @@
                                     {{ selectedCourierName || 'Pilih Kurir' }}
                                 </span>
                                 <span 
-                                    class="material-symbols-outlined text-usuzumi/30 text-lg transition-transform duration-300"
-                                    :class="isCourierDropdownOpen ? 'rotate-180' : ''"
+                                    class="material-symbols-outlined text-usuzumi/30 text-lg transition-transform duration-300 ease-in-out"
+                                    :class="isCourierDropdownOpen ? 'rotate-180 text-indigo' : ''"
                                 >expand_more</span>
                             </button>
 
@@ -175,7 +225,7 @@
                                             v-for="c in checkoutForm.availableCouriers"
                                             :key="c.code"
                                             @click="selectCourier(c)"
-                                            class="w-full text-left px-5 py-3 hover:bg-indigo/5 transition-colors flex items-center justify-between group"
+                                            class="w-full text-left px-5 py-3 hover:bg-indigo/5 transition-all duration-300 ease-in-out flex items-center justify-between group"
                                         >
                                             <span class="text-[13px] font-bold text-sumi group-hover:text-indigo">{{ c.name }}</span>
                                             <span v-if="checkoutForm.courier === c.code" class="material-symbols-outlined text-indigo text-lg">check_circle</span>
@@ -280,24 +330,58 @@
                 </div>
             </div>
 
-            <button
-                @click="$emit('checkout')"
-                :disabled="isSaving"
-                class="group relative overflow-hidden w-full h-16 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-500 rounded-[2rem] flex items-center justify-center gap-4 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50"
-            >
-                <div class="absolute inset-0 bg-indigo opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                <!-- Animated Shine -->
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine"></div>
-
-                <span v-if="isSaving" class="relative z-10 w-5 h-5 border-[3px] border-white/20 border-t-white rounded-full animate-spin"></span>
-                <span class="relative z-10 flex items-center gap-4">
-                    {{ isSaving ? 'Processing...' : 'Finalize & Checkout' }}
-                    <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
-                        <span class="material-symbols-outlined text-[14px] transition-colors duration-500 group-hover:text-indigo">shopping_bag</span>
+            <div class="space-y-4">
+                <!-- S&K Checkbox -->
+                <div class="flex items-start gap-4 px-2 mb-2">
+                    <div class="relative flex items-center pt-0.5">
+                        <input
+                            type="checkbox"
+                            id="agreed_to_terms_studio"
+                            v-model="checkoutForm.agreedToTerms"
+                            class="h-5 w-5 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                        >
+                        <div 
+                            class="h-5 w-5 rounded-lg border-2 transition-all duration-300 shadow-sm flex items-center justify-center"
+                            :class="checkoutForm.agreedToTerms ? 'bg-indigo border-indigo' : 'bg-shironeri/50 border-indigo/10'"
+                        >
+                            <span 
+                                v-if="checkoutForm.agreedToTerms"
+                                class="material-symbols-outlined text-white text-[16px] animate-fade-in"
+                            >check</span>
+                        </div>
                     </div>
-                </span>
-            </button>
+                    <label for="agreed_to_terms_studio" class="text-[10px] font-bold text-usuzumi/60 uppercase tracking-widest leading-relaxed cursor-pointer select-none">
+                        Saya menyetujui <span class="text-indigo underline">Syarat dan Ketentuan</span> yang berlaku di Bogor Sneakers.
+                    </label>
+                </div>
+
+                <button
+                    @click="$emit('checkout')"
+                    :disabled="isSaving || !isFormValid"
+                    class="group relative overflow-hidden w-full h-16 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-500 rounded-[2rem] flex items-center justify-center gap-4 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
+                >
+                    <div class="absolute inset-0 bg-indigo opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- Animated Shine -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine"></div>
+
+                    <span v-if="isSaving" class="relative z-10 w-5 h-5 border-[3px] border-white/20 border-t-white rounded-full animate-spin"></span>
+                    <span class="relative z-10 flex items-center gap-4">
+                        {{ isSaving ? 'Processing...' : 'Finalize & Checkout' }}
+                        <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
+                            <span class="material-symbols-outlined text-[14px] transition-colors duration-500 group-hover:text-indigo">shopping_bag</span>
+                        </div>
+                    </span>
+                </button>
+
+                <!-- Dynamic Information Hint -->
+                <div v-if="!isFormValid && !isSaving" class="flex items-center justify-center gap-2 animate-fade-in">
+                    <span class="material-symbols-outlined text-[14px] text-usuzumi/40">info</span>
+                    <p class="text-[9px] text-usuzumi/40 font-bold uppercase tracking-widest">
+                        Lengkapi: <span class="text-indigo underline">{{ missingFieldsLabel }}</span>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -308,6 +392,59 @@ import { useStudioStore, ORIGIN_ID } from '../../../composables/useStudioStore';
 import { formatCurrency } from '../../../utils/studio-utils';
 
 const { checkoutForm, activeSideTab, isSaving } = useStudioStore();
+
+const isFormValid = computed(() => {
+    return !!(
+        checkoutForm.name &&
+        checkoutForm.phone.replace(/\D/g, '').length >= 10 &&
+        checkoutForm.shoeSize &&
+        checkoutForm.destinationId &&
+        checkoutForm.addressDetail &&
+        checkoutForm.courier &&
+        checkoutForm.agreedToTerms &&
+        !checkoutForm.isCalculatingShipping
+    );
+});
+
+const missingFieldsLabel = computed(() => {
+    if (!checkoutForm.name) return 'Nama Lengkap';
+    if (checkoutForm.phone.replace(/\D/g, '').length < 10) return 'Nomor WhatsApp';
+    if (!checkoutForm.shoeSize) return 'Ukuran Sepatu';
+    if (!checkoutForm.destinationId) return 'Pilih Kecamatan/Kota';
+    if (!checkoutForm.addressDetail) return 'Alamat Lengkap';
+    if (!checkoutForm.courier) return 'Pilih Kurir';
+    if (!checkoutForm.agreedToTerms) return 'Setujui Syarat & Ketentuan';
+    return '';
+});
+
+const validateAddressSelection = () => {
+    setTimeout(() => {
+        if (!checkoutForm.destinationId && addressSearch.value.length > 0) {
+            showSuggestions.value = false;
+        }
+    }, 200);
+};
+
+const validatePhoneInput = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 13) value = value.substring(0, 13);
+    checkoutForm.phone = value;
+};
+
+const formatPhoneOnBlur = () => {
+    let value = checkoutForm.phone.replace(/\D/g, '');
+    if (value.startsWith('0')) value = value.substring(1);
+    else if (value.startsWith('62')) value = value.substring(2);
+
+    if (value.length === 12) {
+        const part1 = value.substring(0, 3);
+        const part2 = value.substring(3, 7);
+        const part3 = value.substring(7, 11);
+        const part4 = value.substring(11, 12);
+        checkoutForm.phone = `+62 ${part1}-${part2}-${part3}-${part4}`;
+    }
+};
 
 // Shipping State
 const addressSearch = ref(checkoutForm.address || '');
