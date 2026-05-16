@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import orderRoutes from '@/routes/admin/orders';
+import CustomDatePicker from '@/components/admin/ui/CustomDatePicker.vue';
 import CustomInput from '@/components/admin/ui/CustomInput.vue';
 import CustomSelect from '@/components/admin/ui/CustomSelect.vue';
-import CustomDatePicker from '@/components/admin/ui/CustomDatePicker.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import orderRoutes from '@/routes/admin/orders';
 import { debounce } from 'lodash';
 
 interface OrderItem {
@@ -224,7 +224,7 @@ const getStatusBadge = (status: string) => {
                     <p class="text-sm font-semibold text-slate-500">
                         Menampilkan <span class="text-indigo-600">{{ orders.length }}</span> Pesanan
                     </p>
-                    <button 
+                    <button
                         @click="resetFilters"
                         class="group flex items-center space-x-2 rounded-xl bg-slate-50 px-6 py-2.5 text-xs font-bold text-slate-500 transition-all duration-300 hover:bg-rose-50 hover:text-rose-600"
                     >
@@ -347,4 +347,3 @@ const getStatusBadge = (status: string) => {
         </div>
     </AdminLayout>
 </template>
-
