@@ -54,6 +54,17 @@
                 {{ toastMessage }}
             </div>
         </transition>
+
+        <CheckoutConfirmModal
+            :show="showConfirmModal"
+            :customer-name="checkoutForm.name"
+            :customer-phone="checkoutForm.phone"
+            :customer-address="checkoutForm.address"
+            :formatted-total="new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(899000 + (checkoutForm.fastTrackEnabled ? 125000 : 0) + (checkoutForm.customBoxEnabled ? 65000 : 0) + checkoutForm.shippingCost)"
+            :is-submitting="isSaving"
+            @close="showConfirmModal = false"
+            @confirm="submitStudioCheckout"
+        />
     </div>
 </template>
 
@@ -65,6 +76,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 // Components
 import CheckoutForm from '../components/Studio/Checkout/CheckoutForm.vue';
 import AddonModals from '../components/Studio/Modals/AddonModals.vue';
+import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
 import StudioCanvas from '../components/Studio/StudioCanvas.vue';
 import StudioSideNav from '../components/Studio/StudioSideNav.vue';
 import StudioToolbox from '../components/Studio/StudioToolbox.vue';
@@ -97,6 +109,7 @@ const {
 } = useStudioStore();
 
 const { undo: undoHistory, redo: redoHistory, isRestoring, clearHistory } = useStudioHistory();
+const showConfirmModal = ref(false);
 
 const {
     initStage,
@@ -236,12 +249,21 @@ const validateCheckout = () => {
 
 const WHATSAPP_INTRO = "Halo Admin Bogor Sneakers, saya ingin memesan sepatu custom dengan rincian berikut:";
 
-const handleFinalCheckout = async () => {
+const handleFinalCheckout = () => {
+    if (isSaving.value) return;
+
+    // Construct final address for summary
+    checkoutForm.address = `${checkoutForm.addressDetail}, ${checkoutForm.address}`;
+    showConfirmModal.value = true;
+};
+
+const submitStudioCheckout = async () => {
     if (isSaving.value) {
         return;
     }
 
     isSaving.value = true;
+    showConfirmModal.value = false;
 
     try {
         const previewUrl = await createPreviewURL(checkoutForm);
@@ -267,7 +289,6 @@ const handleFinalCheckout = async () => {
             `Ongkir (${checkoutForm.courier.toUpperCase()}): ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(checkoutForm.shippingCost)}`,
             `Total Est: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalEst)}`,
             `Destinasi: ${checkoutForm.address}`,
-            `Alamat Lengkap: ${checkoutForm.addressDetail}`,
             `Kurir: ${checkoutForm.courier.toUpperCase()}`
         ].join('\n'));
 

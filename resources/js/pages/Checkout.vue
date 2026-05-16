@@ -295,6 +295,17 @@
                 </div>
             </aside>
         </main>
+
+        <CheckoutConfirmModal
+            :show="showConfirmModal"
+            :customer-name="form.customer_name"
+            :customer-phone="form.customer_phone"
+            :customer-address="form.customer_address"
+            :formatted-total="formatCurrency(cartState.total + shippingCost)"
+            :is-submitting="isSubmitting"
+            @close="showConfirmModal = false"
+            @confirm="submitCheckout"
+        />
     </div>
 </template>
 
@@ -304,6 +315,7 @@ import { computed, ref, onMounted, reactive } from 'vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
 import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
+import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
 import { cartState } from '@/stores/cart';
 import type { FloatingContact } from '@/types/floating-ui';
 
@@ -336,6 +348,7 @@ const availableCouriers = ref<any[]>([]);
 const shippingCost = ref(0);
 const isCalculatingShipping = ref(false);
 const isSubmitting = ref(false);
+const showConfirmModal = ref(false);
 
 const isFormValid = computed(() => {
     return !!(
@@ -509,7 +522,7 @@ onMounted(() => {
     }
 });
 
-const handleCheckout = async () => {
+const handleCheckout = () => {
     if (isSubmitting.value) return;
     
     // Validation basic
@@ -518,19 +531,36 @@ const handleCheckout = async () => {
         return;
     }
 
+    // Construct final address for summary
+    form.customer_address = `${addressDetail.value}, ${addressSearch.value}`;
+    showConfirmModal.value = true;
+};
+
+const submitCheckout = async () => {
+    if (isSubmitting.value) return;
+    
     isSubmitting.value = true;
     
-    // Construct final address
-    form.customer_address = `${addressDetail.value}, ${addressSearch.value}`;
-    form.shipping_cost = shippingCost.value;
-    form.courier = courier.value;
+    // Normalize phone for database: e.g. +62 812-3456-7890 -> 081234567890
+    let cleanPhone = form.customer_phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('62')) {
+        cleanPhone = '0' + cleanPhone.substring(2);
+    } else if (!cleanPhone.startsWith('0') && cleanPhone.length > 0) {
+        cleanPhone = '0' + cleanPhone;
+    }
     
-    // Map cart items to backend format
-    form.items = cartState.items.map(item => ({
-        catalog_id: item.catalog_id,
-        size: String(item.size),
-        quantity: item.qty
-    }));
+    // Finalize form data for submission
+    const submissionData = {
+        ...form,
+        customer_phone: cleanPhone,
+        shipping_cost: shippingCost.value,
+        courier: courier.value,
+        items: cartState.items.map(item => ({
+            catalog_id: item.catalog_id,
+            size: String(item.size),
+            quantity: item.qty
+        }))
+    };
 
     try {
         const response = await fetch('/api/checkout', {
@@ -539,7 +569,7 @@ const handleCheckout = async () => {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || ''
             },
-            body: JSON.stringify(form)
+            body: JSON.stringify(submissionData)
         });
 
         const result = await response.json();
