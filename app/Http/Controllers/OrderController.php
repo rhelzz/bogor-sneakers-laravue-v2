@@ -48,7 +48,15 @@ class OrderController extends Controller
             'items.*.size' => 'required|string',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        // 4. Normalize Phone Number (ensure 08xxxxxxxx format for database)
+        $cleanPhone = preg_replace('/\D/', '', $request->customer_phone);
+        if (str_starts_with($cleanPhone, '62')) {
+            $cleanPhone = '0' . substr($cleanPhone, 2);
+        } elseif (!str_starts_with($cleanPhone, '0') && !empty($cleanPhone)) {
+            $cleanPhone = '0' . $cleanPhone;
+        }
+
+        return DB::transaction(function () use ($request, $cleanPhone) {
             $subtotal = 0;
             $orderItemsData = [];
 
@@ -70,7 +78,7 @@ class OrderController extends Controller
             // Create Order
             $order = Order::create([
                 'customer_name' => $request->customer_name,
-                'customer_phone' => $request->customer_phone,
+                'customer_phone' => $cleanPhone,
                 'customer_address' => $request->customer_address,
                 'notes' => $request->notes,
                 'subtotal' => $subtotal,
@@ -214,7 +222,7 @@ class OrderController extends Controller
     /**
      * Update order status (Admin).
      */
-    public function updateStatus(Request $request, Order $order): JsonResponse
+    public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
             'status' => 'required|in:' . implode(',', array_keys(Order::getStatusLabels())),
@@ -222,14 +230,7 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Status pesanan berhasil diperbarui menjadi: ' . $order->status_label,
-            'data' => [
-                'status' => $order->status,
-                'status_label' => $order->status_label,
-            ]
-        ]);
+        return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui menjadi: ' . $order->status_label);
     }
 
     /**

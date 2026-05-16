@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import StatusConfirmModal from '@/components/ui/StatusConfirmModal.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import orderRoutes from '@/routes/admin/orders';
 
@@ -71,17 +72,39 @@ const dummyStatusOptions = {
 const orderData = computed(() => props.order || dummyOrder);
 const statusOptionsList = computed(() => props.statusOptions || dummyStatusOptions);
 
+const statusSequence = ['unverified', 'pending', 'processing', 'shipped', 'completed'];
+
+const nextStatus = computed(() => {
+    const currentIndex = statusSequence.indexOf(orderData.value.status);
+    if (currentIndex !== -1 && currentIndex < statusSequence.length - 1) {
+        return statusSequence[currentIndex + 1];
+    }
+    return null;
+});
+
 const isUpdating = ref(false);
+const showConfirmModal = ref(false);
+const selectedStatus = ref('');
 
 const updateStatus = (newStatus: string) => {
-    if (confirm(`Apakah Anda yakin ingin mengubah status pesanan menjadi "${statusOptionsList.value[newStatus]}"?`)) {
-        isUpdating.value = true;
-        router.patch(orderRoutes.updateStatus.url({ order: orderData.value.id }), {
-            status: newStatus
-        }, {
-            onFinish: () => isUpdating.value = false
-        });
-    }
+    selectedStatus.value = newStatus;
+    showConfirmModal.value = true;
+};
+
+const submitStatusUpdate = () => {
+    if (!selectedStatus.value) return;
+
+    isUpdating.value = true;
+    showConfirmModal.value = false;
+
+    router.patch(orderRoutes.updateStatus.url({ order: orderData.value.id }), {
+        status: selectedStatus.value
+    }, {
+        onFinish: () => {
+            isUpdating.value = false;
+            selectedStatus.value = '';
+        }
+    });
 };
 
 const formatCurrency = (amount: number) => {
@@ -120,7 +143,7 @@ const openWhatsApp = () => {
             <!-- Header Actions -->
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex items-center space-x-4">
-                    <Link 
+                    <Link
                         :href="orderRoutes.index.url()"
                         class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-all hover:bg-slate-50 hover:text-slate-800"
                     >
@@ -135,7 +158,7 @@ const openWhatsApp = () => {
                 </div>
 
                 <div class="flex flex-wrap gap-2">
-                    <button 
+                    <button
                         @click="openWhatsApp"
                         class="flex items-center space-x-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-100 transition-all hover:bg-emerald-700 hover:shadow-emerald-200"
                     >
@@ -236,44 +259,97 @@ const openWhatsApp = () => {
 
                 <!-- Right Column: Status & Actions -->
                 <div class="space-y-6">
-                    <!-- Current Status -->
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-center">
-                        <h3 class="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">Status Saat Ini</h3>
-                        <div 
-                            class="inline-flex items-center rounded-2xl border px-6 py-3 text-xs font-black tracking-wider uppercase shadow-md"
-                            :class="getStatusBadge(orderData.status)"
-                        >
-                            <span class="mr-3 h-2 w-2 rounded-full bg-current animate-pulse"></span>
-                            {{ orderData.status_label }}
+                    <!-- Milestone Progression -->
+                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <h3 class="mb-6 text-xs font-black uppercase tracking-widest text-slate-400">Progres Pesanan</h3>
+
+                        <div class="relative space-y-8">
+                            <!-- Vertical Line -->
+                            <div class="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-100"></div>
+
+                            <div
+                                v-for="(status, index) in statusSequence"
+                                :key="status"
+                                class="relative flex items-center space-x-4"
+                            >
+                                <!-- Indicator -->
+                                <div
+                                    class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500"
+                                    :class="[
+                                        statusSequence.indexOf(orderData.status) >= index
+                                            ? 'border-indigo-600 bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                                            : 'border-slate-200 bg-white text-slate-300'
+                                    ]"
+                                >
+                                    <svg v-if="statusSequence.indexOf(orderData.status) >= index" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span v-else class="text-[10px] font-black">{{ index + 1 }}</span>
+                                </div>
+
+                                <!-- Label -->
+                                <div class="flex flex-col">
+                                    <p
+                                        class="text-xs font-black uppercase tracking-wider transition-colors duration-500"
+                                        :class="statusSequence.indexOf(orderData.status) >= index ? 'text-indigo-600' : 'text-slate-400'"
+                                    >
+                                        {{ statusOptionsList[status] }}
+                                    </p>
+                                    <p v-if="orderData.status === status" class="text-[9px] font-bold text-slate-400 animate-pulse">STATUS SAAT INI</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <div v-if="nextStatus && orderData.status !== 'cancelled'" class="mt-10">
+                            <button
+                                @click="updateStatus(nextStatus)"
+                                :disabled="isUpdating"
+                                class="group relative w-full overflow-hidden rounded-xl bg-slate-900 p-4 transition-all hover:bg-indigo-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                            >
+                                <div v-if="isUpdating" class="flex items-center justify-center space-x-2">
+                                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white">Memperbarui...</span>
+                                </div>
+                                <div v-else class="flex items-center justify-center space-x-2">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white">Update Status Berikutnya</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                            </button>
+                            <p class="mt-3 text-center text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                                Target: {{ statusOptionsList[nextStatus] }}
+                            </p>
+                        </div>
+
+                        <div v-else class="mt-10 rounded-xl p-4 text-center border" :class="orderData.status === 'cancelled' ? 'bg-rose-50 border-rose-100' : 'bg-emerald-50 border-emerald-100'">
+                            <p class="text-[10px] font-black uppercase tracking-widest" :class="orderData.status === 'cancelled' ? 'text-rose-600' : 'text-emerald-600'">
+                                {{ orderData.status === 'cancelled' ? 'Pesanan Dibatalkan' : 'Pesanan Telah Selesai' }}
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Change Status -->
-                    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <h3 class="mb-5 text-xs font-black uppercase tracking-widest text-slate-400">Perbarui Status</h3>
-                        <div class="grid grid-cols-1 gap-2">
-                            <button 
-                                v-for="(label, status) in statusOptionsList" 
-                                :key="status"
-                                @click="updateStatus(status as string)"
-                                :disabled="isUpdating || orderData.status === status"
-                                class="flex items-center justify-between rounded-xl border p-3.5 text-left text-xs font-bold transition-all duration-300"
-                                :class="[
-                                    orderData.status === status 
-                                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700' 
-                                        : 'border-slate-100 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-white hover:shadow-sm'
-                                ]"
-                            >
-                                <span>{{ label }}</span>
-                                <svg v-if="orderData.status === status" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="mt-4 text-[10px] font-bold text-center text-slate-400">Pembaruan status akan mengirimkan sinyal ke database.</p>
+                    <!-- Cancel/Danger Zone (Optional, if still needed but kept separate) -->
+                    <div v-if="orderData.status !== 'completed' && orderData.status !== 'cancelled'" class="rounded-2xl border border-rose-100 bg-rose-50/30 p-6">
+                        <button
+                            @click="updateStatus('cancelled')"
+                            :disabled="isUpdating"
+                            class="w-full rounded-xl border border-rose-200 bg-white p-3 text-[10px] font-black uppercase tracking-widest text-rose-500 transition-all hover:bg-rose-500 hover:text-white"
+                        >
+                            Batalkan Pesanan
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </AdminLayout>
+
+    <StatusConfirmModal
+        :show="showConfirmModal"
+        :status-label="statusOptionsList[selectedStatus]"
+        :is-submitting="isUpdating"
+        @close="showConfirmModal = false"
+        @confirm="submitStatusUpdate"
+    />
 </template>
