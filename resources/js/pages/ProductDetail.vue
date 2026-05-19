@@ -3,8 +3,6 @@
         <Head :title="product ? product.name : 'Detail Produk'" />
         <FloatingMenuNav current-page="katalog" />
         <FloatingAdminPanel :contacts="contacts" />
-        <FloatingOrderPanel :orders="orders" />
-        <FloatingCartButton />
 
         <section
             class="min-h-screen bg-[radial-gradient(circle_at_1px_1px,rgba(26,26,26,0.06)_1px,transparent_0)] bg-size-[24px_24px] px-4 pt-28 pb-14 sm:px-6 lg:px-10"
@@ -258,9 +256,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
-import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
-import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
 import { cartState } from '@/stores/cart';
 import type { CatalogDetailItem, CatalogStatus } from '@/types/catalog';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
