@@ -186,6 +186,7 @@ class HomeController extends Controller
             ->limit(self::HOME_LATEST_COLLECTION_LIMIT)
             ->get(['*'])
             ->map(function (Catalog $catalog): array {
+                $collectionLabel = trim((string) $catalog->collection);
                 return [
                     'id' => $catalog->id,
                     'name' => $catalog->name,
@@ -194,6 +195,8 @@ class HomeController extends Controller
                     'status' => $this->toCatalogStatusLabel((string) $catalog->status),
                     'statusClass' => $this->toCatalogStatusClass((string) $catalog->status),
                     'image_url' => $catalog->primary_image_url,
+                    'brand' => $this->toKey($collectionLabel),
+                    'brand_label' => $collectionLabel !== '' ? $collectionLabel : 'Lainnya',
                 ];
             })
             ->values()
