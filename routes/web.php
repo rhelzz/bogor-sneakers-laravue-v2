@@ -68,6 +68,7 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/katalog', [KatalogController::class, 'adminIndex'])->name('admin.katalog');
     Route::get('/katalog/create', [KatalogController::class, 'create'])->name('admin.katalog.create');
+    Route::get('/katalog/{catalog}/edit', [KatalogController::class, 'edit'])->name('admin.katalog.edit');
     Route::post('/katalog', [KatalogController::class, 'store'])->name('admin.katalog.store');
     Route::put('/katalog/{catalog}', [KatalogController::class, 'update'])->name('admin.katalog.update');
     Route::delete('/katalog/{catalog}', [KatalogController::class, 'destroy'])->name('admin.katalog.destroy');

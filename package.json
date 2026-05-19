@@ -10,6 +10,10 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest run --coverage",
         "types:check": "vue-tsc --noEmit"
     },
     "devDependencies": {
@@ -26,6 +30,7 @@
         "prettier": "^3.4.2",
         "prettier-plugin-tailwindcss": "^0.6.11",
         "typescript-eslint": "^8.23.0",
+        "vitest": "^4.1.6",
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {

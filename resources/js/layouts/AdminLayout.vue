@@ -6,12 +6,13 @@
         <aside
             :class="[
                 'relative z-20 flex shrink-0 flex-col border-r border-white/5 bg-[#15161a] text-slate-300 shadow-2xl transition-all duration-300 ease-in-out',
-                isSidebarOpen ? 'w-72' : 'w-20',
+                isSidebarOpen ? 'w-64' : 'w-16',
             ]"
         >
             <!-- Sidebar Header -->
             <div
-                class="relative flex h-20 shrink-0 items-center justify-between px-5"
+                class="relative flex h-20 shrink-0 items-center px-4"
+                :class="isSidebarOpen ? 'justify-between' : 'justify-center'"
             >
                 <h1
                     v-if="isSidebarOpen"
@@ -22,7 +23,8 @@
 
                 <button
                     @click="toggleSidebar"
-                    class="ml-auto rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
+                    class="rounded-xl p-2 text-slate-400 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
+                    :class="{ 'ml-auto': isSidebarOpen }"
                     title="Toggle Sidebar"
                 >
                     <!-- Menu Icon -->
@@ -57,15 +59,15 @@
                 <!-- Dashboard -->
                 <Link
                     :href="dashboard.url()"
-                    class="group flex items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
+                    class="group flex items-center rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
                     :class="{ 'justify-center': !isSidebarOpen }"
                 >
                     <div
-                        class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                        class="rounded-lg bg-white/5 p-1.5 transition-colors group-hover:bg-indigo-600"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 shrink-0"
+                            class="h-4.5 w-4.5 shrink-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -80,7 +82,7 @@
                     </div>
                     <span
                         v-if="isSidebarOpen"
-                        class="ml-4 truncate font-semibold tracking-wide"
+                        class="ml-3 truncate text-sm font-bold tracking-wide"
                     >
                         Dashboard
                     </span>
@@ -89,19 +91,19 @@
                 <!-- Pesanan -->
                 <Link
                     :href="orderRoutes.index.url()"
-                    class="group flex items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
+                    class="group flex items-center rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-white/5 hover:text-white"
                     :class="{ 
                         'justify-center': !isSidebarOpen,
                         'bg-white/10 text-white': isUrlActive(orderRoutes.index.url())
                     }"
                 >
                     <div
-                        class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                        class="rounded-lg bg-white/5 p-1.5 transition-colors group-hover:bg-indigo-600"
                         :class="{ 'bg-indigo-600': isUrlActive(orderRoutes.index.url()) }"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 shrink-0"
+                            class="h-4.5 w-4.5 shrink-0"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -116,7 +118,7 @@
                     </div>
                     <span
                         v-if="isSidebarOpen"
-                        class="ml-4 truncate font-semibold tracking-wide"
+                        class="ml-3 truncate text-sm font-bold tracking-wide"
                     >
                         Pesanan
                     </span>
@@ -126,7 +128,7 @@
                 <div class="space-y-1">
                     <button
                         @click="toggleProductMenu"
-                        class="group flex w-full items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
+                        class="group flex w-full items-center rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
                         :class="{
                             'justify-center': !isSidebarOpen,
                             'bg-white/10 text-white':
@@ -134,7 +136,7 @@
                         }"
                     >
                         <div
-                            class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                            class="rounded-lg bg-white/5 p-1.5 transition-colors group-hover:bg-indigo-600"
                             :class="{
                                 'bg-indigo-600 text-white':
                                     isProductMenuOpen && isSidebarOpen,
@@ -142,7 +144,7 @@
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5 shrink-0"
+                                class="h-4.5 w-4.5 shrink-0"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -157,14 +159,14 @@
                         </div>
                         <span
                             v-if="isSidebarOpen"
-                            class="ml-4 flex-1 truncate text-left font-semibold tracking-wide"
+                            class="ml-3 flex-1 truncate text-left text-sm font-bold tracking-wide"
                         >
                             Manajemen Produk
                         </span>
                         <svg
                             v-if="isSidebarOpen"
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 shrink-0 text-slate-500 transition-transform duration-300 ease-in-out group-hover:text-white"
+                            class="h-4 w-4 shrink-0 text-slate-500 transition-transform duration-300 ease-in-out group-hover:text-white"
                             :class="
                                 isProductMenuOpen
                                     ? 'rotate-180 text-white'
@@ -192,7 +194,7 @@
                         }"
                     >
                         <div class="overflow-hidden">
-                            <div class="mt-1 space-y-1 py-2 pr-2 pl-14">
+                            <div class="mt-0.5 space-y-0.5 py-1.5 pr-2 pl-12">
                                 <Link
                                     v-for="item in productSubMenuItems"
                                     :key="item.href"
@@ -210,7 +212,7 @@
                 <div class="space-y-1">
                     <button
                         @click="toggleContentMenu"
-                        class="group flex w-full items-center rounded-xl px-3 py-3.5 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
+                        class="group flex w-full items-center rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-white/5 hover:text-white focus:outline-none"
                         :class="{
                             'justify-center': !isSidebarOpen,
                             'bg-white/10 text-white':
@@ -218,7 +220,7 @@
                         }"
                     >
                         <div
-                            class="rounded-lg bg-white/5 p-2 transition-colors group-hover:bg-indigo-600"
+                            class="rounded-lg bg-white/5 p-1.5 transition-colors group-hover:bg-indigo-600"
                             :class="{
                                 'bg-indigo-600 text-white':
                                     isContentMenuOpen && isSidebarOpen,
@@ -226,7 +228,7 @@
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5 shrink-0"
+                                class="h-4.5 w-4.5 shrink-0"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -241,14 +243,14 @@
                         </div>
                         <span
                             v-if="isSidebarOpen"
-                            class="ml-4 flex-1 truncate text-left font-semibold tracking-wide"
+                            class="ml-3 flex-1 truncate text-left text-sm font-bold tracking-wide"
                         >
                             Manajemen Konten
                         </span>
                         <svg
                             v-if="isSidebarOpen"
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 shrink-0 text-slate-500 transition-transform duration-300 ease-in-out group-hover:text-white"
+                            class="h-4 w-4 shrink-0 text-slate-500 transition-transform duration-300 ease-in-out group-hover:text-white"
                             :class="
                                 isContentMenuOpen
                                     ? 'rotate-180 text-white'
@@ -276,7 +278,7 @@
                         }"
                     >
                         <div class="overflow-hidden">
-                            <div class="mt-1 space-y-1 py-2 pr-2 pl-14">
+                            <div class="mt-0.5 space-y-0.5 py-1.5 pr-2 pl-12">
                                 <Link
                                     v-for="item in subMenuItems"
                                     :key="item.href"
@@ -292,7 +294,10 @@
             </nav>
 
             <!-- User Profile -->
-            <div class="shrink-0 border-t border-white/5 bg-[#15161a] p-4">
+            <div
+                class="shrink-0 border-t border-white/5 bg-[#15161a] transition-all duration-300"
+                :class="isSidebarOpen ? 'p-4' : 'px-2 py-4'"
+            >
                 <div
                     class="flex items-center"
                     :class="{ 'justify-center': !isSidebarOpen }"
@@ -486,10 +491,10 @@ watch(() => page.url, () => {
 const getSubMenuClasses = (href: string) => {
     const active = isUrlActive(href);
     const baseClasses =
-        'group relative flex items-center rounded-lg px-4 py-2.5 font-semibold transition-all duration-300 ease-in-out before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white';
+        'group relative flex items-center rounded-lg px-4 py-2 font-bold transition-all duration-300 ease-in-out before:absolute before:top-0 before:-bottom-1 before:-left-6 before:w-px before:bg-white/10 before:transition-colors after:absolute after:top-1/2 after:-left-6 after:h-px after:w-4 after:bg-white/10 after:transition-colors group-hover:after:bg-indigo-500 first:before:-top-2 last:before:bottom-auto last:before:h-1/2 last:before:w-4 last:before:rounded-bl-xl last:before:border-b last:before:border-l last:before:border-white/10 last:before:bg-transparent group-hover:last:before:border-indigo-500 last:after:hidden hover:bg-white/5 hover:text-white';
     const stateClasses = active
-        ? 'text-[15px] text-white bg-white/5'
-        : 'text-sm text-slate-400';
+        ? 'text-[13.5px] text-white bg-white/5'
+        : 'text-[13px] text-slate-400';
 
     return `${baseClasses} ${stateClasses}`;
 };

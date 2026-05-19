@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import pkg from 'lodash';
+const { debounce } = pkg;
+import { ref, computed, watch } from 'vue';
 import CustomDatePicker from '@/components/admin/ui/CustomDatePicker.vue';
 import CustomInput from '@/components/admin/ui/CustomInput.vue';
 import CustomSelect from '@/components/admin/ui/CustomSelect.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import orderRoutes from '@/routes/admin/orders';
-import { debounce } from 'lodash';
+// import { debounce } from 'lodash';
 
 interface OrderItem {
     id: number;
@@ -297,7 +299,7 @@ const getStatusBadge = (status: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="font-bold text-slate-800">{{ order.customer_name }}</p>
-                                    <p class="max-w-[180px] truncate text-[10px] font-medium text-slate-400" :title="order.customer_address">
+                                    <p class="max-w-45 truncate text-[10px] font-medium text-slate-400" :title="order.customer_address">
                                         {{ order.customer_address }}
                                     </p>
                                 </td>

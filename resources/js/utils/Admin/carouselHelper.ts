@@ -3,13 +3,14 @@
  * Helper functions untuk format data, validasi, dan operasi umum
  */
 
-import { CAROUSEL_VALIDATION, CAROUSEL_COLORS, CAROUSEL_STATUS } from '@/constants/Admin/carouselConstants';
+import { CAROUSEL_VALIDATION, CAROUSEL_COLORS, CAROUSEL_STATUS, CAROUSEL_ERRORS } from '@/constants/Admin/carouselConstants';
 
 /**
  * Validasi ukuran file image
  */
 export const validateImageSize = (file: File): boolean => {
   const fileSizeInKB = file.size / 1024;
+
   return fileSizeInKB <= CAROUSEL_VALIDATION.image.maxSize;
 };
 
@@ -17,15 +18,21 @@ export const validateImageSize = (file: File): boolean => {
  * Validasi tipe MIME image
  */
 export const validateImageType = (file: File): boolean => {
-  return CAROUSEL_VALIDATION.image.allowedMimes.includes(file.type);
+  return (CAROUSEL_VALIDATION.image.allowedMimes as readonly string[]).includes(file.type);
 };
 
 /**
  * Validasi ekstension file
  */
 export const validateImageExtension = (fileName: string): boolean => {
+  if (!fileName) {
+    return false;
+  }
+
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
-  return CAROUSEL_VALIDATION.image.allowedExtensions.includes(ext);
+  const allowedExtensions = CAROUSEL_VALIDATION.image.allowedExtensions as readonly string[];
+
+  return allowedExtensions.includes(ext);
 };
 
 /**
@@ -38,15 +45,15 @@ export const validateImage = (file: File): {
   const errors: string[] = [];
 
   if (!file) {
-    return { valid: false, errors: ['File tidak ada'] };
+    return { valid: false, errors: [CAROUSEL_ERRORS.image.required] };
   }
 
   if (!validateImageType(file)) {
-    errors.push('Format gambar harus JPEG atau PNG');
+    errors.push(CAROUSEL_ERRORS.image.mimes);
   }
 
   if (!validateImageSize(file)) {
-    errors.push(`Ukuran gambar maksimal ${CAROUSEL_VALIDATION.image.maxSize}KB`);
+    errors.push(CAROUSEL_ERRORS.image.maxSize);
   }
 
   if (!validateImageExtension(file.name)) {
@@ -58,6 +65,7 @@ export const validateImage = (file: File): {
     errors,
   };
 };
+
 
 /**
  * Format nomor urutan dengan padding
@@ -84,10 +92,14 @@ export const getStatusLabel = (isActive: boolean): string => {
  * Format file size untuk display
  */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
+
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
@@ -103,6 +115,7 @@ export const getFileNameFromPath = (path: string): string => {
  */
 export const formatDate = (date: string | Date): string => {
   const d = new Date(date);
+
   return d.toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'short',
