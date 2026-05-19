@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { katalog } from '@/routes/admin';
 
@@ -55,6 +55,12 @@ const getStatusLabel = (status: string) => {
         case 'po': return 'Pre-Order';
         case 'habis': return 'Stok Habis';
         default: return status;
+    }
+};
+
+const handleDelete = (item: CatalogItem) => {
+    if (confirm(`Apakah Anda yakin ingin menghapus produk "${item.name}"?`)) {
+        router.delete(katalog.destroy.url(item.id));
     }
 };
 </script>
@@ -176,12 +182,20 @@ const getStatusLabel = (status: string) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end space-x-2">
-                                        <button class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600" title="Edit">
+                                        <Link 
+                                            :href="katalog.edit.url(item.id)"
+                                            class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600" 
+                                            title="Edit"
+                                        >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00-2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                        </button>
-                                        <button class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" title="Hapus">
+                                        </Link>
+                                        <button 
+                                            @click="handleDelete(item)"
+                                            class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" 
+                                            title="Hapus"
+                                        >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -227,12 +241,20 @@ const getStatusLabel = (status: string) => {
                         <div class="flex items-center justify-between border-t border-slate-100 pt-4">
                             <p class="font-bold text-slate-900">{{ formatCurrency(item.price) }}</p>
                             <div class="flex space-x-1">
-                                <button class="rounded-lg border border-slate-100 bg-slate-50 p-1.5 text-slate-400 transition-all hover:bg-white hover:text-indigo-600" title="Edit">
+                                <Link 
+                                    :href="katalog.edit.url(item.id)"
+                                    class="rounded-lg border border-slate-100 bg-slate-50 p-1.5 text-slate-400 transition-all hover:bg-white hover:text-indigo-600" 
+                                    title="Edit"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                </button>
-                                <button class="rounded-lg border border-slate-100 bg-slate-50 p-1.5 text-slate-400 transition-all hover:bg-white hover:text-rose-600" title="Hapus">
+                                </Link>
+                                <button 
+                                    @click="handleDelete(item)"
+                                    class="rounded-lg border border-slate-100 bg-slate-50 p-1.5 text-slate-400 transition-all hover:bg-white hover:text-rose-600" 
+                                    title="Hapus"
+                                >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>

@@ -12,20 +12,22 @@ interface ShoeModel {
 const props = defineProps<{
     shoeModels: ShoeModel[];
     collections: string[];
+    catalog?: any;
 }>();
 
 const isSubmitting = ref(false);
+const isEditing = computed(() => !!props.catalog);
 
 const form = useForm({
-    shoe_model_id: null as number | null,
-    name: '',
-    collection: '',
-    price: 0,
-    status: 'ready' as 'ready' | 'po' | 'habis',
-    description: '',
-    min_size: '' as number | string,
-    max_size: '' as number | string,
-    is_active: true,
+    shoe_model_id: props.catalog?.shoe_model_id ?? null,
+    name: props.catalog?.name ?? '',
+    collection: props.catalog?.collection ?? '',
+    price: props.catalog?.price ?? 0,
+    status: props.catalog?.status ?? 'ready' as 'ready' | 'po' | 'habis',
+    description: props.catalog?.description ?? '',
+    min_size: props.catalog?.sizes?.length ? Math.min(...props.catalog.sizes.map((s: any) => s.size)) : '' as number | string,
+    max_size: props.catalog?.sizes?.length ? Math.max(...props.catalog.sizes.map((s: any) => s.size)) : '' as number | string,
+    is_active: props.catalog?.is_active ?? true,
     thumbnail: null as File | null,
     images: [] as File[],
 });
@@ -114,7 +116,8 @@ const formattedPrice = computed({
     },
 });
 
-const thumbnailPreview = ref<string | null>(null);
+const thumbnailPreview = ref<string | null>(props.catalog?.card_image_url ?? null);
+const existingImages = ref<any[]>(props.catalog?.images ?? []);
 const detailPreviews = ref<string[]>([]);
 
 const handleThumbnailUpload = (event: Event) => {
@@ -131,8 +134,9 @@ const handleDetailsUpload = (event: Event) => {
 
     if (files) {
         const fileList = Array.from(files);
-        // Limit to 6 total
-        const remainingSlots = 6 - form.images.length;
+        // Limit to 6 total (existing + new)
+        const totalExisting = existingImages.value.length;
+        const remainingSlots = 6 - (totalExisting + form.images.length);
         const newFiles = fileList.slice(0, remainingSlots);
 
         form.images = [...form.images, ...newFiles];
@@ -145,6 +149,16 @@ const handleDetailsUpload = (event: Event) => {
 const removeDetailImage = (index: number) => {
     form.images.splice(index, 1);
     detailPreviews.value.splice(index, 1);
+};
+
+const deleteExistingImage = (imageId: number) => {
+    if (confirm('Hapus gambar ini dari galeri?')) {
+        router.delete(katalog.images.destroy.url(props.catalog.id, imageId), {
+            onSuccess: () => {
+                existingImages.value = existingImages.value.filter(img => img.id !== imageId);
+            }
+        });
+    }
 };
 
 const submit = () => {
@@ -165,40 +179,45 @@ const submit = () => {
 
     isSubmitting.value = true;
 
-    // Fake loading delay of 1.5 seconds
-    setTimeout(() => {
+    const url = isEditing.value 
+        ? katalog.update.url(props.catalog.id)
+        : katalog.store.url();
+
+    const requestOptions = {
+        forceFormData: true,
+        onSuccess: () => {
+            isSubmitting.value = false;
+        },
+        onError: () => {
+            isSubmitting.value = false;
+            alert(`Gagal ${isEditing.value ? 'memperbarui' : 'menambahkan'} produk. Silakan periksa kembali form Anda.`);
+        },
+        onFinish: () => {
+            if (form.wasSuccessful) return;
+            isSubmitting.value = false;
+        }
+    };
+
+    if (isEditing.value) {
+        form.transform((data) => ({
+            ...data,
+            _method: 'PUT',
+            sizes: sizes,
+        })).post(url, requestOptions);
+    } else {
         form.transform((data) => ({
             ...data,
             sizes: sizes,
-        })).post(katalog.store.url(), {
-            forceFormData: true,
-            onSuccess: () => {
-                isSubmitting.value = false;
-                // Redirection is handled by Inertia via the controller normally,
-                // but we can ensure it if needed or the controller redirect will kick in.
-            },
-            onError: () => {
-                isSubmitting.value = false;
-                alert('Gagal menambahkan produk. Silakan periksa kembali form Anda.');
-            },
-            onFinish: () => {
-                // Keep submitting true if successful to prevent double clicks during redirect
-                if (form.wasSuccessful) {
-                    return;
-                }
-
-                isSubmitting.value = false;
-            }
-        });
-    }, 1500);
+        })).post(url, requestOptions);
+    }
 };
 </script>
 
 <template>
-    <Head title="Tambah Produk Baru" />
+    <Head :title="isEditing ? 'Edit Produk' : 'Tambah Produk Baru'" />
 
     <AdminLayout>
-        <template #header> Tambah Produk Baru </template>
+        <template #header> {{ isEditing ? 'Edit Produk' : 'Tambah Produk Baru' }} </template>
 
         <form
             @submit.prevent="submit"
@@ -319,12 +338,45 @@ const submit = () => {
                                 <label
                                     class="mb-2 block text-xs font-bold tracking-wider text-slate-500 uppercase"
                                     >Galeri Detail ({{
-                                        detailPreviews.length
+                                        existingImages.length + detailPreviews.length
                                     }}/6)</label
                                 >
                                 <div
                                     class="grid grid-cols-3 gap-3 md:grid-cols-4"
                                 >
+                                    <!-- Existing Images -->
+                                    <div
+                                        v-for="img in existingImages"
+                                        :key="img.id"
+                                        class="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 shadow-sm"
+                                    >
+                                        <img
+                                            :src="img.image_url"
+                                            class="h-full w-full object-cover"
+                                        />
+                                        <button
+                                            @click="deleteExistingImage(img.id)"
+                                            type="button"
+                                            class="absolute inset-0 flex items-center justify-center bg-rose-500/80 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2.5"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- New Uploads -->
                                     <div
                                         v-for="(preview, idx) in detailPreviews"
                                         :key="idx"
@@ -355,8 +407,9 @@ const submit = () => {
                                             </svg>
                                         </button>
                                     </div>
+
                                     <div
-                                        v-if="detailPreviews.length < 6"
+                                        v-if="existingImages.length + detailPreviews.length < 6"
                                         class="relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 transition-all hover:border-indigo-400 hover:bg-white"
                                     >
                                         <svg
@@ -708,7 +761,7 @@ const submit = () => {
                                     <span>Menyimpan...</span>
                                 </template>
                                 <template v-else>
-                                    <span>Simpan Produk</span>
+                                    <span>{{ isEditing ? 'Update Produk' : 'Simpan Produk' }}</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="h-4 w-4 transition-transform group-hover:translate-x-1"

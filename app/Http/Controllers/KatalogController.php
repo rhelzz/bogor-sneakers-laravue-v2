@@ -101,6 +101,26 @@ class KatalogController extends Controller
         ]);
     }
 
+    public function edit(Catalog $catalog): Response
+    {
+        return Inertia::render('Admin/Katalog/Create', [
+            'catalog' => $this->serializeAdminCatalog($catalog->load(['images', 'sizes', 'shoeModel'])),
+            'shoeModels' => \App\Models\ShoeModel::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->values()
+                ->all(),
+            'collections' => Catalog::query()
+                ->distinct()
+                ->whereNotNull('collection')
+                ->where('collection', '<>', '')
+                ->orderBy('collection')
+                ->pluck('collection')
+                ->all(),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $this->validateCatalogPayload($request);
@@ -136,12 +156,16 @@ class KatalogController extends Controller
         return redirect()->route('admin.katalog')->with('success', 'Produk katalog berhasil ditambahkan.');
     }
 
-    public function update(Request $request, Catalog $catalog): JsonResponse
+    public function update(Request $request, Catalog $catalog): RedirectResponse
     {
         $validated = $this->validateCatalogPayload($request, $catalog);
 
-        $updated = DB::transaction(function () use ($catalog, $validated): Catalog {
-            $catalog->update([
+        /** @var array<int, UploadedFile> $images */
+        $images = $request->file('images', []);
+        $thumbnail = $request->file('thumbnail');
+
+        DB::transaction(function () use ($catalog, $validated, $images, $thumbnail): void {
+            $updatePayload = [
                 'shoe_model_id' => isset($validated['shoe_model_id']) ? (int) $validated['shoe_model_id'] : null,
                 'name' => trim((string) $validated['name']),
                 'collection' => trim((string) $validated['collection']),
@@ -157,23 +181,28 @@ class KatalogController extends Controller
                 'popularity_score' => (int) ($validated['popularity_score'] ?? 0),
                 'is_active' => (bool) ($validated['is_active'] ?? true),
                 'sort_order' => (int) ($validated['sort_order'] ?? $catalog->sort_order),
-            ]);
+            ];
+
+            if ($thumbnail instanceof UploadedFile) {
+                $previousThumbnail = $catalog->card_image_path;
+                $updatePayload['card_image_path'] = $this->storeOptimizedImage($thumbnail);
+
+                if (is_string($previousThumbnail) && $previousThumbnail !== '' && $previousThumbnail !== $updatePayload['card_image_path']) {
+                    $this->deleteStoredImage($previousThumbnail);
+                }
+            }
+
+            $catalog->update($updatePayload);
 
             $this->syncSizes($catalog, $validated['sizes'] ?? []);
-
-            return $catalog->fresh(['images', 'sizes', 'shoeModel']);
+            $this->appendImages($catalog, $images);
         });
 
-        return response()->json([
-            'message' => 'Produk katalog berhasil diperbarui.',
-            'catalog' => $this->serializeAdminCatalog($updated),
-        ]);
+        return redirect()->route('admin.katalog')->with('success', 'Produk katalog berhasil diperbarui.');
     }
 
-    public function destroy(Catalog $catalog): JsonResponse
+    public function destroy(Catalog $catalog): RedirectResponse
     {
-        $deletedId = $catalog->id;
-
         DB::transaction(function () use ($catalog): void {
             $catalog->loadMissing('images');
 
@@ -186,10 +215,7 @@ class KatalogController extends Controller
             $catalog->delete();
         });
 
-        return response()->json([
-            'message' => 'Produk katalog berhasil dihapus.',
-            'id' => $deletedId,
-        ]);
+        return redirect()->route('admin.katalog')->with('success', 'Produk katalog berhasil dihapus.');
     }
 
     public function uploadImage(Request $request, Catalog $catalog): JsonResponse
