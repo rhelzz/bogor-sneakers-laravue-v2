@@ -3,8 +3,6 @@
         <Head title="Katalog" />
         <FloatingMenuNav current-page="katalog" />
         <FloatingAdminPanel :contacts="contacts" />
-        <FloatingOrderPanel :orders="orders" />
-        <FloatingCartButton />
 
         <section
             class="flex h-[calc(100vh-64px)] flex-col overflow-hidden bg-washi"
@@ -608,9 +606,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
-import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
-import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
 import type { CatalogPublicItem, CatalogStatus } from '@/types/catalog';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 
