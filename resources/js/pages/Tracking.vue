@@ -7,8 +7,6 @@
             title="HUBUNGI FARHAN"
             subtitle="Customer Service & Tracking"
         />
-        <FloatingOrderPanel :orders="orders" />
-        <FloatingCartButton />
 
         <!-- TRACKING HEADER -->
         <section
@@ -242,9 +240,7 @@ import { computed, ref } from 'vue';
 
 import Footer from '@/components/sections/Footer.vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
-import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
-import FloatingOrderPanel from '@/components/ui/FloatingOrderPanel.vue';
 import type { FloatingContact, FloatingOrder } from '@/types/floating-ui';
 
 // State Management
