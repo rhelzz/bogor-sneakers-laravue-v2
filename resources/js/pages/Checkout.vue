@@ -313,7 +313,6 @@
 import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { computed, ref, onMounted, reactive } from 'vue';
 import FloatingAdminPanel from '@/components/ui/FloatingAdminPanel.vue';
-import FloatingCartButton from '@/components/ui/FloatingCartButton.vue';
 import FloatingMenuNav from '@/components/ui/FloatingMenuNav.vue';
 import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
 import { cartState } from '@/stores/cart';
