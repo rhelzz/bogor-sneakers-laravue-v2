@@ -50,6 +50,12 @@ export interface DesignElement {
     sourceId?: string;
     originalImageSrc?: string;
     outline?: LayerOutline;
+
+    // Masking & Positioning specific
+    maskId?: number | string | null;
+    mx?: number;
+    my?: number;
+    mrot?: number;
 }
 
 export interface DesignState {
