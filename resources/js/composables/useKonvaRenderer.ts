@@ -229,7 +229,7 @@ export function useKonvaRenderer() {
             } else if (parent === elementsGroup) {
                 const meta = target.getAttr('meta');
                 if (meta) {
-                    activeElement.value = meta as DesignElement;
+                    activeElement.value = JSON.parse(JSON.stringify(meta)) as DesignElement;
                     transformer?.nodes([target as Konva.Shape]);
                 }
             }
@@ -306,6 +306,52 @@ export function useKonvaRenderer() {
         const color = layerColors.value[id] || '#ffffff';
         const filledCanvas = drawFilledLayer(img, color, CANVAS_SIZE, CANVAS_SIZE);
         ctx.drawImage(filledCanvas, 0, 0);
+
+        // Bake masked elements into this layer
+        if (elementsGroup && elementsGroup.children) {
+            const stage = shoeGroup.getStage();
+            const offsetX = stage ? (stage.width() - CANVAS_SIZE) / 2 : 0;
+            const offsetY = stage ? (stage.height() - CANVAS_SIZE) / 2 : 0;
+
+            elementsGroup.children.forEach(node => {
+                const meta = node.getAttr('meta') as DesignElement;
+                if (meta && String(meta.maskId) === String(id)) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'source-atop'; // Restrict element to layer's pixels
+                    
+                    const transform = node.getTransform();
+                    const centerPt = transform.point({ x: node.width() / 2, y: node.height() / 2 });
+                    
+                    ctx.translate(centerPt.x - offsetX, centerPt.y - offsetY);
+                    ctx.rotate(node.rotation() * Math.PI / 180);
+
+                    if (meta.type === 'image' && node instanceof Konva.Image) {
+                        const elImg = node.image();
+                        if (elImg) {
+                            const drawW = node.width() * node.scaleX();
+                            const drawH = node.height() * node.scaleY();
+                            ctx.drawImage(elImg, -drawW / 2, -drawH / 2, drawW, drawH);
+                        }
+                    } else if (meta.type === 'text' && node instanceof Konva.Text) {
+                        const fSize = node.fontSize() * node.scaleX();
+                        ctx.font = `${node.fontStyle()} ${fSize}px ${node.fontFamily()}, sans-serif`;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        
+                        if (meta.strokeWidth && meta.strokeWidth > 0 && meta.strokeColor) {
+                            ctx.lineWidth = meta.strokeWidth;
+                            ctx.strokeStyle = meta.strokeColor;
+                            ctx.lineJoin = "round";
+                            ctx.strokeText(node.text(), 0, 0);
+                        }
+                        
+                        ctx.fillStyle = meta.color || '#000000';
+                        ctx.fillText(node.text(), 0, 0);
+                    }
+                    ctx.restore();
+                }
+            });
+        }
 
         konvaLayers.forEach(konvaImg => konvaImg.image(canvas));
         drawMainLayer();
@@ -590,30 +636,115 @@ export function useKonvaRenderer() {
         const meta = currentModelMeta.value;
         const baseUrl = `/shoes-svg/${activeFolderKey.value}/${currentModel.value}/`;
 
+        const targetW = 2048;
+        const targetH = 2048;
         const patternCanvas = document.createElement('canvas');
-        patternCanvas.width = 2048;
-        patternCanvas.height = 2048;
+        patternCanvas.width = targetW;
+        patternCanvas.height = targetH;
         const ctx = patternCanvas.getContext('2d');
         if (!ctx) return '';
 
         if (meta.pattern_base_file) {
             const pBase = await loadImage(baseUrl + meta.pattern_base_file);
-            ctx.drawImage(pBase, 0, 0, 2048, 2048);
+            ctx.drawImage(pBase, 0, 0, targetW, targetH);
         }
+
+        const patternLayerImages: Record<number, HTMLImageElement> = {};
 
         for (const layer of meta.pattern_layers) {
             const pLayerImg = await loadImage(baseUrl + layer.file);
+            patternLayerImages[layer.id] = pLayerImg;
 
             const outline = layerOutlines.value[layer.id];
             if (outline?.active) {
                 const s = outline.size * 2;
-                const out = drawOutlineLayer(pLayerImg, outline.color, s, 2048, 2048);
+                const out = drawOutlineLayer(pLayerImg, outline.color, s, targetW, targetH);
                 ctx.drawImage(out, -s, -s);
             }
 
             const color = layerColors.value[layer.id] || '#ffffff';
-            const filled = drawFilledLayer(pLayerImg, color, 2048, 2048);
+            const filled = drawFilledLayer(pLayerImg, color, targetW, targetH);
             ctx.drawImage(filled, 0, 0);
+        }
+
+        // Draw custom elements with masking and mirroring
+        if (elementsGroup && elementsGroup.children) {
+            const rX = targetW / CANVAS_SIZE;
+            const rY = targetH / CANVAS_SIZE;
+
+            for (const node of elementsGroup.children) {
+                const elMeta = node.getAttr('meta') as DesignElement;
+                if (!elMeta) continue;
+
+                const transform = node.getAbsoluteTransform();
+                const centerPt = transform.point({ x: node.width() / 2, y: node.height() / 2 });
+                const cx = centerPt.x * rX;
+                const cy = centerPt.y * rY;
+                const rot = node.rotation();
+
+                let elCanvas = document.createElement('canvas');
+                elCanvas.width = targetW;
+                elCanvas.height = targetH;
+                let targetCtx = elCanvas.getContext('2d');
+                if (!targetCtx) continue;
+
+                const drawElement = (context: CanvasRenderingContext2D, isMirrored = false) => {
+                    context.save();
+                    
+                    let drawX = cx;
+                    let drawY = cy;
+                    let drawRot = rot * Math.PI / 180;
+
+                    if (isMirrored) {
+                        drawX = cx + (Number(elMeta.mx) || 0);
+                        drawY = (targetH - cy) + (Number(elMeta.my) || 0);
+                        drawRot = (180 - rot + (Number(elMeta.mrot) || 0)) * Math.PI / 180;
+                    }
+
+                    context.translate(drawX, drawY);
+                    context.rotate(drawRot);
+
+                    if (elMeta.type === 'image' && node instanceof Konva.Image) {
+                        const img = node.image();
+                        if (img) {
+                            const drawW = node.width() * node.scaleX() * rX;
+                            const drawH = node.height() * node.scaleY() * rY;
+                            context.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+                        }
+                    } else if (elMeta.type === 'text' && node instanceof Konva.Text) {
+                        const fSize = (node.fontSize() * node.scaleX()) * rX;
+                        context.font = `${node.fontStyle()} ${fSize}px ${node.fontFamily()}, sans-serif`;
+                        context.textAlign = "center";
+                        context.textBaseline = "middle";
+                        
+                        if (elMeta.strokeWidth && elMeta.strokeWidth > 0 && elMeta.strokeColor) {
+                            context.lineWidth = elMeta.strokeWidth * rX;
+                            context.strokeStyle = elMeta.strokeColor;
+                            context.lineJoin = "round";
+                            context.strokeText(node.text(), 0, 0);
+                        }
+                        
+                        context.fillStyle = elMeta.color || '#000000';
+                        context.fillText(node.text(), 0, 0);
+                    }
+                    context.restore();
+                };
+
+                // Draw main
+                drawElement(targetCtx, false);
+                
+                // Draw mirrored
+                drawElement(targetCtx, true);
+
+                // Apply Masking if maskId is set
+                if (elMeta.maskId && patternLayerImages[Number(elMeta.maskId)]) {
+                    targetCtx.globalCompositeOperation = 'destination-in';
+                    targetCtx.drawImage(patternLayerImages[Number(elMeta.maskId)], 0, 0, targetW, targetH);
+                    targetCtx.globalCompositeOperation = 'source-over';
+                }
+
+                ctx.drawImage(elCanvas, 0, 0);
+            }
         }
 
         return patternCanvas.toDataURL('image/png');
