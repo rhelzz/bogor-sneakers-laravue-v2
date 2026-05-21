@@ -184,6 +184,18 @@ const redo = async () => {
     }
 };
 
+const setupNodeEvents = (node: Konva.Node) => {
+    node.on('dragmove transform', () => {
+        const meta = node.getAttr('meta');
+        if (meta && meta.maskId) {
+            updateLayer(Number(meta.maskId));
+        }
+    });
+    node.on('dragend transformend', () => {
+        saveToHistory();
+    });
+};
+
 const restoreState = async (state: any) => {
     isRestoring.value = true;
 
@@ -217,6 +229,11 @@ const restoreState = async (state: any) => {
             }
 
             if (node) {
+                if (elData.attrs.meta?.maskId) {
+                    node.opacity(0);
+                }
+                node.setAttr('cachedMeta', JSON.stringify(elData.attrs.meta));
+                setupNodeEvents(node);
                 elementsGroup?.add(node as any);
             }
         }
@@ -333,7 +350,9 @@ const handleAddText = () => {
         strokeColor: '#000000',
         strokeWidth: 0
     };
-    textNode.setAttr('meta', meta);
+    textNode.setAttr('meta', JSON.parse(JSON.stringify(meta)));
+    textNode.setAttr('cachedMeta', JSON.stringify(meta));
+    setupNodeEvents(textNode);
     elementsGroup.add(textNode);
     activeElement.value = meta;
     getTransformer()?.nodes([textNode]);
@@ -362,7 +381,9 @@ const handleAddMedia = async (id: string) => {
         });
 
         const meta: DesignElement = { id: Math.random().toString(36).slice(2), type: 'image' as const, sourceId: id, originalImageSrc: media.src, outline: { active: false, color: '#ffffff', size: 3 }};
-        konvaImg.setAttr('meta', meta);
+        konvaImg.setAttr('meta', JSON.parse(JSON.stringify(meta)));
+        konvaImg.setAttr('cachedMeta', JSON.stringify(meta));
+        setupNodeEvents(konvaImg);
         elementsGroup.add(konvaImg);
         activeElement.value = meta;
         getTransformer()?.nodes([konvaImg]);
@@ -402,7 +423,11 @@ const handleImageOutlineUpdate = async () => {
             node.image(img);
         }
 
-        getMainLayer()?.draw();
+        if (meta.maskId) {
+            updateLayer(Number(meta.maskId));
+        } else {
+            getMainLayer()?.draw();
+        }
     }
 };
 
@@ -458,45 +483,40 @@ watch(activeElement, (newEl) => {
     }
 
     const elementsGroup = getElementsGroup();
-
-    if (!elementsGroup) {
-        return;
-    }
+    if (!elementsGroup) return;
 
     const node = elementsGroup.findOne((n: any) => n.getAttr('meta')?.id === newEl.id);
+    if (!node) return;
 
-    if (!node) {
-        return;
-    }
+    const cachedStr = node.getAttr('cachedMeta');
+    const cachedMeta = cachedStr ? JSON.parse(cachedStr) : {};
 
-    if (newEl.type === 'text') {
-        const textNode = node as Konva.Text;
-        let changed = false;
+    let maskChanged = String(cachedMeta.maskId) !== String(newEl.maskId);
+    let visualChanged = JSON.stringify(cachedMeta) !== JSON.stringify(newEl);
 
-        if (textNode.text() !== newEl.text) {
-            textNode.text(newEl.text || ''); changed = true;
+    if (visualChanged) {
+        node.setAttr('cachedMeta', JSON.stringify(newEl));
+        node.setAttr('meta', JSON.parse(JSON.stringify(newEl)));
+        
+        if (maskChanged) {
+            node.opacity(newEl.maskId ? 0 : 1);
+            if (cachedMeta.maskId) updateLayer(Number(cachedMeta.maskId));
+            if (newEl.maskId) updateLayer(Number(newEl.maskId));
+        } else if (newEl.maskId) {
+            updateLayer(Number(newEl.maskId));
         }
 
-        if (textNode.fontFamily() !== newEl.fontFamily) {
-            textNode.fontFamily(newEl.fontFamily || 'Lexend'); changed = true;
+        if (newEl.type === 'text') {
+            const textNode = node as Konva.Text;
+            textNode.text(newEl.text || '');
+            textNode.fontFamily(newEl.fontFamily || 'Lexend');
+            textNode.fill(newEl.color || '#000000');
+            textNode.stroke(newEl.strokeColor || null);
+            textNode.strokeWidth(newEl.strokeWidth || 0);
         }
 
-        if (textNode.fill() !== newEl.color) {
-            textNode.fill(newEl.color || '#000000'); changed = true;
-        }
-
-        if (textNode.stroke() !== newEl.strokeColor) {
-            textNode.stroke(newEl.strokeColor || null); changed = true;
-        }
-
-        if (textNode.strokeWidth() !== (newEl.strokeWidth || 0)) {
-            textNode.strokeWidth(newEl.strokeWidth || 0); changed = true;
-        }
-
-        if (changed) {
-            getMainLayer()?.draw();
-            saveToHistory();
-        }
+        getMainLayer()?.draw();
+        saveToHistory();
     }
 }, { deep: true });
 
