@@ -400,10 +400,19 @@ const removeActiveElement = () => {
     const node = transformer?.nodes()[0];
 
     if (node) {
+        const meta = node.getAttr('meta');
+        const maskId = meta?.maskId;
+
         node.destroy();
         transformer?.nodes([]);
         activeElement.value = null;
-        getMainLayer()?.draw();
+
+        if (maskId) {
+            updateLayer(Number(maskId));
+        } else {
+            getMainLayer()?.draw();
+        }
+        
         saveToHistory();
     }
 };
