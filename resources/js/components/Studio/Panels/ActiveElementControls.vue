@@ -86,6 +86,48 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Global Positioning & Masking Controls (For both text and image) -->
+            <div class="space-y-4 pt-4 border-t border-gray-100">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px]">layers</span>
+                        Masukkan ke Aksen (Clipping Mask)
+                    </label>
+                    <select
+                        v-model="activeElement.maskId"
+                        class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
+                    >
+                        <option :value="null">-- Bebas (Tidak Di-masking) --</option>
+                        <option v-for="layer in currentModelMeta?.layers || []" :key="layer.id" :value="layer.id">
+                            Aksen {{ layer.id }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="space-y-2 bg-indigo/[0.02] p-3 rounded-xl border border-indigo/5">
+                    <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40 flex items-center gap-1 text-red-500">
+                        <span class="material-symbols-outlined text-[12px]">build</span>
+                        Koreksi Cetak Sisi Sebelahnya
+                    </label>
+                    <p class="text-[8px] text-gray-400 font-bold mb-2 ml-1">Koreksi geser cetakan elemen untuk sisi sepatu sebelahnya.</p>
+                    
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
+                            <label class="block text-[8px] font-black text-gray-400 mb-1">X (px)</label>
+                            <input type="number" v-model.number="activeElement.mx" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
+                            <label class="block text-[8px] font-black text-gray-400 mb-1">Y (px)</label>
+                            <input type="number" v-model.number="activeElement.my" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
+                            <label class="block text-[8px] font-black text-gray-400 mb-1">Sudut (°)</label>
+                            <input type="number" v-model.number="activeElement.mrot" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </transition>
 </template>
@@ -93,7 +135,7 @@
 <script setup lang="ts">
 import { useStudioStore } from '../../../composables/useStudioStore';
 
-const { activeElement } = useStudioStore();
+const { activeElement, currentModelMeta } = useStudioStore();
 
 defineEmits(['remove', 'updateImageOutline']);
 
