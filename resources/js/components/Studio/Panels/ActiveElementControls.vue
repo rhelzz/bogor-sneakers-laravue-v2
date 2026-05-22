@@ -105,7 +105,7 @@
                     </select>
                 </div>
 
-                <div class="space-y-2 bg-indigo/[0.02] p-3 rounded-xl border border-indigo/5">
+                <div v-if="!currentModelMeta?.studio_config" class="space-y-2 bg-indigo/[0.02] p-3 rounded-xl border border-indigo/5">
                     <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40 flex items-center gap-1 text-red-500">
                         <span class="material-symbols-outlined text-[12px]">build</span>
                         Koreksi Cetak Sisi Sebelahnya
