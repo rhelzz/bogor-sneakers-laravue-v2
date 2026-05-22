@@ -2,7 +2,7 @@
     <div class="w-[320px] md:w-[350px] flex-shrink-0 bg-white border-l border-gray-200 flex flex-col h-full shadow-[-10px_0_30px_rgba(0,0,0,0.02)] font-montserrat relative">
         <!-- Panel Collapse Button (desktop only) — sticks out to the left of the panel -->
         <button
-            @click="$emit('toggle-panel')"
+            @click="$emit('collapse-desktop')"
             class="hidden md:flex absolute -left-8 top-1/2 -translate-y-1/2 z-10 w-8 h-16 flex-col items-center justify-center bg-white border border-r-0 border-gray-200 rounded-l-2xl shadow-sm hover:bg-indigo hover:border-indigo hover:text-white transition-all duration-200 group"
             title="Sembunyikan panel"
         >
@@ -20,7 +20,7 @@
                 </div>
                 <!-- Mobile close button (inside header) -->
                 <button
-                    @click="$emit('toggle-panel')"
+                    @click="$emit('close-mobile')"
                     class="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-400 transition-colors ml-3"
                 >
                     <span class="material-symbols-outlined text-base">close</span>
@@ -31,6 +31,26 @@
                 @remove="$emit('remove-element')"
                 @updateImageOutline="$emit('update-image-outline')"
             />
+        </div>
+
+        <!-- Mobile Tab Navigation (replaces left sidebar on mobile) -->
+        <div class="md:hidden flex border-b border-gray-100 bg-gray-50/50 px-2">
+            <button
+                v-for="tab in [
+                    { id: 'layers', icon: 'layers', label: 'Layer' },
+                    { id: 'artwork', icon: 'palette', label: 'Artwork' },
+                    { id: 'text', icon: 'title', label: 'Teks' }
+                ]"
+                :key="tab.id"
+                @click="activeSideTab = tab.id"
+                class="flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[9px] font-black uppercase tracking-wider transition-all duration-200 border-b-2"
+                :class="activeSideTab === tab.id
+                    ? 'text-indigo border-indigo -mb-px'
+                    : 'text-usuzumi/40 border-transparent hover:text-usuzumi/70'"
+            >
+                <span class="material-symbols-outlined text-lg">{{ tab.icon }}</span>
+                <span>{{ tab.label }}</span>
+            </button>
         </div>
 
         <!-- Content Panel -->
@@ -109,7 +129,7 @@ import ActiveElementControls from './Panels/ActiveElementControls.vue';
 
 const { activeSideTab, checkoutForm } = useStudioStore();
 
-defineEmits(['remove-element', 'update-image-outline', 'update-layer', 'save-history', 'add-media', 'add-text', 'toggle-panel']);
+defineEmits(['remove-element', 'update-image-outline', 'update-layer', 'save-history', 'add-media', 'add-text', 'collapse-desktop', 'close-mobile']);
 
 const hudTitle = computed(() => {
     if (activeSideTab.value === 'layers') return 'Aksen Warna';
