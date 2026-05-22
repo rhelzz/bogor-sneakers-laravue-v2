@@ -2,9 +2,11 @@
 import { ref, computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import StudioConfigEditor from '@/components/admin/StudioConfigEditor.vue';
 import { modelSepatu } from '@/routes/admin/';
 import shoeTypesRoute from '@/routes/admin/shoe-types/';
 import variantsRoute from '@/routes/admin/variants/';
+import type { StudioConfig } from '@/types/studio';
 
 interface SVGAsset {
     id: number;
@@ -26,6 +28,7 @@ interface ShoeVariant {
     name: string;
     svgs: SVGAsset[];
     type?: ShoeType | null;
+    studio_config?: StudioConfig | null;
 }
 
 interface ShoeModel {
@@ -45,6 +48,7 @@ const showVariantModal = ref(false);
 const showUploadModal = ref(false);
 const showTypeModal = ref(false);
 const showMoveModal = ref(false);
+const showStudioConfigModal = ref(false);
 const isFakeLoading = ref(false);
 const selectedVariant = ref<ShoeVariant | null>(null);
 const editingType = ref<ShoeType | null>(null);
@@ -119,15 +123,21 @@ const openMoveModal = () => {
     showMoveModal.value = true;
 };
 
+const openStudioConfig = (variant: ShoeVariant) => {
+    selectedVariant.value = variant;
+    showStudioConfigModal.value = true;
+};
+
 const closeModals = () => {
     showVariantModal.value = false;
     showUploadModal.value = false;
     showTypeModal.value = false;
     showMoveModal.value = false;
+    showStudioConfigModal.value = false;
     selectedVariant.value = null;
     editingType.value = null;
     isFakeLoading.value = false;
-    
+
     // Reset all forms
     variantForm.reset();
     typeForm.reset();
@@ -364,6 +374,16 @@ const getLayerTypeLabel = (fileName: string) => {
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                            </button>
+                            <button
+                                @click="openStudioConfig(variant)"
+                                class="rounded-lg border border-slate-200 p-2 text-slate-400 transition-all hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
+                                :class="variant.studio_config ? 'border-violet-200 bg-violet-50 text-violet-500' : ''"
+                                :title="variant.studio_config ? 'Edit Studio Config (sudah diset)' : 'Set Studio Config'"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                                 </svg>
                             </button>
                             <button
@@ -740,5 +760,12 @@ const getLayerTypeLabel = (fileName: string) => {
                 </Transition>
             </div>
         </Transition>
+        <!-- Studio Config Modal -->
+        <StudioConfigEditor
+            v-if="showStudioConfigModal && selectedVariant"
+            :variant="selectedVariant"
+            :model-slug="shoeModel.slug"
+            @close="closeModals"
+        />
     </AdminLayout>
 </template>
