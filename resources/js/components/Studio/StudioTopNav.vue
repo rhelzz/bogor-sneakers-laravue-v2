@@ -149,19 +149,19 @@
                                     v-for="(model, index) in availableModels"
                                     :key="model.id"
                                     :ref="(el) => { if (el) variantItemRefs[index] = el as HTMLElement }"
-                                    class="variant-slide px-6 flex flex-col items-center justify-center gap-3 cursor-pointer"
+                                    class="variant-slide px-6 flex flex-col items-center justify-center cursor-pointer"
                                     @click="confirmAndSelectVariant(model.id)"
                                 >
                                     <!-- Shoe Hero Image -->
-                                    <div class="shoe-hero relative w-full rounded-2xl overflow-hidden flex items-center justify-center">
-                                        <div class="absolute inset-0 bg-gradient-radial rounded-2xl"></div>
+                                    <div class="shoe-hero relative w-full aspect-square rounded-[2.5rem] overflow-hidden flex items-center justify-center bg-gray-50/50 border border-gray-100/50">
+                                        <div class="absolute inset-0 bg-gradient-radial"></div>
 
                                         <!-- Lazy: only mount img when slide is near viewport -->
                                         <template v-if="isSlideVisible(index)">
                                             <img
                                                 v-if="thumbSrc(model)"
                                                 :src="thumbSrc(model)"
-                                                class="relative z-10 w-full h-full object-contain shoe-img drop-shadow-xl"
+                                                class="relative z-10 w-[90%] h-[90%] object-contain shoe-img drop-shadow-2xl"
                                                 draggable="false"
                                                 alt=""
                                             />
@@ -170,15 +170,12 @@
                                         <!-- Placeholder when not yet in view -->
                                         <div v-else class="relative z-10 w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
 
-                                        <!-- Active badge -->
-                                        <div v-if="currentModel === model.id" class="absolute top-3 right-3 z-20 flex items-center gap-1 bg-indigo text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg">
-                                            <span class="material-symbols-outlined text-[10px]">check</span>
-                                            Aktif
+                                        <!-- Model Badge (Replacing 'Aktif' and 'Description') -->
+                                        <div class="absolute top-5 right-5 z-20 flex items-center gap-1.5 bg-sumi text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-xl transition-all duration-300" :class="currentModel === model.id ? 'bg-indigo ring-4 ring-indigo/20 scale-110' : 'opacity-80'">
+                                            <span v-if="currentModel === model.id" class="material-symbols-outlined text-[12px]">verified</span>
+                                            {{ model.label }}
                                         </div>
                                     </div>
-
-                                    <!-- Variant label -->
-                                    <p class="text-[13px] font-black uppercase tracking-wider text-sumi font-montserrat leading-tight text-center">{{ model.label }}</p>
                                 </div>
                             </div>
 
@@ -195,7 +192,7 @@
                         </div>
 
                         <!-- ── Dot Indicators ── -->
-                        <div class="flex items-center justify-center gap-1.5 mt-6 flex-shrink-0 px-6 flex-wrap">
+                        <div class="flex items-center justify-center gap-1.5 mt-2 flex-shrink-0 px-6 flex-wrap">
                             <div
                                 v-for="(_, i) in availableModels"
                                 :key="i"
@@ -207,7 +204,7 @@
                         </div>
 
                         <!-- ── Confirm Button ── -->
-                        <div class="px-6 pb-6 pt-4 flex-shrink-0">
+                        <div class="px-6 pb-6 pt-6 flex-shrink-0">
                             <button
                                 @click="confirmVariant()"
                                 class="w-full h-13 py-3.5 bg-sumi text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] font-montserrat group"
@@ -242,8 +239,9 @@ const {
 
 defineEmits(['undo', 'redo', 'reset', 'checkout']);
 
-// Each slide is 320px tall — matches .variant-slide in CSS
-const ITEM_HEIGHT = 320;
+// Each slide is square + padding. Modal max-width is 384px (sm). 
+// Content width is approx 336px.
+const ITEM_HEIGHT = 336;
 
 // Only load images for slides within 2 positions of the visible one
 const isSlideVisible = (index: number) => Math.abs(index - centeredVariantIndex.value) <= 2;
@@ -405,19 +403,19 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
     scrollbar-width: none;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
-    height: 320px;
+    height: 336px;
 }
 
 /* Each slide fills the viewport exactly → one shoe visible at a time */
 .variant-slide {
-    height: 320px;
+    height: 336px;
     scroll-snap-align: start;
     flex-shrink: 0;
 }
 
 /* Shoe hero box */
 .shoe-hero {
-    height: 220px;
+    /* Height is handled by aspect-square and parent padding */
 }
 
 /* Radial bg */
@@ -425,14 +423,14 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
     background: radial-gradient(ellipse at 50% 55%, #e8e8e8 0%, #f5f5f5 65%, #fafafa 100%);
 }
 
-/* Zoom in on the shoe — SVG viewboxes often have built-in whitespace */
+/* Center the shoe — SVG viewboxes often have built-in whitespace */
 .shoe-img {
-    transform: scale(1.45);
+    transform: scale(1.15);
     transform-origin: center center;
-    transition: transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .variant-slide:hover .shoe-img {
-    transform: scale(1.55);
+    transform: scale(1.25);
 }
 
 /* Backdrop fade */
