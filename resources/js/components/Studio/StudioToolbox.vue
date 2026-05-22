@@ -1,15 +1,33 @@
 <template>
-    <div class="w-[320px] md:w-[350px] flex-shrink-0 bg-white border-l border-gray-200 flex flex-col h-full shadow-[-10px_0_30px_rgba(0,0,0,0.02)] font-montserrat">
+    <div class="w-[320px] md:w-[350px] flex-shrink-0 bg-white border-l border-gray-200 flex flex-col h-full shadow-[-10px_0_30px_rgba(0,0,0,0.02)] font-montserrat relative">
+        <!-- Panel Collapse Button (desktop only) — sticks out to the left of the panel -->
+        <button
+            @click="$emit('toggle-panel')"
+            class="hidden md:flex absolute -left-8 top-1/2 -translate-y-1/2 z-10 w-8 h-16 flex-col items-center justify-center bg-white border border-r-0 border-gray-200 rounded-l-2xl shadow-sm hover:bg-indigo hover:border-indigo hover:text-white transition-all duration-200 group"
+            title="Sembunyikan panel"
+        >
+            <span class="material-symbols-outlined text-sm text-gray-400 group-hover:text-white transition-colors">chevron_right</span>
+        </button>
+
         <!-- Header Panel -->
-        <div class="p-6 pb-4">
-            <div class="flex flex-col">
-                <h3 class="text-sm font-black text-sumi uppercase tracking-[0.2em] leading-tight">
-                    {{ hudTitle }}
-                </h3>
-                <p class="text-[11px] text-usuzumi font-bold mt-1.5 tracking-[0.1em] uppercase opacity-60">{{ hudSubtitle }}</p>
+        <div class="p-5 md:p-6 pb-4">
+            <div class="flex items-start justify-between">
+                <div class="flex flex-col">
+                    <h3 class="text-sm font-black text-sumi uppercase tracking-[0.2em] leading-tight">
+                        {{ hudTitle }}
+                    </h3>
+                    <p class="text-[11px] text-usuzumi font-bold mt-1.5 tracking-[0.1em] uppercase opacity-60">{{ hudSubtitle }}</p>
+                </div>
+                <!-- Mobile close button (inside header) -->
+                <button
+                    @click="$emit('toggle-panel')"
+                    class="md:hidden flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-400 transition-colors ml-3"
+                >
+                    <span class="material-symbols-outlined text-base">close</span>
+                </button>
             </div>
 
-            <ActiveElementControls 
+            <ActiveElementControls
                 @remove="$emit('remove-element')"
                 @updateImageOutline="$emit('update-image-outline')"
             />
@@ -91,7 +109,7 @@ import ActiveElementControls from './Panels/ActiveElementControls.vue';
 
 const { activeSideTab, checkoutForm } = useStudioStore();
 
-defineEmits(['remove-element', 'update-image-outline', 'update-layer', 'save-history', 'add-media', 'add-text']);
+defineEmits(['remove-element', 'update-image-outline', 'update-layer', 'save-history', 'add-media', 'add-text', 'toggle-panel']);
 
 const hudTitle = computed(() => {
     if (activeSideTab.value === 'layers') return 'Aksen Warna';
