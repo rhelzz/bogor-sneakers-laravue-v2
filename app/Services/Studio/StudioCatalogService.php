@@ -2,6 +2,7 @@
 
 namespace App\Services\Studio;
 
+use App\Models\ShoeVariant;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
@@ -21,11 +22,13 @@ class StudioCatalogService
             return [];
         }
 
+        $studioConfigs = $this->loadStudioConfigs();
+
         return collect(File::directories($root))
             ->sort(static fn (string $a, string $b): int => strnatcasecmp($a, $b))
-            ->map(function (string $folderPath): array {
+            ->map(function (string $folderPath) use ($studioConfigs): array {
                 $folderKey = basename($folderPath);
-                $models = $this->scanModelsInFolder($folderPath);
+                $models = $this->scanModelsInFolder($folderPath, $folderKey, $studioConfigs);
 
                 return [
                     'key' => $folderKey,
@@ -39,11 +42,28 @@ class StudioCatalogService
             ->all();
     }
 
-    private function scanModelsInFolder(string $folderPath): array
+    /**
+     * Load studio_config values from DB keyed by "model_slug/variant_slug".
+     */
+    private function loadStudioConfigs(): array
+    {
+        try {
+            return ShoeVariant::with('model')
+                ->whereNotNull('studio_config')
+                ->get()
+                ->keyBy(fn (ShoeVariant $v): string => $v->model->slug . '/' . Str::slug($v->name))
+                ->map(fn (ShoeVariant $v): array => $v->studio_config)
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function scanModelsInFolder(string $folderPath, string $folderKey, array $studioConfigs): array
     {
         return collect(File::directories($folderPath))
             ->sort(static fn (string $a, string $b): int => strnatcasecmp($a, $b))
-            ->map(function (string $modelPath): ?array {
+            ->map(function (string $modelPath) use ($folderKey, $studioConfigs): ?array {
                 $modelRaw = basename($modelPath);
                 $modelId = $modelRaw;
                 $modelLabel = $this->toFolderLabel($modelRaw);
@@ -66,6 +86,8 @@ class StudioCatalogService
                     return null;
                 }
 
+                $configKey = "{$folderKey}/{$modelRaw}";
+
                 return [
                     'id' => $modelId,
                     'label' => $modelLabel,
@@ -74,6 +96,7 @@ class StudioCatalogService
                     'pattern_base_file' => $this->findFile($files, '_pola base.svg'),
                     'layers' => $this->extractLayers($files, '/_aksen\s*(\d+)(?:\s*\(\d+\))?\.svg$/i', ['_pola ']),
                     'pattern_layers' => $this->extractLayers($files, '/_pola\s+aksen\s*(\d+)(?:\s*\(\d+\))?(?:\.png)?\.svg$/i'),
+                    'studio_config' => $studioConfigs[$configKey] ?? null,
                 ];
             })
             ->filter(static fn (?array $model): bool => $model !== null)
