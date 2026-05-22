@@ -3,22 +3,16 @@
         <Head title="Studio Custom" />
 
         <StudioTopNav
-            @undo="undo"
-            @redo="redo"
             @reset="resetDesign"
-            @checkout="validateCheckout"
         />
 
         <div class="flex-grow flex mt-20 h-[calc(100vh-80px)] relative">
-            <StudioSideNav @share="showShare" />
+            <StudioSideNav />
 
             <main class="flex-grow flex relative bg-[#f8f9fa] overflow-hidden">
                 <StudioCanvas
                     :is-syncing="isSyncing"
                     @init="handleInitStage"
-                    @zoom-in="zoomIn"
-                    @zoom-out="zoomOut"
-                    @reset-zoom="resetZoom"
                     @remove-element="removeActiveElement"
                 />
 
@@ -37,37 +31,37 @@
                 <!-- Mobile backdrop overlay (when panel is open) -->
                 <transition name="fade">
                     <div
-                        v-if="isPanelOpen"
+                        v-if="isMobilePanelOpen"
                         class="md:hidden fixed inset-0 bg-black/40 z-30"
                         style="top: 80px"
-                        @click="isPanelOpen = false"
+                        @click="isMobilePanelOpen = false"
                     />
                 </transition>
 
                 <!-- Mobile FAB toggle button -->
                 <button
                     class="md:hidden fixed bottom-6 right-4 z-50 w-14 h-14 bg-sumi text-white rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform duration-200"
-                    @click="isPanelOpen = !isPanelOpen"
-                    :title="isPanelOpen ? 'Tutup panel' : 'Buka panel'"
+                    @click="isMobilePanelOpen = !isMobilePanelOpen"
+                    :title="isMobilePanelOpen ? 'Tutup panel' : 'Buka panel'"
                 >
-                    <span class="material-symbols-outlined text-xl transition-transform duration-300" :class="isPanelOpen ? 'rotate-90' : ''">
-                        {{ isPanelOpen ? 'close' : 'tune' }}
+                    <span class="material-symbols-outlined text-xl transition-transform duration-300" :class="isMobilePanelOpen ? 'rotate-90' : ''">
+                        {{ isMobilePanelOpen ? 'close' : 'tune' }}
                     </span>
                 </button>
 
                 <!-- Right Panel — desktop: flex item; mobile: fixed right drawer -->
                 <div
-                    class="h-full z-40 md:z-30 transition-transform duration-300 ease-in-out
+                    class="z-40 md:z-30 transition-transform duration-300 ease-in-out
                            fixed top-20 right-0 bottom-0 md:static md:top-auto md:bottom-auto
                            w-auto"
-                    :class="isPanelOpen
-                        ? 'translate-x-0'
-                        : 'translate-x-full md:translate-x-0'"
-                    :style="!isPanelOpen ? 'pointer-events: none' : ''"
+                    :class="[
+                        isMobilePanelOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none',
+                        'md:translate-x-0 md:pointer-events-auto'
+                    ]"
                 >
                     <!-- Extra wrapper: collapses width on desktop when closed -->
                     <div
-                        class="h-full transition-all duration-300 ease-in-out overflow-hidden"
+                        class="h-full transition-all duration-300 ease-in-out md:overflow-hidden"
                         :class="isPanelOpen ? 'md:w-auto' : 'md:w-0'"
                     >
                         <transition name="panel-slide" mode="out-in">
@@ -79,7 +73,8 @@
                                 @save-history="saveToHistory"
                                 @add-media="handleAddMedia"
                                 @add-text="handleAddText"
-                                @toggle-panel="isPanelOpen = false"
+                                @collapse-desktop="isPanelOpen = false"
+                                @close-mobile="isMobilePanelOpen = false"
                             />
                             <div v-else class="w-[340px] sm:w-[380px] md:w-[400px] flex-shrink-0 bg-white border-l border-indigo/5 flex flex-col h-full shadow-[-20px_0_40px_rgba(0,0,0,0.03)] relative">
                                 <CheckoutForm @checkout="handleFinalCheckout" />
@@ -158,16 +153,15 @@ const {
     layerOutlines
 } = useStudioStore();
 
-const { undo: undoHistory, redo: redoHistory, isRestoring, clearHistory } = useStudioHistory();
+const { clearHistory } = useStudioHistory();
 const showConfirmModal = ref(false);
+const isMobilePanelOpen = ref(false);
 
 const {
     initStage,
     loadAssets,
     updateLayer,
     saveToHistory,
-    zoomBy,
-    resetView,
     createPreviewURL,
     createPatternURL,
     downloadURL,
@@ -182,7 +176,6 @@ const {
 const showFastTrackAlert = ref(false);
 const showCustomBoxAlert = ref(false);
 
-// Actions
 const fetchCatalog = async () => {
     catalogLoading.value = true;
 
@@ -214,26 +207,6 @@ const handleInitStage = (container: HTMLDivElement) => {
     }
 };
 
-const undo = async () => {
-    const prevState = undoHistory();
-
-    if (prevState) {
-        await restoreState(prevState);
-    } else {
-        showToast('Tidak ada perubahan untuk di-undo');
-    }
-};
-
-const redo = async () => {
-    const nextState = redoHistory();
-
-    if (nextState) {
-        await restoreState(nextState);
-    } else {
-        showToast('Tidak ada perubahan untuk di-redo');
-    }
-};
-
 const setupNodeEvents = (node: Konva.Node) => {
     node.on('dragmove transform', () => {
         const meta = node.getAttr('meta');
@@ -246,72 +219,11 @@ const setupNodeEvents = (node: Konva.Node) => {
     });
 };
 
-const restoreState = async (state: any) => {
-    isRestoring.value = true;
-
-    try {
-        layerColors.value = { ...state.colors };
-        layerOutlines.value = JSON.parse(JSON.stringify(state.outlines));
-
-        for (const id in state.colors) {
-            updateLayer(Number(id));
-        }
-
-        const elementsGroup = getElementsGroup();
-        const transformer = getTransformer();
-        elementsGroup?.destroyChildren();
-        transformer?.nodes([]);
-        activeElement.value = null;
-
-        for (const elData of state.elements) {
-            let node: Konva.Node | null = null;
-
-            if (elData.className === 'Text') {
-                node = new Konva.Text(elData.attrs);
-            } else if (elData.className === 'Image') {
-                const attrs = { ...elData.attrs };
-
-                if (attrs.imageSrc) {
-                    attrs.image = await loadImage(attrs.imageSrc);
-                }
-
-                node = new Konva.Image(attrs);
-            }
-
-            if (node) {
-                if (elData.attrs.meta?.maskId) {
-                    node.opacity(0);
-                }
-                node.setAttr('cachedMeta', JSON.stringify(elData.attrs.meta));
-                setupNodeEvents(node);
-                elementsGroup?.add(node as any);
-            }
-        }
-
-        getMainLayer()?.draw();
-    } finally {
-        isRestoring.value = false;
-    }
-};
-
 const resetDesign = () => {
     if (confirm('Reset semua perubahan?')) {
         clearHistory();
         loadAssets();
     }
-};
-
-const validateCheckout = () => {
-    checkoutForm.formTouched = true;
-
-    if (!checkoutForm.name || !checkoutForm.phone || !checkoutForm.email || !checkoutForm.shoeSize || !checkoutForm.address || !checkoutForm.addressDetail || !checkoutForm.courier) {
-        showToast('Mohon lengkapi data diri, alamat, dan kurir');
-        activeSideTab.value = 'checkout';
-
-        return;
-    }
-
-    handleFinalCheckout();
 };
 
 const WHATSAPP_INTRO = "Halo Admin Bogor Sneakers, saya ingin memesan sepatu custom dengan rincian berikut:";
@@ -501,20 +413,6 @@ const confirmCustomBox = (val: boolean) => {
     showCustomBoxAlert.value = false;
 };
 
-const zoomIn = () => {
-    zoomBy(1.4);
-};
-
-const zoomOut = () => {
-    zoomBy(1 / 1.4);
-};
-
-const resetZoom = () => {
-    resetView();
-};
-
-const showShare = () => showToast('Link share disalin ke clipboard');
-
 // Lifecycle
 onMounted(async () => {
     await fetchCatalog();
@@ -537,7 +435,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 };
 
 watch(activeElement, (newEl) => {
-    if (!newEl || isRestoring.value) {
+    if (!newEl) {
         return;
     }
 
@@ -587,7 +485,8 @@ watch([activeFolderKey, currentModel], () => {
 watch(activeSideTab, (newTab) => {
     if (newTab === 'checkout') {
         showFastTrackAlert.value = true;
-        isPanelOpen.value = true; // always open panel when entering checkout
+        isPanelOpen.value = true;
+        isMobilePanelOpen.value = true;
     }
 });
 </script>
