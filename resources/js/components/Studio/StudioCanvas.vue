@@ -33,37 +33,6 @@
                     <span class="text-[10px] font-black uppercase tracking-[0.2em]">Hapus Elemen</span>
                 </button>
             </transition>
-
-            <!-- View Controls -->
-            <div class="pointer-events-auto flex items-center bg-white/90 backdrop-blur-2xl rounded-2xl border border-indigo/5 shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-1.5 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)]">
-                <button 
-                    @click="zoomOut" 
-                    class="w-11 h-11 flex items-center justify-center text-usuzumi/60 hover:text-indigo hover:bg-indigo/5 rounded-xl transition-all duration-300 active:scale-90"
-                    title="Zoom Out"
-                >
-                    <span class="material-symbols-outlined">remove</span>
-                </button>
-                
-                <div class="h-6 w-px bg-indigo/5 mx-2"></div>
-                
-                <button 
-                    @click="resetZoom" 
-                    class="px-5 h-11 flex items-center gap-3 text-[11px] font-black text-usuzumi/60 hover:text-indigo hover:bg-indigo/5 transition-all duration-300 rounded-xl group"
-                >
-                    <span class="material-symbols-outlined text-lg transition-transform duration-500 group-hover:rotate-180">center_focus_strong</span>
-                    <span class="uppercase tracking-[0.2em]">Reset View</span>
-                </button>
-                
-                <div class="h-6 w-px bg-indigo/5 mx-2"></div>
-                
-                <button 
-                    @click="zoomIn" 
-                    class="w-11 h-11 flex items-center justify-center text-usuzumi/60 hover:text-indigo hover:bg-indigo/5 rounded-xl transition-all duration-300 active:scale-90"
-                    title="Zoom In"
-                >
-                    <span class="material-symbols-outlined">add</span>
-                </button>
-            </div>
         </div>
 
         <!-- Canvas Loading Overlay -->
@@ -104,17 +73,13 @@ const props = defineProps<{
 const { activeElement, catalogLoading } = useStudioStore();
 const konvaContainerRef = ref<HTMLDivElement | null>(null);
 
-const emit = defineEmits(['init', 'zoomIn', 'zoomOut', 'resetZoom', 'removeElement']);
+const emit = defineEmits(['init', 'removeElement']);
 
 onMounted(() => {
     if (konvaContainerRef.value) {
         emit('init', konvaContainerRef.value);
     }
 });
-
-const zoomIn = () => emit('zoomIn');
-const zoomOut = () => emit('zoomOut');
-const resetZoom = () => emit('resetZoom');
 </script>
 
 <style scoped>
