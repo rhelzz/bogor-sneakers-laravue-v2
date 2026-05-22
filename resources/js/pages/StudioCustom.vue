@@ -22,21 +22,70 @@
                     @remove-element="removeActiveElement"
                 />
 
-                <div class="h-full flex-shrink-0 relative z-30">
-                    <transition name="panel-slide" mode="out-in">
-                        <StudioToolbox
-                            v-if="activeSideTab !== 'checkout'"
-                            @remove-element="removeActiveElement"
-                            @update-image-outline="handleImageOutlineUpdate"
-                            @update-layer="updateLayer"
-                            @save-history="saveToHistory"
-                            @add-media="handleAddMedia"
-                            @add-text="handleAddText"
-                        />
-                        <div v-else class="w-[340px] sm:w-[380px] md:w-[400px] flex-shrink-0 bg-white border-l border-indigo/5 flex flex-col h-full shadow-[-20px_0_40px_rgba(0,0,0,0.03)] relative z-30">
-                            <CheckoutForm @checkout="handleFinalCheckout" />
-                        </div>
-                    </transition>
+                <!-- Desktop: expand button (visible only when panel is collapsed) -->
+                <transition name="panel-expand-btn">
+                    <button
+                        v-if="!isPanelOpen"
+                        @click="isPanelOpen = true"
+                        class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-40 w-8 h-20 flex-col items-center justify-center bg-white border-l border-t border-b border-gray-200 rounded-l-2xl shadow-md hover:bg-indigo hover:border-indigo hover:text-white transition-all duration-300 group"
+                        title="Tampilkan panel"
+                    >
+                        <span class="material-symbols-outlined text-sm text-gray-400 group-hover:text-white transition-colors">chevron_left</span>
+                    </button>
+                </transition>
+
+                <!-- Mobile backdrop overlay (when panel is open) -->
+                <transition name="fade">
+                    <div
+                        v-if="isPanelOpen"
+                        class="md:hidden fixed inset-0 bg-black/40 z-30"
+                        style="top: 80px"
+                        @click="isPanelOpen = false"
+                    />
+                </transition>
+
+                <!-- Mobile FAB toggle button -->
+                <button
+                    class="md:hidden fixed bottom-6 right-4 z-50 w-14 h-14 bg-sumi text-white rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform duration-200"
+                    @click="isPanelOpen = !isPanelOpen"
+                    :title="isPanelOpen ? 'Tutup panel' : 'Buka panel'"
+                >
+                    <span class="material-symbols-outlined text-xl transition-transform duration-300" :class="isPanelOpen ? 'rotate-90' : ''">
+                        {{ isPanelOpen ? 'close' : 'tune' }}
+                    </span>
+                </button>
+
+                <!-- Right Panel — desktop: flex item; mobile: fixed right drawer -->
+                <div
+                    class="h-full z-40 md:z-30 transition-transform duration-300 ease-in-out
+                           fixed top-20 right-0 bottom-0 md:static md:top-auto md:bottom-auto
+                           w-auto"
+                    :class="isPanelOpen
+                        ? 'translate-x-0'
+                        : 'translate-x-full md:translate-x-0'"
+                    :style="!isPanelOpen ? 'pointer-events: none' : ''"
+                >
+                    <!-- Extra wrapper: collapses width on desktop when closed -->
+                    <div
+                        class="h-full transition-all duration-300 ease-in-out overflow-hidden"
+                        :class="isPanelOpen ? 'md:w-auto' : 'md:w-0'"
+                    >
+                        <transition name="panel-slide" mode="out-in">
+                            <StudioToolbox
+                                v-if="activeSideTab !== 'checkout'"
+                                @remove-element="removeActiveElement"
+                                @update-image-outline="handleImageOutlineUpdate"
+                                @update-layer="updateLayer"
+                                @save-history="saveToHistory"
+                                @add-media="handleAddMedia"
+                                @add-text="handleAddText"
+                                @toggle-panel="isPanelOpen = false"
+                            />
+                            <div v-else class="w-[340px] sm:w-[380px] md:w-[400px] flex-shrink-0 bg-white border-l border-indigo/5 flex flex-col h-full shadow-[-20px_0_40px_rgba(0,0,0,0.03)] relative">
+                                <CheckoutForm @checkout="handleFinalCheckout" />
+                            </div>
+                        </transition>
+                    </div>
                 </div>
             </main>
         </div>
@@ -97,6 +146,7 @@ const {
     activeFolderKey,
     currentModel,
     activeSideTab,
+    isPanelOpen,
     toastMessage,
     showToast,
     activeElement,
@@ -537,6 +587,7 @@ watch([activeFolderKey, currentModel], () => {
 watch(activeSideTab, (newTab) => {
     if (newTab === 'checkout') {
         showFastTrackAlert.value = true;
+        isPanelOpen.value = true; // always open panel when entering checkout
     }
 });
 </script>
@@ -548,6 +599,12 @@ watch(activeSideTab, (newTab) => {
 
 .toast-enter-active, .toast-leave-active { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translate(-50%, 20px) scale(0.9); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.panel-expand-btn-enter-active, .panel-expand-btn-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.panel-expand-btn-enter-from, .panel-expand-btn-leave-to { opacity: 0; transform: translateY(-50%) translateX(8px); }
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
