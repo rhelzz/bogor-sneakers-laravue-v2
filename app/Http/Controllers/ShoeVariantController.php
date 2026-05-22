@@ -7,6 +7,7 @@ use App\Models\ShoeVariant;
 use App\Models\ShoeVariantSvg;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -145,6 +146,30 @@ class ShoeVariantController extends Controller
         
         $shoeVariant->delete();
         return redirect()->back()->with('success', 'Varian berhasil dihapus.');
+    }
+
+    public function updateStudioConfig(Request $request, ShoeVariant $shoeVariant): RedirectResponse
+    {
+        $validated = $request->validate([
+            'studio_config.preview_zone.x'           => 'required|numeric',
+            'studio_config.preview_zone.y'           => 'required|numeric',
+            'studio_config.preview_zone.width'       => 'required|numeric|min:1',
+            'studio_config.preview_zone.height'      => 'required|numeric|min:1',
+            'studio_config.pattern_zones'            => 'required|array|min:1',
+            'studio_config.pattern_zones.*.id'       => 'required|string|max:64',
+            'studio_config.pattern_zones.*.x'        => 'required|numeric',
+            'studio_config.pattern_zones.*.y'        => 'required|numeric',
+            'studio_config.pattern_zones.*.width'    => 'required|numeric|min:1',
+            'studio_config.pattern_zones.*.height'   => 'required|numeric|min:1',
+            'studio_config.pattern_zones.*.flip_x'   => 'boolean',
+            'studio_config.pattern_zones.*.rotation' => 'numeric',
+        ]);
+
+        $shoeVariant->update(['studio_config' => $validated['studio_config']]);
+
+        Cache::forget('studio-custom:asset-catalog:v2');
+
+        return redirect()->back()->with('success', 'Studio config berhasil disimpan.');
     }
 
     /**
