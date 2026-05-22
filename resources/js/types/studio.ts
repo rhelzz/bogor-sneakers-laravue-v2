@@ -3,6 +3,28 @@ export interface Layer {
     file: string;
 }
 
+export interface PreviewZone {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface PatternZone {
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    flip_x?: boolean;
+    rotation?: number;
+}
+
+export interface StudioConfig {
+    preview_zone: PreviewZone;
+    pattern_zones: PatternZone[];
+}
+
 export interface CatalogModel {
     id: number | string;
     label: string;
@@ -11,6 +33,7 @@ export interface CatalogModel {
     pattern_base_file?: string;
     layers: Layer[];
     pattern_layers: Layer[];
+    studio_config?: StudioConfig | null;
 }
 
 export interface CatalogFolder {
