@@ -73,26 +73,10 @@
         <div class="flex items-center gap-2 md:gap-4 font-montserrat">
             <!-- Action Tools -->
             <div class="flex items-center bg-gray-50/80 rounded-xl md:rounded-2xl p-1 md:p-1.5 border border-gray-200 shadow-sm">
-                <button @click="$emit('undo')" class="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-usuzumi hover:text-indigo hover:bg-white rounded-xl transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group" title="Undo (Ctrl+Z)">
-                    <span class="material-symbols-outlined text-lg md:text-xl transition-transform duration-300 group-hover:-rotate-12">undo</span>
-                </button>
-                <button @click="$emit('redo')" class="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-usuzumi hover:text-indigo hover:bg-white rounded-xl transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group" title="Redo (Ctrl+Y)">
-                    <span class="material-symbols-outlined text-lg md:text-xl transition-transform duration-300 group-hover:rotate-12">redo</span>
-                </button>
-                <div class="w-[1px] h-5 md:h-6 bg-gray-300 mx-0.5 md:mx-1"></div>
                 <button @click="$emit('reset')" class="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-usuzumi hover:text-red-500 hover:bg-white rounded-xl transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group" title="Reset Design">
                     <span class="material-symbols-outlined text-lg md:text-xl transition-transform duration-300 group-hover:rotate-180">restart_alt</span>
                 </button>
             </div>
-
-            <button @click="$emit('checkout')" class="group relative overflow-hidden h-10 md:h-12 px-4 md:px-8 bg-sumi text-washi font-bold text-[10px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] transition-all duration-300 rounded-xl md:rounded-2xl shadow-md hover:shadow-xl hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 flex items-center gap-2 md:gap-3 border border-transparent hover:border-indigo/50 flex-shrink-0">
-                <span class="relative z-10 flex items-center gap-2 md:gap-3">
-                    <span class="hidden sm:inline">{{ isSaving ? 'PROCESSING...' : 'PROCESS ORDER' }}</span>
-                    <span class="sm:hidden">{{ isSaving ? '...' : 'ORDER' }}</span>
-                    <span class="material-symbols-outlined text-base md:text-lg transition-transform duration-300 group-hover:translate-x-1" v-if="!isSaving">shopping_cart_checkout</span>
-                </span>
-                <div class="absolute inset-0 h-full w-full bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
-            </button>
         </div>
     </nav>
 
@@ -142,17 +126,14 @@
                                             : 'border-transparent hover:border-gray-200'"
                                     >
                                         <div class="absolute inset-0 bg-gradient-radial"></div>
-                                        <template v-if="isSlideVisible(index)">
-                                            <img
-                                                v-if="thumbSrc(model)"
-                                                :src="thumbSrc(model)"
-                                                class="relative z-10 w-full h-full object-contain p-2 drop-shadow-lg"
-                                                draggable="false"
-                                                alt=""
-                                            />
-                                            <span v-else class="relative z-10 flex items-center justify-center h-full material-symbols-outlined text-5xl text-gray-300">checkroom</span>
-                                        </template>
-                                        <div v-else class="relative z-10 m-4 rounded-xl bg-gray-200 animate-pulse aspect-square"></div>
+                                        <img
+                                            v-if="thumbSrc(model)"
+                                            :src="thumbSrc(model)"
+                                            class="relative z-10 w-full h-full object-contain p-2 drop-shadow-lg"
+                                            draggable="false"
+                                            alt=""
+                                        />
+                                        <span v-else class="relative z-10 flex items-center justify-center h-full material-symbols-outlined text-5xl text-gray-300">checkroom</span>
 
                                         <!-- Active indicator -->
                                         <div
@@ -283,7 +264,7 @@ const {
     isSaving
 } = useStudioStore();
 
-defineEmits(['undo', 'redo', 'reset', 'checkout']);
+defineEmits(['reset']);
 
 // Each slide is square + padding. Modal max-width is 384px (sm).
 // Content width is approx 336px.
