@@ -65,6 +65,27 @@ export function drawOutlineLayer(img: HTMLImageElement, color: string, size: num
     return canvas;
 }
 
+export function drawImageWithOutline(img: HTMLImageElement, color: string, size: number): HTMLCanvasElement {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return canvas;
+
+    const dArr = [-1, -1, 0, -1, 1, -1, -1, 0, 1, 0, -1, 1, 0, 1, 1, 1, -0.7, -0.7, 0.7, -0.7, -0.7, 0.7, 0.7, 0.7];
+    for (let i = 0; i < dArr.length; i += 2) {
+        ctx.drawImage(img, dArr[i] * size, dArr[i + 1] * size, w, h);
+    }
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas;
+}
+
 export const generatePaletteFromDataUrl = (dataUrl: string): Promise<string[]> => {
     return new Promise((resolve) => {
         const img = new Image();
