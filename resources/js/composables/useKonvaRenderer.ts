@@ -3,21 +3,29 @@ import Konva from 'konva';
 import { useStudioStore } from './useStudioStore';
 import { useStudioHistory } from './useStudioHistory';
 import { loadImage, drawFilledLayer, drawOutlineLayer } from '../utils/studio-utils';
-import type { DesignElement } from '../types/studio';
+import type { DesignElement, PreviewZone } from '../types/studio';
 
 const CANVAS_SIZE = 1024;
 const MIN_STAGE_SCALE = 0.35;
+
+const randomLayerColor = () => {
+    const h = Math.floor(Math.random() * 360);
+    const s = 45 + Math.floor(Math.random() * 30);
+    const l = 40 + Math.floor(Math.random() * 25);
+    return `hsl(${h},${s}%,${l}%)`;
+};
 const MAX_STAGE_SCALE = 4;
 const WHEEL_ZOOM_SENSITIVITY = 0.0025;
 
 export function useKonvaRenderer() {
-    const { 
-        currentModelMeta, 
-        activeFolderKey, 
-        currentModel, 
-        layerColors, 
+    const {
+        currentModelMeta,
+        activeFolderKey,
+        currentModel,
+        layerColors,
         layerOutlines,
         activeElement,
+        modelThumbnailURLs,
         showToast
     } = useStudioStore();
 
@@ -423,6 +431,10 @@ export function useKonvaRenderer() {
                     layerOutlines.value[layer.id] = { active: false, color: '#000000', size: 2 };
                 }
 
+                if (!layerColors.value[layer.id]) {
+                    layerColors.value[layer.id] = randomLayerColor();
+                }
+
                 const hitCanvas = document.createElement('canvas');
                 hitCanvas.width = 1;
                 hitCanvas.height = 1;
@@ -461,8 +473,28 @@ export function useKonvaRenderer() {
                 return;
             }
 
-            drawMainLayer();
+            // Synchronous draw to ensure all colored layers are on canvas
+            mainLayer?.draw();
             saveToHistory();
+
+            // Capture a small colored thumbnail for the variant picker
+            if (stage && currentModel.value != null) {
+                const cropX = (stage.width() - CANVAS_SIZE) / 2;
+                const cropY = (stage.height() - CANVAS_SIZE) / 2;
+                try {
+                    const thumb = stage.toDataURL({
+                        x: cropX,
+                        y: cropY,
+                        width: CANVAS_SIZE,
+                        height: CANVAS_SIZE,
+                        pixelRatio: 0.35,
+                        mimeType: 'image/png',
+                    });
+                    modelThumbnailURLs.value[currentModel.value] = thumb;
+                } catch {
+                    // toDataURL can fail if canvas is tainted; silently ignore
+                }
+            }
         } catch (err) {
             if (!isStaleLoad()) {
                 console.error(err);
@@ -649,11 +681,113 @@ export function useKonvaRenderer() {
             ctx.drawImage(pBase, 0, 0, targetW, targetH);
         }
 
+        // Load all pattern layer images first
         const patternLayerImages: Record<number, HTMLImageElement> = {};
-
         for (const layer of meta.pattern_layers) {
-            const pLayerImg = await loadImage(baseUrl + layer.file);
-            patternLayerImages[layer.id] = pLayerImg;
+            patternLayerImages[layer.id] = await loadImage(baseUrl + layer.file);
+        }
+
+        const config = meta.studio_config ?? null;
+        const allElements = elementsGroup?.children ?? [];
+
+        // Helper: draw a single element's content to a canvas, returns the canvas
+        const buildElementCanvas = (node: Konva.Node, elMeta: DesignElement): HTMLCanvasElement | null => {
+            const transform = node.getAbsoluteTransform();
+            const centerPt = transform.point({ x: node.width() / 2, y: node.height() / 2 });
+            const rot = node.rotation();
+
+            const elCanvas = document.createElement('canvas');
+            elCanvas.width = targetW;
+            elCanvas.height = targetH;
+            const targetCtx = elCanvas.getContext('2d');
+            if (!targetCtx) return null;
+
+            const drawContent = (context: CanvasRenderingContext2D, scale: number) => {
+                if (elMeta.type === 'image' && node instanceof Konva.Image) {
+                    const img = node.image();
+                    if (img) {
+                        const drawW = node.width() * node.scaleX() * scale;
+                        const drawH = node.height() * node.scaleY() * scale;
+                        context.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+                    }
+                } else if (elMeta.type === 'text' && node instanceof Konva.Text) {
+                    const fSize = node.fontSize() * node.scaleX() * scale;
+                    context.font = `${node.fontStyle()} ${fSize}px ${node.fontFamily()}, sans-serif`;
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+
+                    if (elMeta.strokeWidth && elMeta.strokeWidth > 0 && elMeta.strokeColor) {
+                        context.lineWidth = elMeta.strokeWidth * scale;
+                        context.strokeStyle = elMeta.strokeColor;
+                        context.lineJoin = 'round';
+                        context.strokeText(node.text(), 0, 0);
+                    }
+
+                    context.fillStyle = elMeta.color || '#000000';
+                    context.fillText(node.text(), 0, 0);
+                }
+            };
+
+            if (config) {
+                const pz: PreviewZone = config.preview_zone;
+                for (const zone of config.pattern_zones) {
+                    const relX = (centerPt.x - pz.x) / pz.width;
+                    const relY = (centerPt.y - pz.y) / pz.height;
+
+                    const px = zone.flip_x
+                        ? zone.x + (1 - relX) * zone.width
+                        : zone.x + relX * zone.width;
+                    const py = zone.y + relY * zone.height;
+
+                    const scaleRatio = zone.width / pz.width;
+                    const zoneRotRad = (zone.rotation ?? 0) * Math.PI / 180;
+                    const elemRotRad = (zone.flip_x && elMeta.type !== 'text')
+                        ? Math.PI - rot * Math.PI / 180 + zoneRotRad
+                        : rot * Math.PI / 180 + zoneRotRad;
+
+                    targetCtx.save();
+                    targetCtx.translate(px, py);
+                    targetCtx.rotate(elemRotRad);
+                    if (zone.flip_x && elMeta.type !== 'text') {
+                        targetCtx.scale(-1, 1);
+                    }
+                    drawContent(targetCtx, scaleRatio);
+                    targetCtx.restore();
+                }
+            } else {
+                const rX = targetW / CANVAS_SIZE;
+                const cx = centerPt.x * rX;
+                const cy = centerPt.y * rX;
+
+                const drawLegacy = (isMirrored: boolean) => {
+                    targetCtx.save();
+                    let drawX = cx;
+                    let drawY = cy;
+                    let drawRot = rot * Math.PI / 180;
+
+                    if (isMirrored) {
+                        drawX = cx + (Number(elMeta.mx) || 0);
+                        drawY = (targetH - cy) + (Number(elMeta.my) || 0);
+                        drawRot = (180 - rot + (Number(elMeta.mrot) || 0)) * Math.PI / 180;
+                    }
+
+                    targetCtx.translate(drawX, drawY);
+                    targetCtx.rotate(drawRot);
+                    drawContent(targetCtx, rX);
+                    targetCtx.restore();
+                };
+
+                drawLegacy(false);
+                drawLegacy(true);
+            }
+
+            return elCanvas;
+        };
+
+        // Draw each pattern layer followed immediately by its masked elements
+        // This preserves the same z-order as the preview canvas
+        for (const layer of meta.pattern_layers) {
+            const pLayerImg = patternLayerImages[layer.id];
 
             const outline = layerOutlines.value[layer.id];
             if (outline?.active) {
@@ -665,84 +799,33 @@ export function useKonvaRenderer() {
             const color = layerColors.value[layer.id] || '#ffffff';
             const filled = drawFilledLayer(pLayerImg, color, targetW, targetH);
             ctx.drawImage(filled, 0, 0);
-        }
 
-        // Draw custom elements with masking and mirroring
-        if (elementsGroup && elementsGroup.children) {
-            const rX = targetW / CANVAS_SIZE;
-            const rY = targetH / CANVAS_SIZE;
-
-            for (const node of elementsGroup.children) {
+            // Draw elements masked to this layer, right after the layer (correct z-order)
+            for (const node of allElements) {
                 const elMeta = node.getAttr('meta') as DesignElement;
-                if (!elMeta) continue;
+                if (!elMeta || String(elMeta.maskId) !== String(layer.id)) continue;
 
-                const transform = node.getAbsoluteTransform();
-                const centerPt = transform.point({ x: node.width() / 2, y: node.height() / 2 });
-                const cx = centerPt.x * rX;
-                const cy = centerPt.y * rY;
-                const rot = node.rotation();
+                const elCanvas = buildElementCanvas(node, elMeta);
+                if (!elCanvas) continue;
 
-                let elCanvas = document.createElement('canvas');
-                elCanvas.width = targetW;
-                elCanvas.height = targetH;
-                let targetCtx = elCanvas.getContext('2d');
-                if (!targetCtx) continue;
-
-                const drawElement = (context: CanvasRenderingContext2D, isMirrored = false) => {
-                    context.save();
-                    
-                    let drawX = cx;
-                    let drawY = cy;
-                    let drawRot = rot * Math.PI / 180;
-
-                    if (isMirrored) {
-                        drawX = cx + (Number(elMeta.mx) || 0);
-                        drawY = (targetH - cy) + (Number(elMeta.my) || 0);
-                        drawRot = (180 - rot + (Number(elMeta.mrot) || 0)) * Math.PI / 180;
-                    }
-
-                    context.translate(drawX, drawY);
-                    context.rotate(drawRot);
-
-                    if (elMeta.type === 'image' && node instanceof Konva.Image) {
-                        const img = node.image();
-                        if (img) {
-                            const drawW = node.width() * node.scaleX() * rX;
-                            const drawH = node.height() * node.scaleY() * rY;
-                            context.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
-                        }
-                    } else if (elMeta.type === 'text' && node instanceof Konva.Text) {
-                        const fSize = (node.fontSize() * node.scaleX()) * rX;
-                        context.font = `${node.fontStyle()} ${fSize}px ${node.fontFamily()}, sans-serif`;
-                        context.textAlign = "center";
-                        context.textBaseline = "middle";
-                        
-                        if (elMeta.strokeWidth && elMeta.strokeWidth > 0 && elMeta.strokeColor) {
-                            context.lineWidth = elMeta.strokeWidth * rX;
-                            context.strokeStyle = elMeta.strokeColor;
-                            context.lineJoin = "round";
-                            context.strokeText(node.text(), 0, 0);
-                        }
-                        
-                        context.fillStyle = elMeta.color || '#000000';
-                        context.fillText(node.text(), 0, 0);
-                    }
-                    context.restore();
-                };
-
-                // Draw main
-                drawElement(targetCtx, false);
-                
-                // Draw mirrored
-                drawElement(targetCtx, true);
-
-                // Apply Masking if maskId is set
-                if (elMeta.maskId && patternLayerImages[Number(elMeta.maskId)]) {
+                const targetCtx = elCanvas.getContext('2d');
+                if (targetCtx) {
                     targetCtx.globalCompositeOperation = 'destination-in';
-                    targetCtx.drawImage(patternLayerImages[Number(elMeta.maskId)], 0, 0, targetW, targetH);
+                    targetCtx.drawImage(pLayerImg, 0, 0, targetW, targetH);
                     targetCtx.globalCompositeOperation = 'source-over';
                 }
 
+                ctx.drawImage(elCanvas, 0, 0);
+            }
+        }
+
+        // Draw unmasked (free-floating) elements on top of all layers
+        for (const node of allElements) {
+            const elMeta = node.getAttr('meta') as DesignElement;
+            if (!elMeta || elMeta.maskId) continue;
+
+            const elCanvas = buildElementCanvas(node, elMeta);
+            if (elCanvas) {
                 ctx.drawImage(elCanvas, 0, 0);
             }
         }
