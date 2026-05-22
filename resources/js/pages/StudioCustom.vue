@@ -89,7 +89,7 @@ import { useStudioStore } from '../composables/useStudioStore';
 import type { DesignElement } from '../types/studio';
 
 // Utils
-import { loadImage, drawOutlineLayer } from '../utils/studio-utils';
+import { loadImage, drawImageWithOutline } from '../utils/studio-utils';
 
 const {
     catalogFolders,
@@ -426,7 +426,7 @@ const handleImageOutlineUpdate = async () => {
         const img = await loadImage(meta.originalImageSrc);
 
         if (meta.outline.active) {
-            const canvas = drawOutlineLayer(img, meta.outline.color, meta.outline.size, img.naturalWidth, img.naturalHeight);
+            const canvas = drawImageWithOutline(img, meta.outline.color, meta.outline.size);
             node.image(canvas);
         } else {
             node.image(img);
