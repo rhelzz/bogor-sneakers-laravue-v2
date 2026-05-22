@@ -6,7 +6,7 @@ import { loadImage, drawFilledLayer, drawOutlineLayer } from '../utils/studio-ut
 import type { DesignElement, PreviewZone } from '../types/studio';
 
 const CANVAS_SIZE = 1024;
-const MIN_STAGE_SCALE = 0.35;
+const MIN_STAGE_SCALE = 0.2;
 
 const randomLayerColor = () => {
     const h = Math.floor(Math.random() * 360);
@@ -198,14 +198,21 @@ export function useKonvaRenderer() {
 
         stopStageTweens();
 
+        const padding = Math.min(stage.width(), stage.height()) * 0.1;
+        const fitScale = Math.min(
+            (stage.width() - padding) / CANVAS_SIZE,
+            (stage.height() - padding) / CANVAS_SIZE
+        );
+        const targetScale = Math.min(1, Math.max(MIN_STAGE_SCALE, fitScale));
+
         activeViewTween = new Konva.Tween({
             node: stage,
             duration: 0.35,
             easing: Konva.Easings.EaseOut,
-            scaleX: 1,
-            scaleY: 1,
-            x: 0,
-            y: 0,
+            scaleX: targetScale,
+            scaleY: targetScale,
+            x: (stage.width() / 2) * (1 - targetScale),
+            y: (stage.height() / 2) * (1 - targetScale),
             onFinish: () => {
                 drawMainLayer();
                 activeViewTween?.destroy();
@@ -476,15 +483,25 @@ export function useKonvaRenderer() {
             // Synchronous draw to ensure all colored layers are on canvas
             mainLayer?.draw();
             saveToHistory();
+            resetView();
 
-            // Capture a small colored thumbnail for the variant picker
+            // Capture a small colored thumbnail for the variant picker.
             if (stage && currentModel.value != null) {
-                const cropX = (stage.width() - CANVAS_SIZE) / 2;
-                const cropY = (stage.height() - CANVAS_SIZE) / 2;
+                const savedScale = stage.scaleX();
+                const savedPos = stage.position();
+                
+                const shoeX = (stage.width() - CANVAS_SIZE) / 2;
+                const shoeY = (stage.height() - CANVAS_SIZE) / 2;
+
+                stage.scale({ x: 1, y: 1 });
+                // Move stage so shoe top-left is at 0,0
+                stage.position({ x: -shoeX, y: -shoeY });
+                mainLayer?.draw();
+
                 try {
                     const thumb = stage.toDataURL({
-                        x: cropX,
-                        y: cropY,
+                        x: 0,
+                        y: 0,
                         width: CANVAS_SIZE,
                         height: CANVAS_SIZE,
                         pixelRatio: 0.35,
@@ -493,6 +510,10 @@ export function useKonvaRenderer() {
                     modelThumbnailURLs.value[currentModel.value] = thumb;
                 } catch {
                     // toDataURL can fail if canvas is tainted; silently ignore
+                } finally {
+                    stage.scale({ x: savedScale, y: savedScale });
+                    stage.position(savedPos);
+                    mainLayer?.draw();
                 }
             }
         } catch (err) {
@@ -518,19 +539,19 @@ export function useKonvaRenderer() {
         const oldScale = stage.scaleX();
         const oldPosition = stage.position();
 
+        const shoeX = (stage.width() - CANVAS_SIZE) / 2;
+        const shoeY = (stage.height() - CANVAS_SIZE) / 2;
+
         // Reset camera temporarily for clean export
         stage.scale({ x: 1, y: 1 });
-        stage.position({ x: 0, y: 0 });
+        stage.position({ x: -shoeX, y: -shoeY });
 
         mainLayer?.draw();
 
-        const cropX = (stage.width() - CANVAS_SIZE) / 2;
-        const cropY = (stage.height() - CANVAS_SIZE) / 2;
-
         // 1. Capture exactly the 1024x1024 shoe area, independent of screen size
         const designDataURL = stage.toDataURL({ 
-            x: cropX,
-            y: cropY,
+            x: 0,
+            y: 0,
             width: CANVAS_SIZE,
             height: CANVAS_SIZE,
             pixelRatio: 2,
@@ -690,10 +711,18 @@ export function useKonvaRenderer() {
         const config = meta.studio_config ?? null;
         const allElements = elementsGroup?.children ?? [];
 
+        const stageObj = shoeGroup?.getStage();
+        const offsetX = stageObj ? (stageObj.width() - CANVAS_SIZE) / 2 : 0;
+        const offsetY = stageObj ? (stageObj.height() - CANVAS_SIZE) / 2 : 0;
+
         // Helper: draw a single element's content to a canvas, returns the canvas
         const buildElementCanvas = (node: Konva.Node, elMeta: DesignElement): HTMLCanvasElement | null => {
-            const transform = node.getAbsoluteTransform();
-            const centerPt = transform.point({ x: node.width() / 2, y: node.height() / 2 });
+            const transform = node.getTransform();
+            const rawCenter = transform.point({ x: node.width() / 2, y: node.height() / 2 });
+            const centerPt = {
+                x: rawCenter.x - offsetX,
+                y: rawCenter.y - offsetY
+            };
             const rot = node.rotation();
 
             const elCanvas = document.createElement('canvas');
