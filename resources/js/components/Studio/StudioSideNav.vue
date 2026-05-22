@@ -1,5 +1,5 @@
 <template>
-    <aside class="w-20 border-r border-gray-200 bg-white/80 backdrop-blur-md flex flex-col z-40 transition-all duration-300">
+    <aside class="hidden md:flex w-20 border-r border-gray-200 bg-white/80 backdrop-blur-md flex-col z-40 transition-all duration-300">
         <div class="flex-grow flex flex-col items-center py-8 gap-8">
             <!-- Navigation Tabs -->
             <button
@@ -53,20 +53,12 @@
             </button>
         </div>
 
-        <div class="p-4 border-t border-gray-200 flex flex-col items-center gap-6">
-            <button 
-                @click="$emit('share')" 
-                class="group relative w-10 h-10 flex items-center justify-center text-usuzumi hover:text-indigo rounded-xl hover:bg-white hover:shadow-sm transition-all duration-300 active:scale-90"
-                title="Share Design"
-            >
-                <span class="material-symbols-outlined text-xl transition-transform duration-300 group-hover:rotate-12">share</span>
-            </button>
-            
+        <div class="p-4 border-t border-gray-200 flex flex-col items-center">
             <button
                 @click="activeSideTab = 'checkout'"
                 class="group relative w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 active:scale-90 hover:-translate-y-0.5"
-                :class="activeSideTab === 'checkout' 
-                    ? 'bg-indigo text-washi shadow-xl shadow-indigo/20' 
+                :class="activeSideTab === 'checkout'
+                    ? 'bg-indigo text-washi shadow-xl shadow-indigo/20'
                     : 'bg-gray-100 text-usuzumi hover:bg-white hover:text-indigo hover:shadow-sm'"
                 title="Checkout"
             >
@@ -85,5 +77,4 @@ import { useStudioStore } from '../../composables/useStudioStore';
 
 const { activeSideTab } = useStudioStore();
 
-defineEmits(['share']);
 </script>
