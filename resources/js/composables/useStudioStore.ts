@@ -19,6 +19,7 @@ const activeElement = ref<DesignElement | null>(null);
 const modelThumbnailURLs = ref<Record<string | number, string>>({});
 
 const activeSideTab = ref('layers');
+const isPanelOpen = ref(true);
 const toastMessage = ref('');
 const isSaving = ref(false);
 
@@ -82,6 +83,7 @@ export function useStudioStore() {
         activeElement,
         modelThumbnailURLs,
         activeSideTab,
+        isPanelOpen,
         toastMessage,
         isSaving,
         checkoutForm,
