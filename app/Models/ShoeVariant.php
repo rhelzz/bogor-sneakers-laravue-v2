@@ -15,6 +15,11 @@ class ShoeVariant extends Model
         'shoe_model_id',
         'shoe_type_id',
         'name',
+        'studio_config',
+    ];
+
+    protected $casts = [
+        'studio_config' => 'array',
     ];
 
     public function model(): BelongsTo
