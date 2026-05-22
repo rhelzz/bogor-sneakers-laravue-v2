@@ -15,6 +15,9 @@ const layerOutlines = ref<Record<number, LayerOutline>>({});
 const uploadedMedia = ref<any[]>([]);
 const activeElement = ref<DesignElement | null>(null);
 
+// Cached colored thumbnails per model — captured from Konva canvas after load
+const modelThumbnailURLs = ref<Record<string | number, string>>({});
+
 const activeSideTab = ref('layers');
 const toastMessage = ref('');
 const isSaving = ref(false);
@@ -77,6 +80,7 @@ export function useStudioStore() {
         layerOutlines,
         uploadedMedia,
         activeElement,
+        modelThumbnailURLs,
         activeSideTab,
         toastMessage,
         isSaving,
