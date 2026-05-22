@@ -103,6 +103,7 @@ Route::prefix('admin')->group(function () {
 
     Route::post('/variants/{shoeVariant}/svgs', [ShoeVariantController::class, 'uploadSvgs'])->name('admin.variants.svgs.upload');
     Route::put('/variants/{shoeVariant}', [ShoeVariantController::class, 'update'])->name('admin.variants.update');
+    Route::put('/variants/{shoeVariant}/studio-config', [ShoeVariantController::class, 'updateStudioConfig'])->name('admin.variants.studio-config.update');
     Route::delete('/variants/{shoeVariant}', [ShoeVariantController::class, 'destroy'])->name('admin.variants.destroy');
 
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update-status');
