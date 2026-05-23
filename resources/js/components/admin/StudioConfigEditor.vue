@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import type { StudioConfig, PatternZone } from '@/types/studio';
+import { useElementSize } from '@vueuse/core';
+import type { StudioConfig } from '@/types/studio';
+
+interface SVGAsset {
+    id: number;
+    file_name: string;
+    file_path: string;
+}
 
 interface ShoeVariant {
     id: number;
     name: string;
     studio_config?: StudioConfig | null;
+    svgs?: SVGAsset[];
 }
 
 const props = defineProps<{
@@ -19,240 +27,187 @@ const emit = defineEmits<{
 }>();
 
 const DEFAULT_PREVIEW_ZONE = { x: 0, y: 0, width: 1024, height: 1024 };
-const DEFAULT_PATTERN_CANVAS = 2048;
+const DEFAULT_PATTERN_ZONES = [
+    { id: 'utama',  x: 64,   y: 128, width: 896, height: 896, flip_x: false, rotation: 0 },
+    { id: 'cermin', x: 1088, y: 128, width: 896, height: 896, flip_x: true,  rotation: 0 },
+];
 
-// Build a mutable deep copy of the config
 const buildDefaultConfig = (): StudioConfig => ({
     preview_zone: props.variant.studio_config?.preview_zone
         ? { ...props.variant.studio_config.preview_zone }
         : { ...DEFAULT_PREVIEW_ZONE },
-    pattern_zones: props.variant.studio_config?.pattern_zones
-        ? props.variant.studio_config.pattern_zones.map(z => ({ ...z }))
-        : [
-            { id: 'main', x: 64, y: 128, width: 896, height: 896, flip_x: false, rotation: 0 },
-            { id: 'mirror', x: 1088, y: 128, width: 896, height: 896, flip_x: true, rotation: 0 },
-          ],
+    pattern_zones: DEFAULT_PATTERN_ZONES.map(z => ({ ...z })),
 });
 
 const config = reactive<StudioConfig>(buildDefaultConfig());
-
-const form = useForm<{ studio_config: StudioConfig }>({
-    studio_config: config,
-});
-
-// Keep form in sync with reactive config
+const form = useForm({ studio_config: config });
 watch(config, (val) => { form.studio_config = val; }, { deep: true });
 
-const addZone = () => {
-    config.pattern_zones.push({
-        id: `zone_${Date.now()}`,
-        x: 0,
-        y: 0,
-        width: DEFAULT_PATTERN_CANVAS / 2,
-        height: DEFAULT_PATTERN_CANVAS / 2,
-        flip_x: false,
-        rotation: 0,
-    });
-};
-
-const removeZone = (index: number) => {
-    if (config.pattern_zones.length <= 1) return;
-    config.pattern_zones.splice(index, 1);
-};
-
-const variantFolder = computed(() => props.variant.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
-
-const previewBaseUrl = computed(
-    () => `/shoes-svg/${props.modelSlug}/${variantFolder.value}/`
-);
-
 const save = () => {
-    // Build route manually since wayfinder may not have studio-config yet
-    const url = `/admin/variants/${props.variant.id}/studio-config`;
-    form.put(url, {
+    form.put(`/admin/variants/${props.variant.id}/studio-config`, {
         onSuccess: () => emit('close'),
     });
 };
 
-const numericInput = (zone: PatternZone, field: keyof PatternZone, value: string) => {
-    (zone as any)[field] = Number(value);
+const previewBaseSvg = computed(() => props.variant.svgs?.find(s => s.file_name.toLowerCase().includes('_base') && !s.file_name.toLowerCase().includes('_pola')));
+
+const canvasRef = ref<HTMLElement | null>(null);
+const { width: canvasWidth } = useElementSize(canvasRef);
+const isDragging = ref(false);
+const dragStartPos = ref({ x: 0, y: 0 });
+const dragInitialZonePos = ref({ x: 0, y: 0 });
+
+const startDrag = (e: MouseEvent) => {
+    isDragging.value = true;
+    dragStartPos.value = { x: e.clientX, y: e.clientY };
+    dragInitialZonePos.value = { x: config.preview_zone.x, y: config.preview_zone.y };
+
+    const move = (me: MouseEvent) => {
+        const scale = 1024 / (canvasWidth.value || 1);
+        const dx = (me.clientX - dragStartPos.value.x) * scale;
+        const dy = (me.clientY - dragStartPos.value.y) * scale;
+        config.preview_zone.x = Math.round(dragInitialZonePos.value.x + dx);
+        config.preview_zone.y = Math.round(dragInitialZonePos.value.y + dy);
+    };
+    const up = () => {
+        isDragging.value = false;
+        window.removeEventListener('mousemove', move);
+        window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
 };
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="$emit('close')">
-        <div class="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl text-left">
-            <!-- Header -->
-            <div class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-800">Studio Config — {{ variant.name }}</h3>
-                    <p class="text-xs text-slate-400">Atur zona koordinat preview dan pola untuk penempatan artwork otomatis.</p>
+    <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="opacity-100 scale-100"
+        leave-to-class="opacity-0 scale-95"
+        appear
+    >
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" @click.self="$emit('close')">
+            <div class="w-full max-w-6xl max-h-[90vh] flex flex-col rounded-[2.5rem] bg-white shadow-2xl overflow-hidden border border-slate-200">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between px-10 py-6 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800 tracking-tight">Studio Config Editor</h3>
+                        <p class="text-xs font-semibold text-indigo-500 uppercase tracking-widest mt-0.5">{{ variant.name }}</p>
+                    </div>
+
+                    <button @click="$emit('close')" class="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
-                <button @click="$emit('close')" class="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
 
-            <div class="p-6 space-y-8">
-                <!-- Preview Zone -->
-                <section>
-                    <h4 class="mb-3 text-sm font-bold text-slate-700 uppercase tracking-widest">Preview Zone (canvas 1024×1024)</h4>
-                    <p class="mb-4 text-xs text-slate-400">Area di canvas preview yang menjadi bidang kerja user. Biasanya seluruh canvas: x=0, y=0, width=1024, height=1024.</p>
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <div v-for="field in (['x', 'y', 'width', 'height'] as const)" :key="field">
-                            <label class="mb-1 block text-xs font-bold text-slate-600 uppercase">{{ field }}</label>
-                            <input
-                                v-model.number="config.preview_zone[field]"
-                                type="number"
-                                :min="field === 'width' || field === 'height' ? 1 : 0"
-                                :max="1024"
-                                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
-                            />
+                <!-- Main Content -->
+                <div class="flex-1 flex overflow-hidden">
+
+                    <!-- Left Pane: Interactive Visualizer -->
+                    <div class="flex-1 bg-slate-50 p-10 flex flex-col items-center justify-center border-r border-slate-100 relative">
+                        <div class="absolute top-10">
+                            <span class="px-4 py-1.5 bg-white border border-slate-200 rounded-full text-[10px] font-bold text-slate-500 uppercase tracking-widest shadow-sm">
+                                <span class="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
+                                Interaksi Live — Klik & Seret untuk Geser
+                            </span>
                         </div>
-                    </div>
-                </section>
 
-                <!-- Pattern Zones -->
-                <section>
-                    <div class="flex items-center justify-between mb-3">
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-widest">Pattern Zones (canvas 2048×2048)</h4>
-                            <p class="mt-0.5 text-xs text-slate-400">Setiap zona memetakan posisi artwork dari preview ke area tertentu di file pola.</p>
-                        </div>
-                        <button
-                            type="button"
-                            @click="addZone"
-                            class="flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 hover:bg-indigo-100 transition-colors"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Tambah Zona
-                        </button>
-                    </div>
-
-                    <div class="space-y-4">
                         <div
-                            v-for="(zone, idx) in config.pattern_zones"
-                            :key="idx"
-                            class="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                            ref="canvasRef"
+                            class="relative w-full max-w-[500px] aspect-square bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden cursor-crosshair select-none group"
                         >
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white">{{ idx + 1 }}</span>
-                                    <div>
-                                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">ID Zona</label>
-                                        <input
-                                            v-model="zone.id"
-                                            type="text"
-                                            placeholder="contoh: main, mirror"
-                                            class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/20"
-                                        />
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    @click="removeZone(idx)"
-                                    :disabled="config.pattern_zones.length <= 1"
-                                    class="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                    title="Hapus zona"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                            <!-- Grid Overlay -->
+                            <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 0); background-size: 20px 20px;"></div>
+
+                            <!-- Base SVG -->
+                            <div class="absolute inset-0 flex items-center justify-center p-6">
+                                <img
+                                    v-if="previewBaseSvg"
+                                    :src="`/${previewBaseSvg.file_path}`"
+                                    class="w-full h-full object-contain opacity-80"
+                                    draggable="false"
+                                />
                             </div>
 
-                            <!-- Coordinate inputs -->
-                            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-3">
-                                <div v-for="field in (['x', 'y', 'width', 'height'] as const)" :key="field">
-                                    <label class="mb-1 block text-xs font-bold text-slate-500 uppercase">{{ field }}</label>
-                                    <input
-                                        v-model.number="zone[field]"
-                                        type="number"
-                                        :min="field === 'width' || field === 'height' ? 1 : 0"
-                                        :max="2048"
-                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
-                                    />
-                                </div>
+                            <!-- Preview Zone (Drag & Drop) -->
+                            <div
+                                @mousedown="startDrag($event)"
+                                class="absolute border-4 border-indigo-600 bg-indigo-600/5 rounded-2xl flex items-center justify-center cursor-grab active:cursor-grabbing shadow-lg transition-shadow active:shadow-indigo-500/20"
+                                :style="{
+                                    left: `${(config.preview_zone.x / 1024) * 100}%`,
+                                    top: `${(config.preview_zone.y / 1024) * 100}%`,
+                                    width: `${(config.preview_zone.width / 1024) * 100}%`,
+                                    height: `${(config.preview_zone.height / 1024) * 100}%`,
+                                }"
+                            >
+                                <span class="bg-indigo-600 text-white text-[9px] font-bold px-3 py-1 rounded-lg uppercase tracking-widest shadow-xl">Workspace</span>
                             </div>
 
-                            <!-- Flip & Rotation -->
-                            <div class="flex items-center gap-6">
-                                <label class="flex items-center gap-2 cursor-pointer select-none">
-                                    <input
-                                        v-model="zone.flip_x"
-                                        type="checkbox"
-                                        class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                    <span class="text-xs font-bold text-slate-600">Flip X (Mirror)</span>
-                                </label>
-
-                                <div class="flex items-center gap-2">
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Rotasi (°)</label>
-                                    <input
-                                        v-model.number="zone.rotation"
-                                        type="number"
-                                        min="-360"
-                                        max="360"
-                                        class="w-20 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/20"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Zone preview (visual rect) -->
-                            <div class="mt-3 rounded-xl bg-white border border-slate-100 p-3">
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Visualisasi pada canvas 2048×2048</p>
-                                <div class="relative bg-slate-100 rounded-lg overflow-hidden" style="height: 80px;">
-                                    <div
-                                        :style="{
-                                            position: 'absolute',
-                                            left: `${(zone.x / 2048) * 100}%`,
-                                            top: `${(zone.y / 2048) * 100}%`,
-                                            width: `${(zone.width / 2048) * 100}%`,
-                                            height: `${(zone.height / 2048) * 100}%`,
-                                            background: zone.flip_x ? 'rgba(239,68,68,0.3)' : 'rgba(99,102,241,0.3)',
-                                            border: zone.flip_x ? '1.5px solid rgb(239,68,68)' : '1.5px solid rgb(99,102,241)',
-                                            borderRadius: '4px',
-                                        }"
-                                    >
-                                        <span class="absolute inset-0 flex items-center justify-center text-[8px] font-bold"
-                                            :class="zone.flip_x ? 'text-red-600' : 'text-indigo-600'"
-                                        >
-                                            {{ zone.id }}{{ zone.flip_x ? ' (flip)' : '' }}
-                                        </span>
-                                    </div>
-                                </div>
+                            <div class="absolute bottom-4 left-6 right-6 flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest pointer-events-none">
+                                <span>Unit: 1024</span>
+                                <span>Status: Terkoneksi</span>
                             </div>
                         </div>
                     </div>
-                </section>
 
-                <!-- Error display -->
-                <div v-if="Object.keys(form.errors).length > 0" class="rounded-xl border border-rose-200 bg-rose-50 p-4">
-                    <p class="text-sm font-bold text-rose-600 mb-1">Terjadi kesalahan validasi:</p>
-                    <ul class="list-disc list-inside text-xs text-rose-500 space-y-0.5">
-                        <li v-for="(error, key) in form.errors" :key="key">{{ error }}</li>
-                    </ul>
+                    <!-- Right Pane: Form -->
+                    <div class="w-[420px] bg-white p-10 overflow-y-auto flex flex-col">
+                        <header class="mb-10">
+                            <h4 class="text-lg font-bold text-slate-800 mb-2">Koordinat Preview</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed font-medium">Tentukan area interaksi utama. Nilai ini menjadi referensi pemetaan pola.</p>
+                        </header>
+
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div v-for="f in (['x', 'y'] as const)" :key="f" class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">{{ f }} Offset</label>
+                                    <input v-model.number="config.preview_zone[f]" type="number" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:bg-white transition-all shadow-sm" />
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div v-for="f in (['width', 'height'] as const)" :key="f" class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">{{ f }}</label>
+                                    <input v-model.number="config.preview_zone[f]" type="number" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-400 focus:bg-white transition-all shadow-sm" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-8 flex justify-end gap-3 border-t border-slate-50">
+                            <button @click="$emit('close')" class="px-6 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:bg-slate-50 transition-all">Batalkan</button>
+                            <button @click="save" :disabled="form.processing" class="px-8 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 disabled:opacity-50 transition-all">Simpan Config</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="sticky bottom-0 z-10 flex justify-end gap-3 border-t border-slate-100 bg-white px-6 py-4">
-                <button type="button" @click="$emit('close')" class="rounded-xl px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 transition-colors">
-                    Batal
-                </button>
-                <button
-                    type="button"
-                    @click="save"
-                    :disabled="form.processing"
-                    class="rounded-xl bg-indigo-600 px-8 py-2.5 font-bold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50"
-                >
-                    {{ form.processing ? 'Menyimpan...' : 'Simpan Config' }}
-                </button>
             </div>
         </div>
-    </div>
+    </Transition>
 </template>
+
+<style scoped>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.animate-in {
+  animation: animate-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
