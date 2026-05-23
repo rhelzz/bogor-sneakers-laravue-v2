@@ -4,7 +4,10 @@
       "Bash(Get-ChildItem -Path \"C:\\\\laragon\\\\www\\\\bogor-sneakers-laravue\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"e:\\\\laragon\\\\www\\\\bogor-sneakers-laravue\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(npx vue-tsc *)"
     ]
   }
 }
