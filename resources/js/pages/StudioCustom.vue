@@ -40,7 +40,7 @@
 
                 <!-- Mobile FAB toggle button -->
                 <button
-                    class="md:hidden fixed bottom-6 right-4 z-50 w-12 h-12 bg-sumi text-white rounded-full shadow-2xl flex items-center justify-center active:scale-95 transition-transform duration-200"
+                    class="md:hidden fixed top-[72px] left-3 z-50 w-10 h-10 bg-sumi text-white rounded-xl shadow-xl flex items-center justify-center active:scale-95 transition-all duration-200"
                     @click="isMobilePanelOpen = !isMobilePanelOpen"
                     :title="isMobilePanelOpen ? 'Tutup panel' : 'Buka panel'"
                 >
@@ -85,6 +85,37 @@
             </main>
         </div>
 
+        <!-- Mobile: Element Controls Bottom Sheet -->
+        <Teleport to="body">
+            <div
+                v-if="activeElement"
+                class="sheet-mobile md:hidden fixed bottom-0 left-0 right-0 z-[65] bg-white rounded-t-2xl flex flex-col shadow-[0_-4px_24px_rgba(0,0,0,0.10)] border-t border-gray-100"
+                :class="{ 'sheet-dismissing': isSheetDismissing }"
+                :style="{ maxHeight: isSheetExpanded ? '72vh' : '44vh' }"
+            >
+                <!-- Drag handle — tap or swipe up/down to expand/collapse/close -->
+                <button
+                    class="flex-shrink-0 w-full flex flex-col items-center pt-2.5 pb-2 gap-1.5 focus:outline-none"
+                    @click="isSheetExpanded = !isSheetExpanded"
+                    @touchstart.passive="onSheetTouchStart"
+                    @touchend.prevent="onSheetTouchEnd"
+                >
+                    <div class="w-8 h-[3px] rounded-full bg-gray-200"></div>
+                    <span class="text-[8px] font-black uppercase tracking-[0.2em] text-gray-300 font-montserrat leading-none">
+                        {{ isSheetExpanded ? 'Ciutkan' : 'Perluas' }}
+                    </span>
+                </button>
+
+                <!-- Scrollable controls -->
+                <div class="overflow-y-auto flex-grow px-4 pb-4">
+                    <ActiveElementControls
+                        @remove="removeActiveElement"
+                        @updateImageOutline="handleImageOutlineUpdate"
+                    />
+                </div>
+            </div>
+        </Teleport>
+
         <AddonModals
             :show-fast-track="showFastTrackAlert"
             :show-custom-box="showCustomBoxAlert"
@@ -119,6 +150,7 @@ import Konva from 'konva';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Components
+import ActiveElementControls from '../components/Studio/Panels/ActiveElementControls.vue';
 import CheckoutForm from '../components/Studio/Checkout/CheckoutForm.vue';
 import AddonModals from '../components/Studio/Modals/AddonModals.vue';
 import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
@@ -157,6 +189,34 @@ const {
 const { clearHistory } = useStudioHistory();
 const showConfirmModal = ref(false);
 const isMobilePanelOpen = ref(false);
+const isSheetExpanded = ref(false);
+const isSheetDismissing = ref(false);
+const touchStartY = ref(0);
+
+const dismissSheet = () => {
+    if (isSheetDismissing.value) return;
+    isSheetDismissing.value = true;
+    setTimeout(() => deselect(), 300);
+};
+
+const onSheetTouchStart = (e: TouchEvent) => {
+    touchStartY.value = e.touches[0].clientY;
+};
+
+const onSheetTouchEnd = (e: TouchEvent) => {
+    const delta = touchStartY.value - e.changedTouches[0].clientY;
+    if (Math.abs(delta) < 10) {
+        isSheetExpanded.value = !isSheetExpanded.value;
+    } else if (delta > 30) {
+        isSheetExpanded.value = true;
+    } else if (delta < -30) {
+        if (isSheetExpanded.value) {
+            isSheetExpanded.value = false;
+        } else {
+            dismissSheet();
+        }
+    }
+};
 
 const {
     initStage,
@@ -170,7 +230,8 @@ const {
     getStage,
     getMainLayer,
     getElementsGroup,
-    getTransformer
+    getTransformer,
+    deselect
 } = useKonvaRenderer();
 
 // UI Alerts State
@@ -291,6 +352,8 @@ const handleAddText = () => {
         return;
     }
 
+    isMobilePanelOpen.value = false;
+
     const id = Math.random().toString(36).slice(2);
     const textNode = new Konva.Text({
         text: 'BOGOR SNEAKER',
@@ -332,6 +395,8 @@ const handleAddMedia = async (id: string) => {
     if (!media || !stage || !elementsGroup) {
         return;
     }
+
+    isMobilePanelOpen.value = false;
 
     try {
         const img = await loadImage(media.src);
@@ -445,6 +510,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
 watch(activeElement, (newEl) => {
     if (!newEl) {
+        isSheetExpanded.value = false;
+        isSheetDismissing.value = false;
         return;
     }
 
@@ -513,6 +580,19 @@ watch(activeSideTab, (newTab) => {
 
 .panel-expand-btn-enter-active, .panel-expand-btn-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .panel-expand-btn-enter-from, .panel-expand-btn-leave-to { opacity: 0; transform: translateY(-50%) translateX(8px); }
+
+.sheet-mobile {
+    transform: translateY(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: sheetSlideUp 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.sheet-mobile.sheet-dismissing {
+    transform: translateY(110%);
+}
+@keyframes sheetSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
 
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
