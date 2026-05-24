@@ -1,8 +1,8 @@
 <template>
-    <AdminLayout>
+    <AdminLayout max-width="max-w-none">
         <template #header> TikTok Feed </template>
 
-        <div class="space-y-8 font-['Source_Sans_Pro']">
+        <div class="mx-auto max-w-[1600px] space-y-8 font-['Source_Sans_Pro']">
             <!-- Input Section -->
             <section
                 class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
@@ -194,13 +194,13 @@
                         class="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:border-indigo-300"
                     >
                         <div
-                            class="relative flex flex-1 items-center justify-center bg-slate-50 p-4"
+                            class="relative flex flex-1 items-center justify-center bg-slate-50"
                         >
                             <blockquote
-                                class="tiktok-embed m-0 mx-auto w-full"
+                                class="tiktok-embed m-0 w-full"
                                 :cite="feed.url"
                                 :data-video-id="feed.video_id ?? undefined"
-                                style="max-width: 100%; min-width: 280px"
+                                style="max-width: 100%; min-width: 325px"
                             >
                                 <section>
                                     <a
@@ -222,22 +222,22 @@
                             </blockquote>
                         </div>
                         <div
-                            class="flex items-center justify-between border-t border-slate-100 p-4"
+                            class="flex items-start justify-between border-t border-slate-100 p-4"
                         >
-                            <div class="mr-4 truncate">
+                            <div class="mr-4 min-w-0 flex-1">
                                 <span
                                     class="mb-1.5 inline-block rounded bg-indigo-600 px-2 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm"
                                 >
                                     {{ feed.category }}
                                 </span>
                                 <p
-                                    class="truncate text-sm font-bold text-slate-800"
+                                    class="text-sm font-bold text-slate-800"
                                     :title="feed.title ?? undefined"
                                 >
                                     {{ feed.title || 'Video TikTok' }}
                                 </p>
                                 <p
-                                    class="truncate text-xs font-semibold text-slate-500"
+                                    class="mt-0.5 text-xs font-semibold text-slate-500"
                                 >
                                     {{ feed.author_name || '@user' }}
                                 </p>

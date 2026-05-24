@@ -372,7 +372,7 @@
 
             <!-- Scrollable Content -->
             <div class="flex-1 overflow-auto p-8">
-                <div class="mx-auto max-w-7xl">
+                <div :class="['mx-auto', props.maxWidth]">
                     <slot>
                         <!-- Default Content Placeholder -->
                         <div
@@ -436,6 +436,14 @@ import {
     modelSepatu,
 } from '@/routes/admin';
 import orderRoutes from '@/routes/admin/orders';
+
+interface Props {
+    maxWidth?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    maxWidth: 'max-w-7xl',
+});
 
 const page = usePage();
 const isSidebarOpen = ref(true);
