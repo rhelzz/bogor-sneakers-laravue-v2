@@ -94,12 +94,65 @@
 
             <!-- Global Positioning & Masking Controls (For both text and image) -->
             <div class="space-y-4 pt-4 border-t border-gray-100">
+
+                <!-- Mirror Toggle -->
+                <div class="p-3 bg-white rounded-xl border border-gray-100 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[14px] text-indigo">flip</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-sumi">Mirror Pola</span>
+                        </div>
+                        <!-- Toggle Switch -->
+                        <button
+                            @click="toggleMirror"
+                            class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none"
+                            :class="isMirrorOn ? 'bg-indigo' : 'bg-gray-200'"
+                            :title="isMirrorOn ? 'Mirror aktif' : 'Mirror mati'"
+                        >
+                            <span
+                                class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200"
+                                :class="isMirrorOn ? 'translate-x-4' : 'translate-x-0.5'"
+                            />
+                        </button>
+                    </div>
+                    <p class="text-[9px] text-gray-400 font-semibold leading-tight">
+                        <span v-if="isMirrorOn">Elemen muncul di <b>semua zona</b> pola (atas & bawah).</span>
+                        <span v-else>Pilih sisi zona pola yang akan digunakan:</span>
+                    </p>
+
+                    <!-- Sisi Kiri / Kanan (hanya muncul saat mirror mati) -->
+                    <transition name="fade">
+                        <div v-if="!isMirrorOn" class="grid grid-cols-2 gap-2 pt-1">
+                            <button
+                                @click="setMirrorSide('left')"
+                                class="flex flex-col items-center gap-1 py-2 px-3 rounded-lg border-2 text-[10px] font-black uppercase tracking-wider transition-all duration-200"
+                                :class="activeElement.mirrorSide !== 'right'
+                                    ? 'border-indigo bg-indigo/5 text-indigo'
+                                    : 'border-gray-100 text-gray-400 hover:border-gray-200 hover:text-gray-600'"
+                            >
+                                <span class="material-symbols-outlined text-base">flip_to_back</span>
+                                Kiri
+                            </button>
+                            <button
+                                @click="setMirrorSide('right')"
+                                class="flex flex-col items-center gap-1 py-2 px-3 rounded-lg border-2 text-[10px] font-black uppercase tracking-wider transition-all duration-200"
+                                :class="activeElement.mirrorSide === 'right'
+                                    ? 'border-indigo bg-indigo/5 text-indigo'
+                                    : 'border-gray-100 text-gray-400 hover:border-gray-200 hover:text-gray-600'"
+                            >
+                                <span class="material-symbols-outlined text-base">flip_to_front</span>
+                                Kanan
+                            </button>
+                        </div>
+                    </transition>
+                </div>
+
                 <div class="space-y-2">
                     <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40 flex items-center gap-1">
                         <span class="material-symbols-outlined text-[12px]">layers</span>
                         Masukkan ke Aksen (Clipping Mask)
                     </label>
-                    
+
                     <!-- Custom Masking Dropdown -->
                     <div class="relative" ref="maskDropdownRef">
                         <button
@@ -171,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStudioStore } from '../../../composables/useStudioStore';
 import { useKonvaRenderer } from '../../../composables/useKonvaRenderer';
 
@@ -182,6 +235,25 @@ defineEmits(['remove', 'updateImageOutline']);
 
 const isMaskDropdownOpen = ref(false);
 const maskDropdownRef = ref<HTMLElement | null>(null);
+
+// mirror === false berarti mirror dimatikan; undefined/true = aktif (default)
+const isMirrorOn = computed(() => activeElement.value?.mirror !== false);
+
+const toggleMirror = () => {
+    if (!activeElement.value) return;
+    if (activeElement.value.mirror === false) {
+        activeElement.value.mirror = true;
+        activeElement.value.mirrorSide = undefined;
+    } else {
+        activeElement.value.mirror = false;
+        activeElement.value.mirrorSide = 'left';
+    }
+};
+
+const setMirrorSide = (side: 'left' | 'right') => {
+    if (!activeElement.value) return;
+    activeElement.value.mirrorSide = side;
+};
 
 const selectMask = (id: number | null) => {
     if (activeElement.value) {

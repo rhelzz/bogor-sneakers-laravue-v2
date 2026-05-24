@@ -311,7 +311,8 @@ const handleAddText = () => {
         color: '#000000',
         fontFamily: 'Lexend',
         strokeColor: '#000000',
-        strokeWidth: 0
+        strokeWidth: 0,
+        mirror: true
     };
     textNode.setAttr('meta', JSON.parse(JSON.stringify(meta)));
     textNode.setAttr('cachedMeta', JSON.stringify(meta));
@@ -343,7 +344,7 @@ const handleAddMedia = async (id: string) => {
             width, height, draggable: true
         });
 
-        const meta: DesignElement = { id: Math.random().toString(36).slice(2), type: 'image' as const, sourceId: id, originalImageSrc: media.src, outline: { active: false, color: '#ffffff', size: 3 }};
+        const meta: DesignElement = { id: Math.random().toString(36).slice(2), type: 'image' as const, sourceId: id, originalImageSrc: media.src, outline: { active: false, color: '#ffffff', size: 3 }, mirror: true };
         konvaImg.setAttr('meta', JSON.parse(JSON.stringify(meta)));
         konvaImg.setAttr('cachedMeta', JSON.stringify(meta));
         setupNodeEvents(konvaImg);

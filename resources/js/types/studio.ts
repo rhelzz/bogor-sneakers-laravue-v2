@@ -79,6 +79,10 @@ export interface DesignElement {
     mx?: number;
     my?: number;
     mrot?: number;
+
+    // Mirror (zona pola) — true = muncul di semua zona, false = pilih sisi
+    mirror?: boolean;
+    mirrorSide?: 'left' | 'right'; // hanya aktif saat mirror === false
 }
 
 export interface DesignState {

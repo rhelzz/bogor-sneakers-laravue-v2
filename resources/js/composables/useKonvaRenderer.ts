@@ -757,9 +757,22 @@ export function useKonvaRenderer() {
                 }
             };
 
+            // mirror === true (default) → semua zona; false+left → non-flip saja; false+right → flip saja
+            const mirrorOff = elMeta.mirror === false;
+
+            // Apakah zona tertentu boleh dirender (zone-based path)
+            const zoneAllowed = (isFlip: boolean) =>
+                mirrorOff ? (elMeta.mirrorSide === 'right' ? isFlip : !isFlip) : true;
+
+            // Apakah sisi normal/flip dirender (legacy path)
+            const drawNormalSide = !mirrorOff || elMeta.mirrorSide !== 'right';
+            const drawFlipSide   = !mirrorOff || elMeta.mirrorSide === 'right';
+
             if (config && config.pattern_zones?.length) {
                 const pz: PreviewZone = config.preview_zone;
                 for (const zone of config.pattern_zones) {
+                    if (!zoneAllowed(!!zone.flip_x)) continue;
+
                     const relX = (centerPt.x - pz.x) / pz.width;
                     const relY = (centerPt.y - pz.y) / pz.height;
 
@@ -806,8 +819,8 @@ export function useKonvaRenderer() {
                     targetCtx.restore();
                 };
 
-                drawLegacy(false);
-                drawLegacy(true);
+                if (drawNormalSide) drawLegacy(false);
+                if (drawFlipSide)   drawLegacy(true);
             }
 
             return elCanvas;
