@@ -1,29 +1,29 @@
 <template>
-    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-20 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
-        <div class="flex items-center gap-3 md:gap-10">
+    <nav class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
+        <div class="flex items-center gap-3 md:gap-8">
             <!-- Brand -->
-            <div class="flex items-center gap-2 md:gap-4 group cursor-pointer flex-shrink-0">
-                <div class="w-9 h-9 md:w-10 md:h-10 bg-sumi rounded-xl flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] group-hover:scale-110 group-hover:shadow-lg">
-                    <img src="/logo-b-bogor.svg" class="w-5 h-5 md:w-6 md:h-6 invert transition-transform duration-500 group-hover:scale-90" alt="Logo">
+            <div class="flex items-center gap-2 md:gap-3 group cursor-pointer flex-shrink-0">
+                <div class="w-8 h-8 md:w-9 md:h-9 bg-sumi rounded-lg flex items-center justify-center transition-all duration-500 group-hover:rotate-[15deg] group-hover:scale-110 group-hover:shadow-lg">
+                    <img src="/logo-b-bogor.svg" class="w-4.5 h-4.5 md:w-5 md:h-5 invert transition-transform duration-500 group-hover:scale-90" alt="Logo">
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xs md:text-sm font-montserrat font-black tracking-widest text-sumi uppercase leading-none transition-colors duration-300 group-hover:text-indigo">Studio</span>
-                    <span class="hidden sm:block text-[10px] font-montserrat font-bold text-matcha tracking-[0.3em] uppercase leading-none mt-1">Customizer</span>
+                    <span class="text-[10px] md:text-xs font-montserrat font-black tracking-widest text-sumi uppercase leading-none transition-colors duration-300 group-hover:text-indigo">Studio</span>
+                    <span class="hidden sm:block text-[8px] font-montserrat font-bold text-matcha tracking-[0.3em] uppercase leading-none mt-1">Customizer</span>
                 </div>
             </div>
 
-            <div class="hidden md:block h-8 w-[1px] bg-gray-200"></div>
+            <div class="hidden md:block h-6 w-[1px] bg-gray-200"></div>
 
             <!-- Selection Group -->
-            <div class="flex items-center gap-2 md:gap-6 font-montserrat">
+            <div class="flex items-center gap-2 md:gap-4 font-montserrat">
                 <!-- Model Dropdown -->
-                <div class="flex items-center gap-1 md:gap-3">
-                    <span class="hidden md:inline-block text-[10px] font-bold text-usuzumi uppercase tracking-widest whitespace-nowrap">Model :</span>
+                <div class="flex items-center gap-1 md:gap-2">
+                    <span class="hidden md:inline-block text-[9px] font-bold text-usuzumi uppercase tracking-widest whitespace-nowrap">Model :</span>
                     <div class="relative" ref="modelDropdownRef">
                         <button
                             @click="isModelOpen = !isModelOpen; isVariantOpen = false"
                             :disabled="catalogLoading"
-                            class="h-9 md:h-10 pl-8 md:pl-9 pr-2 md:pr-10 w-[110px] sm:w-[150px] md:min-w-[200px] md:w-auto rounded-xl border border-gray-200 bg-gray-50/80 text-[11px] md:text-[12px] font-bold text-sumi transition-all duration-300 flex items-center justify-between hover:bg-white hover:border-indigo hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative"
+                            class="h-8 md:h-9 pl-8 md:pl-9 pr-2 md:pr-10 w-[110px] sm:w-[150px] md:min-w-[180px] md:w-auto rounded-xl border border-gray-200 bg-gray-50/80 text-[10px] md:text-[11px] font-bold text-sumi transition-all duration-300 flex items-center justify-between hover:bg-white hover:border-indigo hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative"
                         >
                             <span class="material-symbols-outlined absolute left-2.5 text-base text-gray-400 group-hover:text-indigo transition-colors duration-300">style</span>
                             <span class="truncate">{{ activeFolderLabel || 'Model' }}</span>
@@ -43,7 +43,7 @@
                                     v-for="folder in catalogFolders"
                                     :key="folder.key"
                                     @click="selectFolder(folder.key)"
-                                    class="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-between group/item whitespace-nowrap"
+                                    class="w-full px-4 py-2 text-left text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-between group/item whitespace-nowrap"
                                     :class="activeFolderKey === folder.key ? 'bg-indigo/5 text-indigo' : 'text-usuzumi hover:bg-gray-50 hover:text-sumi'"
                                 >
                                     <span>{{ folder.label }}</span>
@@ -55,12 +55,12 @@
                 </div>
 
                 <!-- Variant Picker Button -->
-                <div class="flex items-center gap-1 md:gap-3">
-                    <span class="hidden md:inline-block text-[10px] font-bold text-usuzumi uppercase tracking-widest whitespace-nowrap">Variant :</span>
+                <div class="flex items-center gap-1 md:gap-2">
+                    <span class="hidden md:inline-block text-[9px] font-bold text-usuzumi uppercase tracking-widest whitespace-nowrap">Variant :</span>
                     <button
                         @click="openVariantPicker"
                         :disabled="catalogLoading"
-                        class="h-9 md:h-10 pl-8 md:pl-9 pr-2 md:pr-4 w-[100px] sm:w-[130px] md:min-w-[180px] md:w-auto rounded-xl border border-gray-200 bg-gray-50/80 text-[11px] md:text-[12px] font-bold text-sumi transition-all duration-300 flex items-center gap-1 md:gap-2 hover:bg-white hover:border-indigo hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative"
+                        class="h-8 md:h-9 pl-8 md:pl-9 pr-2 md:pr-4 w-[100px] sm:w-[130px] md:min-w-[160px] md:w-auto rounded-xl border border-gray-200 bg-gray-50/80 text-[10px] md:text-[11px] font-bold text-sumi transition-all duration-300 flex items-center gap-1 md:gap-2 hover:bg-white hover:border-indigo hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group relative"
                     >
                         <span class="material-symbols-outlined absolute left-2.5 text-base text-gray-400 group-hover:text-indigo transition-colors duration-300">auto_awesome</span>
                         <span class="truncate flex-1 text-left">{{ activeVariantLabel || 'Varian' }}</span>
@@ -70,11 +70,11 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 md:gap-4 font-montserrat">
+        <div class="flex items-center gap-2 md:gap-3 font-montserrat">
             <!-- Action Tools -->
-            <div class="flex items-center bg-gray-50/80 rounded-xl md:rounded-2xl p-1 md:p-1.5 border border-gray-200 shadow-sm">
-                <button @click="$emit('reset')" class="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-usuzumi hover:text-red-500 hover:bg-white rounded-xl transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group" title="Reset Design">
-                    <span class="material-symbols-outlined text-lg md:text-xl transition-transform duration-300 group-hover:rotate-180">restart_alt</span>
+            <div class="flex items-center bg-gray-50/80 rounded-xl p-1 border border-gray-200 shadow-sm">
+                <button @click="$emit('reset')" class="relative w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-usuzumi hover:text-red-500 hover:bg-white rounded-lg transition-all duration-300 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group" title="Reset Design">
+                    <span class="material-symbols-outlined text-lg transition-transform duration-300 group-hover:rotate-180">restart_alt</span>
                 </button>
             </div>
         </div>

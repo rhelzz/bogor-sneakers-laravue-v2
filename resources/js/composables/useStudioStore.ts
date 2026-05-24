@@ -38,6 +38,7 @@ const checkoutForm = reactive({
     shoeSize: '',
     fastTrackEnabled: false,
     customBoxEnabled: false,
+    isCustomBoxLocked: false,
     agreedToTerms: false,
     formTouched: false
 });

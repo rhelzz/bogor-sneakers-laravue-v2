@@ -12,9 +12,14 @@
                         Edit {{ activeElement.type === 'text' ? 'Teks' : 'Logo' }}
                     </span>
                 </div>
-                <button @click="$emit('remove')" class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all" title="Hapus Elemen">
-                    <span class="material-symbols-outlined text-sm">close</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button @click="$emit('remove')" class="w-7 h-7 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90" title="Hapus Elemen">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                    <button @click="deselect" class="w-7 h-7 rounded-lg bg-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-300 hover:text-sumi transition-all active:scale-90" title="Tutup Panel">
+                        <span class="material-symbols-outlined text-sm">close</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Image/Logo Specific Controls -->
@@ -94,15 +99,48 @@
                         <span class="material-symbols-outlined text-[12px]">layers</span>
                         Masukkan ke Aksen (Clipping Mask)
                     </label>
-                    <select
-                        v-model="activeElement.maskId"
-                        class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-black focus:border-primary focus:ring-0 transition-all appearance-none cursor-pointer shadow-sm"
-                    >
-                        <option :value="null">-- Bebas (Tidak Di-masking) --</option>
-                        <option v-for="layer in currentModelMeta?.layers || []" :key="layer.id" :value="layer.id">
-                            Aksen {{ layer.id }}
-                        </option>
-                    </select>
+                    
+                    <!-- Custom Masking Dropdown -->
+                    <div class="relative" ref="maskDropdownRef">
+                        <button
+                            @click="isMaskDropdownOpen = !isMaskDropdownOpen"
+                            class="w-full h-10 px-4 bg-white border border-gray-100 rounded-xl text-[11px] font-bold text-black flex items-center justify-between hover:border-indigo hover:shadow-md transition-all active:scale-95 group shadow-sm"
+                        >
+                            <span :class="!activeElement.maskId ? 'text-gray-400' : 'text-black'">
+                                {{ activeElement.maskId ? `Aksen ${activeElement.maskId}` : 'Belum di masking' }}
+                            </span>
+                            <span class="material-symbols-outlined text-base text-gray-400 group-hover:text-indigo transition-transform duration-300" :class="{ 'rotate-180': isMaskDropdownOpen }">expand_more</span>
+                        </button>
+
+                        <transition name="dropdown-slide">
+                            <div v-if="isMaskDropdownOpen" class="absolute top-full mt-2 left-0 right-0 bg-white rounded-2xl border border-gray-100 shadow-2xl py-2 z-[70] overflow-hidden backdrop-blur-xl">
+                                <div class="px-4 py-1.5 border-b border-gray-50">
+                                    <span class="text-[8px] font-black uppercase text-gray-400 tracking-widest">Pilih Aksen Masking</span>
+                                </div>
+                                <button
+                                    @click="selectMask(null)"
+                                    class="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-between group/item"
+                                    :class="!activeElement.maskId ? 'bg-indigo/5 text-indigo' : 'text-usuzumi hover:bg-gray-50 hover:text-sumi'"
+                                >
+                                    <span>Belum di masking</span>
+                                    <span v-if="!activeElement.maskId" class="material-symbols-outlined text-sm">check_circle</span>
+                                </button>
+                                <div class="h-px bg-gray-50 mx-2 my-1"></div>
+                                <div class="max-h-48 overflow-y-auto custom-scrollbar">
+                                    <button
+                                        v-for="layer in currentModelMeta?.layers || []"
+                                        :key="layer.id"
+                                        @click="selectMask(layer.id)"
+                                        class="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-between group/item"
+                                        :class="activeElement.maskId === layer.id ? 'bg-indigo/5 text-indigo' : 'text-usuzumi hover:bg-gray-50 hover:text-sumi'"
+                                    >
+                                        <span>Aksen {{ layer.id }}</span>
+                                        <span v-if="activeElement.maskId === layer.id" class="material-symbols-outlined text-sm">check_circle</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
                 </div>
 
                 <div v-if="!currentModelMeta?.studio_config" class="space-y-2 bg-indigo/[0.02] p-3 rounded-xl border border-indigo/5">
@@ -133,11 +171,38 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useStudioStore } from '../../../composables/useStudioStore';
+import { useKonvaRenderer } from '../../../composables/useKonvaRenderer';
 
 const { activeElement, currentModelMeta } = useStudioStore();
+const { deselect } = useKonvaRenderer();
 
 defineEmits(['remove', 'updateImageOutline']);
+
+const isMaskDropdownOpen = ref(false);
+const maskDropdownRef = ref<HTMLElement | null>(null);
+
+const selectMask = (id: number | null) => {
+    if (activeElement.value) {
+        activeElement.value.maskId = id;
+    }
+    isMaskDropdownOpen.value = false;
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+    if (maskDropdownRef.value && !maskDropdownRef.value.contains(event.target as Node)) {
+        isMaskDropdownOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('mousedown', handleClickOutside);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('mousedown', handleClickOutside);
+});
 
 const FONT_OPTIONS = [
     { label: 'Modern (Lexend)', value: 'Lexend' },
@@ -149,3 +214,15 @@ const FONT_OPTIONS = [
     { label: 'Retro (Bebas Neue)', value: 'Bebas Neue' }
 ];
 </script>
+
+<style scoped>
+.dropdown-slide-enter-active,
+.dropdown-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dropdown-slide-enter-from,
+.dropdown-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+}
+</style>

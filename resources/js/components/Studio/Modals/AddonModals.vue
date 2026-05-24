@@ -4,6 +4,15 @@
         <transition name="modal-fade">
             <div v-if="showFastTrack" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-sumi/60 backdrop-blur-md">
                 <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-[0_40px_80px_rgba(26,26,26,0.2)] text-center relative overflow-hidden group border border-white/20">
+                    <!-- Close Button -->
+                    <button 
+                        @click="$emit('close')"
+                        class="absolute top-8 right-8 z-50 w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all active:scale-90 group/close shadow-sm border border-gray-100"
+                        title="Kembali ke Styling"
+                    >
+                        <span class="material-symbols-outlined text-lg transition-transform duration-300 group-hover/close:rotate-90">close</span>
+                    </button>
+
                     <!-- Step Indicator -->
                     <div class="absolute top-8 left-10 flex items-center gap-2">
                         <div class="flex gap-1">
@@ -50,6 +59,15 @@
         <transition name="modal-fade">
             <div v-if="showCustomBox" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-sumi/60 backdrop-blur-md">
                 <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-[0_40px_80px_rgba(26,26,26,0.2)] text-center relative overflow-hidden group border border-white/20">
+                    <!-- Close Button -->
+                    <button 
+                        @click="$emit('close')"
+                        class="absolute top-8 right-8 z-50 w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all active:scale-90 group/close shadow-sm border border-gray-100"
+                        title="Kembali ke Styling"
+                    >
+                        <span class="material-symbols-outlined text-lg transition-transform duration-300 group-hover/close:rotate-90">close</span>
+                    </button>
+
                     <!-- Step Indicator -->
                     <div class="absolute top-8 left-10 flex items-center gap-2">
                         <div class="flex gap-1">
@@ -102,7 +120,7 @@ defineProps<{
     showCustomBox: boolean;
 }>();
 
-defineEmits(['confirmFastTrack', 'confirmCustomBox']);
+defineEmits(['confirmFastTrack', 'confirmCustomBox', 'close']);
 </script>
 
 <style scoped>

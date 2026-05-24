@@ -1,24 +1,24 @@
 <template>
     <div class="flex flex-col h-full bg-white font-montserrat">
         <!-- Header -->
-        <div class="p-6 border-b border-indigo/5 flex justify-between items-center bg-white/80 backdrop-blur-xl sticky top-0 z-20">
-            <div class="flex items-center gap-4">
+        <div class="p-4 md:p-5 border-b border-indigo/5 flex justify-between items-center bg-white/80 backdrop-blur-xl sticky top-0 z-20">
+            <div class="flex items-center gap-3">
                 <button 
                     @click="activeSideTab = 'layers'" 
-                    class="w-10 h-10 flex items-center justify-center text-usuzumi hover:text-indigo hover:bg-indigo/5 rounded-xl transition-all duration-300 active:scale-90 group"
+                    class="w-9 h-9 flex items-center justify-center text-usuzumi hover:text-indigo hover:bg-indigo/5 rounded-lg transition-all duration-300 active:scale-90 group"
                 >
-                    <span class="material-symbols-outlined transition-transform duration-300 group-hover:-translate-x-1">arrow_back</span>
+                    <span class="material-symbols-outlined text-xl transition-transform duration-300 group-hover:-translate-x-1">arrow_back</span>
                 </button>
                 <div>
-                    <h3 class="text-lg font-black text-sumi tracking-tight uppercase">Checkout</h3>
-                    <p class="text-[10px] text-usuzumi/50 font-bold tracking-[0.1em] uppercase mt-0.5">Shipping Details</p>
+                    <h3 class="text-base font-black text-sumi tracking-tight uppercase">Checkout</h3>
+                    <p class="text-[9px] text-usuzumi/50 font-bold tracking-[0.1em] uppercase mt-0.5">Shipping Details</p>
                 </div>
             </div>
         </div>
 
-        <div class="p-6 flex-grow overflow-y-auto custom-scrollbar space-y-8">
+        <div class="p-4 md:p-5 flex-grow overflow-y-auto custom-scrollbar space-y-6">
              <!-- Form Section -->
-             <div class="grid gap-6">
+             <div class="grid gap-5">
                 <!-- Name -->
                 <div class="relative group">
                     <div class="relative">
@@ -28,13 +28,13 @@
                             id="name"
                             required
                             :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.name}"
-                            class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                            class="peer w-full h-12 pl-10 pr-5 pt-4 rounded-xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[12px] font-bold placeholder-transparent outline-none"
                             placeholder="Nama Lengkap"
                         >
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">person</span>
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-usuzumi/30 text-base transition-all duration-300 ease-in-out peer-focus:text-indigo">person</span>
                         <label
                             for="name"
-                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                            class="absolute left-10 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
                         >
                             Nama Lengkap <span class="text-red-500">*</span>
                         </label>
@@ -42,7 +42,7 @@
                 </div>
 
                 <!-- Contact Grid -->
-                <div class="grid gap-6 sm:grid-cols-2">
+                <div class="grid gap-5 sm:grid-cols-2">
                     <div class="relative group">
                         <div class="relative">
                             <input
@@ -51,15 +51,15 @@
                                 id="phone"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.phone}"
-                                class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                                class="peer w-full h-12 pl-10 pr-5 pt-4 rounded-xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[12px] font-bold placeholder-transparent outline-none"
                                 placeholder="WhatsApp"
                                 @input="validatePhoneInput"
                                 @blur="formatPhoneOnBlur"
                             >
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">call</span>
+                            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-usuzumi/30 text-base transition-all duration-300 ease-in-out peer-focus:text-indigo">call</span>
                             <label
                                 for="phone"
-                                class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                                class="absolute left-10 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
                             >
                                 WhatsApp <span class="text-red-500">*</span>
                             </label>
@@ -73,13 +73,13 @@
                                 id="email"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.email}"
-                                class="peer w-full h-14 pl-12 pr-6 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none"
+                                class="peer w-full h-12 pl-10 pr-5 pt-4 rounded-xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[12px] font-bold placeholder-transparent outline-none"
                                 placeholder="Email"
                             >
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">mail</span>
+                            <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-usuzumi/30 text-base transition-all duration-300 ease-in-out peer-focus:text-indigo">mail</span>
                             <label
                                 for="email"
-                                class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                                class="absolute left-10 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
                             >
                                 Email <span class="text-red-500">*</span>
                             </label>
@@ -96,23 +96,23 @@
                                 id="shoe_size"
                                 required
                                 :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.shoeSize}"
-                                class="peer w-full h-14 pl-5 pr-10 pt-5 rounded-2xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold appearance-none cursor-pointer outline-none"
+                                class="peer w-full h-12 pl-4 pr-10 pt-4 rounded-xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[12px] font-bold appearance-none cursor-pointer outline-none"
                             >
                                 <option value="" disabled selected hidden></option>
                                 <option v-for="size in shoeSizes" :key="size" :value="String(size)">Size {{ size }}</option>
                             </select>
-                            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg pointer-events-none transition-all duration-300 ease-in-out peer-focus:text-indigo">expand_more</span>
+                            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg pointer-events-none transition-all duration-300 ease-in-out peer-focus:text-indigo">expand_more</span>
                             <label
                                 for="shoe_size"
-                                class="absolute left-5 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
-                                :class="checkoutForm.shoeSize ? 'top-2 text-[9px] font-black uppercase tracking-[0.15em]' : 'top-4.5 text-[13px] font-bold normal-case tracking-normal'"
+                                class="absolute left-4 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                                :class="checkoutForm.shoeSize ? 'top-1.5 text-[8px] font-black uppercase tracking-[0.15em]' : 'top-3.5 text-[12px] font-bold normal-case tracking-normal'"
                             >
                                 Shoe Size <span class="text-red-500">*</span>
                             </label>
                         </div>
                     </div>
                     <div class="relative group opacity-50 grayscale">
-                        <div class="h-14 flex items-center px-5 bg-shironeri/50 border border-indigo/5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-matcha">
+                        <div class="h-12 flex items-center px-4 bg-shironeri/50 border border-indigo/5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] text-matcha">
                             In Stock
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                 <!-- Address -->
                 <div class="relative group">
                     <!-- Validation Hint (Above) -->
-                    <p v-if="!checkoutForm.destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions" class="text-[7px] font-black uppercase text-red-500 tracking-widest mb-1.5 ml-1 animate-fade-in">
+                    <p v-if="!checkoutForm.destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions" class="text-[7px] font-black uppercase text-red-500 tracking-widest mb-1 ml-1 animate-fade-in">
                         Pilih dari daftar saran
                     </p>
 
@@ -132,7 +132,7 @@
                             id="address_search"
                             required
                             :class="[
-                                'peer w-full h-14 pl-12 pr-10 pt-5 rounded-2xl border transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent outline-none',
+                                'peer w-full h-12 pl-10 pr-10 pt-4 rounded-xl border transition-all duration-300 ease-in-out text-[12px] font-bold placeholder-transparent outline-none',
                                 checkoutForm.destinationId ? 'border-indigo/30 bg-white ring-4 ring-indigo/5' : 'border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5',
                                 checkoutForm.formTouched && !checkoutForm.address ? 'border-red-200 bg-red-50/30' : '',
                                 !checkoutForm.destinationId && addressSearch.length >= 3 && !isSearching && !showSuggestions ? 'border-red-400' : ''
@@ -141,31 +141,31 @@
                             @input="handleAddressInput"
                             @blur="validateAddressSelection"
                         >
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">location_on</span>
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-usuzumi/30 text-base transition-all duration-300 ease-in-out peer-focus:text-indigo">location_on</span>
                         
                         <!-- Status Icon -->
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
-                            <span v-if="checkoutForm.destinationId" class="material-symbols-outlined text-matcha text-xl animate-fade-in">check_circle</span>
-                            <div v-else-if="isSearching" class="w-4 h-4 border-2 border-indigo/20 border-t-indigo rounded-full animate-spin"></div>
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                            <span v-if="checkoutForm.destinationId" class="material-symbols-outlined text-matcha text-lg animate-fade-in">check_circle</span>
+                            <div v-else-if="isSearching" class="w-3.5 h-3.5 border-2 border-indigo/20 border-t-indigo rounded-full animate-spin"></div>
                         </div>
 
                         <label
                             for="address_search"
-                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                            class="absolute left-10 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
                         >
                             Shipping Address <span class="text-red-500">*</span>
                         </label>
                         
                         <!-- Suggestions Dropdown -->
-                        <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[100] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                        <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[100] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
                             <button
                                 v-for="item in suggestions"
                                 :key="item.id"
                                 @click="selectDestination(item)"
-                                class="w-full text-left px-5 py-4 hover:bg-indigo/5 transition-colors border-b border-indigo/5 last:border-0"
+                                class="w-full text-left px-4 py-3 hover:bg-indigo/5 transition-colors border-b border-indigo/5 last:border-0"
                             >
-                                <p class="text-[13px] font-bold text-sumi">{{ item.label }}</p>
-                                <p class="text-[10px] text-usuzumi/50 font-medium uppercase tracking-wider mt-1">{{ item.subdistrict_name }}, {{ item.city_name }}</p>
+                                <p class="text-[12px] font-bold text-sumi">{{ item.label }}</p>
+                                <p class="text-[9px] text-usuzumi/50 font-medium uppercase tracking-wider mt-0.5">{{ item.subdistrict_name }}, {{ item.city_name }}</p>
                             </button>
                         </div>
                     </div>
@@ -180,13 +180,13 @@
                             rows="2"
                             required
                             :class="{'border-red-200 bg-red-50/30': checkoutForm.formTouched && !checkoutForm.addressDetail}"
-                            class="peer w-full pl-12 pr-6 py-6 rounded-[1.5rem] border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[13px] font-bold placeholder-transparent resize-none outline-none"
+                            class="peer w-full pl-10 pr-5 py-5 rounded-xl border-indigo/10 bg-shironeri/50 focus:bg-white focus:border-indigo focus:ring-4 focus:ring-indigo/5 transition-all duration-300 ease-in-out text-[12px] font-bold placeholder-transparent resize-none outline-none"
                             placeholder="Detail Alamat"
                         ></textarea>
-                        <span class="material-symbols-outlined absolute left-4 top-6 text-usuzumi/30 text-lg transition-all duration-300 ease-in-out peer-focus:text-indigo">home</span>
+                        <span class="material-symbols-outlined absolute left-3.5 top-5 text-usuzumi/30 text-base transition-all duration-300 ease-in-out peer-focus:text-indigo">home</span>
                         <label
                             for="address_detail"
-                            class="absolute left-12 top-2 text-[9px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-6 peer-placeholder-shown:text-[13px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-2 peer-focus:text-[9px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
+                            class="absolute left-10 top-1.5 text-[8px] font-black uppercase text-usuzumi/40 tracking-[0.15em] transition-all duration-300 ease-in-out pointer-events-none peer-placeholder-shown:top-5 peer-placeholder-shown:text-[12px] peer-placeholder-shown:font-bold peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:font-black peer-focus:uppercase peer-focus:tracking-[0.15em] peer-focus:text-indigo"
                         >
                             Detail Alamat <span class="text-red-500">*</span>
                         </label>
@@ -196,14 +196,14 @@
                 <!-- Courier Selection -->
                 <transition name="panel-slide">
                     <div v-if="checkoutForm.destinationId" class="relative group">
-                        <label class="text-[10px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-2 block ml-1">Pilih Kurir <span class="text-red-500">*</span></label>
+                        <label class="text-[9px] font-black uppercase text-usuzumi/60 tracking-[0.2em] mb-1.5 block ml-1">Pilih Kurir <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <!-- Custom Dropdown Trigger -->
                             <button
                                 @click="isCourierDropdownOpen = !isCourierDropdownOpen"
                                 type="button"
                                 :class="[
-                                    'w-full h-14 px-5 rounded-2xl border transition-all duration-300 ease-in-out text-[13px] font-bold flex items-center justify-between group',
+                                    'w-full h-12 px-4 rounded-xl border transition-all duration-300 ease-in-out text-[12px] font-bold flex items-center justify-between group',
                                     checkoutForm.courier ? 'bg-white border-indigo/20 shadow-sm' : 'bg-shironeri/50 border-indigo/10',
                                     checkoutForm.formTouched && !checkoutForm.courier ? 'border-red-200 bg-red-50/30' : ''
                                 ]"
@@ -212,23 +212,23 @@
                                     {{ selectedCourierName || 'Pilih Kurir' }}
                                 </span>
                                 <span 
-                                    class="material-symbols-outlined text-usuzumi/30 text-lg transition-transform duration-300 ease-in-out"
+                                    class="material-symbols-outlined text-usuzumi/30 text-base transition-transform duration-300 ease-in-out"
                                     :class="isCourierDropdownOpen ? 'rotate-180 text-indigo' : ''"
                                 >expand_more</span>
                             </button>
 
                             <!-- Custom Dropdown Menu -->
                             <transition name="dropdown-slide">
-                                <div v-if="isCourierDropdownOpen" class="absolute z-[110] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-2xl shadow-2xl overflow-hidden py-2">
+                                <div v-if="isCourierDropdownOpen" class="absolute z-[110] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden py-1.5">
                                     <div class="max-h-60 overflow-y-auto custom-scrollbar">
                                         <button
                                             v-for="c in checkoutForm.availableCouriers"
                                             :key="c.code"
                                             @click="selectCourier(c)"
-                                            class="w-full text-left px-5 py-3 hover:bg-indigo/5 transition-all duration-300 ease-in-out flex items-center justify-between group"
+                                            class="w-full text-left px-4 py-2.5 hover:bg-indigo/5 transition-all duration-300 ease-in-out flex items-center justify-between group"
                                         >
-                                            <span class="text-[13px] font-bold text-sumi group-hover:text-indigo">{{ c.name }}</span>
-                                            <span v-if="checkoutForm.courier === c.code" class="material-symbols-outlined text-indigo text-lg">check_circle</span>
+                                            <span class="text-[12px] font-bold text-sumi group-hover:text-indigo">{{ c.name }}</span>
+                                            <span v-if="checkoutForm.courier === c.code" class="material-symbols-outlined text-indigo text-base">check_circle</span>
                                         </button>
                                     </div>
                                 </div>
@@ -239,52 +239,55 @@
             </div>
 
             <!-- Addons Section (Compact) -->
-            <div class="space-y-4">
-                <div class="p-5 rounded-[2rem] bg-shironeri/30 border border-indigo/5 space-y-5">
+            <div class="space-y-3">
+                <div class="p-4 rounded-[1.5rem] bg-shironeri/30 border border-indigo/5 space-y-4">
                     <!-- Fast Track -->
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm ring-1 ring-indigo/5 flex items-center justify-center text-indigo">
-                                <span class="material-symbols-outlined text-xl">bolt</span>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-lg bg-white shadow-sm ring-1 ring-indigo/5 flex items-center justify-center text-indigo">
+                                <span class="material-symbols-outlined text-lg">bolt</span>
                             </div>
                             <div>
-                                <p class="text-[11px] font-black text-sumi uppercase tracking-tight">Fast Track</p>
-                                <p class="text-[8px] text-usuzumi/50 font-bold uppercase tracking-widest mt-0.5">3-5 Days</p>
+                                <p class="text-[10px] font-black text-sumi uppercase tracking-tight">Fast Track</p>
+                                <p class="text-[7px] text-usuzumi/50 font-bold uppercase tracking-widest mt-0.5">3-5 Days</p>
                             </div>
                         </div>
                         <div
-                            class="w-12 h-7 rounded-full relative transition-all duration-500 cursor-pointer p-1 ring-1 ring-inset"
+                            class="w-10 h-6 rounded-full relative transition-all duration-500 cursor-pointer p-1 ring-1 ring-inset"
                             :class="checkoutForm.fastTrackEnabled ? 'bg-indigo ring-indigo' : 'bg-usuzumi/10 ring-usuzumi/5'"
                             @click="checkoutForm.fastTrackEnabled = !checkoutForm.fastTrackEnabled"
                         >
                             <div
-                                class="w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-500 ease-spring"
-                                :class="checkoutForm.fastTrackEnabled ? 'translate-x-5' : ''"
+                                class="w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-500 ease-spring"
+                                :class="checkoutForm.fastTrackEnabled ? 'translate-x-4' : ''"
                             ></div>
                         </div>
                     </div>
 
-                    <div class="h-px bg-indigo/5"></div>
+                    <div v-if="checkoutForm.customBoxEnabled" class="h-px bg-indigo/5"></div>
 
                     <!-- Premium Box -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm ring-1 ring-indigo/5 flex items-center justify-center text-indigo">
-                                <span class="material-symbols-outlined text-xl">inventory_2</span>
+                    <div v-if="checkoutForm.customBoxEnabled" class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-lg bg-white shadow-sm ring-1 ring-indigo/5 flex items-center justify-center text-indigo">
+                                <span class="material-symbols-outlined text-lg">inventory_2</span>
                             </div>
                             <div>
-                                <p class="text-[11px] font-black text-sumi uppercase tracking-tight">Premium Box</p>
-                                <p class="text-[8px] text-usuzumi/50 font-bold uppercase tracking-widest mt-0.5">Exclusive</p>
+                                <p class="text-[10px] font-black text-sumi uppercase tracking-tight">Premium Box</p>
+                                <p class="text-[7px] text-usuzumi/50 font-bold uppercase tracking-widest mt-0.5">Exclusive</p>
                             </div>
                         </div>
                         <div
-                            class="w-12 h-7 rounded-full relative transition-all duration-500 cursor-pointer p-1 ring-1 ring-inset"
-                            :class="checkoutForm.customBoxEnabled ? 'bg-indigo ring-indigo' : 'bg-usuzumi/10 ring-usuzumi/5'"
-                            @click="checkoutForm.customBoxEnabled = !checkoutForm.customBoxEnabled"
+                            class="w-10 h-6 rounded-full relative transition-all duration-500 p-1 ring-1 ring-inset"
+                            :class="[
+                                checkoutForm.customBoxEnabled ? 'bg-indigo ring-indigo' : 'bg-usuzumi/10 ring-usuzumi/5',
+                                checkoutForm.isCustomBoxLocked ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                            ]"
+                            @click="!checkoutForm.isCustomBoxLocked && (checkoutForm.customBoxEnabled = !checkoutForm.customBoxEnabled)"
                         >
                             <div
-                                class="w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-500 ease-spring"
-                                :class="checkoutForm.customBoxEnabled ? 'translate-x-5' : ''"
+                                class="w-4 h-4 bg-white rounded-full shadow-lg transition-transform duration-500 ease-spring"
+                                :class="checkoutForm.customBoxEnabled ? 'translate-x-4' : ''"
                             ></div>
                         </div>
                     </div>
@@ -293,91 +296,102 @@
         </div>
 
         <!-- Footer / Checkout Button -->
-        <div class="p-6 border-t border-indigo/5 bg-white sticky bottom-0 z-20">
-            <div class="space-y-3 mb-6">
-                <div class="flex flex-col gap-1.5">
-                    <div class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest">
+        <div class="p-4 md:p-5 border-t border-indigo/5 bg-white sticky bottom-0 z-20">
+            <div class="space-y-2 mb-4">
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[10px] font-bold text-usuzumi/40 uppercase tracking-widest">
                         <span>Base Custom</span>
                         <span class="text-sumi font-black">{{ formatCurrency(899000) }}</span>
                     </div>
-                    <div v-if="checkoutForm.fastTrackEnabled" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest">
+                    <div v-if="checkoutForm.fastTrackEnabled" class="flex justify-between text-[10px] font-bold text-usuzumi/40 uppercase tracking-widest">
                         <span>Fast Track</span>
                         <span class="text-indigo font-black">+{{ formatCurrency(125000) }}</span>
                     </div>
-                    <div v-if="checkoutForm.customBoxEnabled" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest">
+                    <div v-if="checkoutForm.customBoxEnabled" class="flex justify-between text-[10px] font-bold text-usuzumi/40 uppercase tracking-widest">
                         <span>Premium Box</span>
                         <span class="text-indigo font-black">+{{ formatCurrency(65000) }}</span>
                     </div>
-                    <div v-if="checkoutForm.shippingCost > 0" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest">
+                    <div v-if="checkoutForm.shippingCost > 0" class="flex justify-between text-[10px] font-bold text-usuzumi/40 uppercase tracking-widest">
                         <span>Shipping ({{ checkoutForm.courier.toUpperCase() }})</span>
                         <span class="text-indigo font-black">+{{ formatCurrency(checkoutForm.shippingCost) }}</span>
                     </div>
-                    <div v-else-if="checkoutForm.isCalculatingShipping" class="flex justify-between text-[11px] font-bold text-usuzumi/40 uppercase tracking-widest animate-pulse">
+                    <div v-else-if="checkoutForm.isCalculatingShipping" class="flex justify-between text-[10px] font-bold text-usuzumi/40 uppercase tracking-widest animate-pulse">
                         <span>Calculating Shipping...</span>
                         <span class="text-usuzumi/20">--</span>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-indigo/5 flex justify-between items-center">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] font-black text-usuzumi/40 uppercase tracking-[0.2em]">Total</span>
-                        <span class="text-2xl font-black text-sumi tracking-tighter mt-1">{{ totalLabel }}</span>
+                <div class="pt-3 border-t border-indigo/5 flex justify-between items-center">
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-1 h-1 rounded-full bg-indigo animate-pulse"></div>
+                            <span class="text-[9px] font-black text-usuzumi/40 uppercase tracking-[0.2em]">Estimasi Total</span>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-xl font-black text-sumi tracking-tight">
+                                {{ totalLabel }}
+                            </span>
+                            <span class="text-[8px] font-bold text-usuzumi/30 uppercase tracking-widest">IDR</span>
+                        </div>
                     </div>
-                    <div class="flex flex-col items-end opacity-40">
-                         <span class="material-symbols-outlined text-2xl">verified_user</span>
-                         <span class="text-[8px] font-black uppercase tracking-widest mt-1">Secured</span>
+                    
+                    <div class="flex items-center gap-2 bg-indigo/[0.03] px-2.5 py-1.5 rounded-lg border border-indigo/5">
+                        <div class="w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center">
+                            <span class="material-symbols-outlined text-indigo text-[10px]">verified</span>
+                        </div>
+                        <span class="text-[7px] font-black text-indigo/60 uppercase tracking-[0.1em] leading-none">Premium<br>Quality</span>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3">
                 <!-- S&K Checkbox -->
-                <div class="flex items-start gap-4 px-2 mb-2">
+                <div class="flex items-start gap-3 px-1 mb-1">
                     <div class="relative flex items-center pt-0.5">
                         <input
                             type="checkbox"
                             id="agreed_to_terms_studio"
                             v-model="checkoutForm.agreedToTerms"
-                            class="h-5 w-5 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                            class="h-4 w-4 opacity-0 absolute inset-0 z-10 cursor-pointer"
                         >
                         <div 
-                            class="h-5 w-5 rounded-lg border-2 transition-all duration-300 shadow-sm flex items-center justify-center"
+                            class="h-4 w-4 rounded-md border-2 transition-all duration-300 shadow-sm flex items-center justify-center"
                             :class="checkoutForm.agreedToTerms ? 'bg-indigo border-indigo' : 'bg-shironeri/50 border-indigo/10'"
                         >
                             <span 
                                 v-if="checkoutForm.agreedToTerms"
-                                class="material-symbols-outlined text-white text-[16px] animate-fade-in"
+                                class="material-symbols-outlined text-white text-[12px] animate-fade-in"
                             >check</span>
                         </div>
                     </div>
-                    <label for="agreed_to_terms_studio" class="text-[10px] font-bold text-usuzumi/60 uppercase tracking-widest leading-relaxed cursor-pointer select-none">
-                        Saya menyetujui <span class="text-indigo underline">Syarat dan Ketentuan</span> yang berlaku di Bogor Sneakers.
+                    <label for="agreed_to_terms_studio" class="text-[9px] font-bold text-usuzumi/60 uppercase tracking-widest leading-relaxed cursor-pointer select-none">
+                        Saya menyetujui <span class="text-indigo underline">Syarat dan Ketentuan</span>.
                     </label>
                 </div>
 
                 <button
                     @click="$emit('checkout')"
                     :disabled="isSaving || !isFormValid"
-                    class="group relative overflow-hidden w-full h-16 bg-sumi text-washi font-black text-[11px] uppercase tracking-[0.2em] transition-all duration-500 rounded-[2rem] flex items-center justify-center gap-4 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
+                    class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 rounded-[1.5rem] flex items-center justify-center gap-3 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
                 >
                     <div class="absolute inset-0 bg-indigo opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     <!-- Animated Shine -->
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine"></div>
 
-                    <span v-if="isSaving" class="relative z-10 w-5 h-5 border-[3px] border-white/20 border-t-white rounded-full animate-spin"></span>
-                    <span class="relative z-10 flex items-center gap-4">
+                    <span v-if="isSaving" class="relative z-10 w-4 h-4 border-[2px] border-white/20 border-t-white rounded-full animate-spin"></span>
+                    <span class="relative z-10 flex items-center gap-3">
                         {{ isSaving ? 'Processing...' : 'Finalize & Checkout' }}
-                        <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
-                            <span class="material-symbols-outlined text-[14px] transition-colors duration-500 group-hover:text-indigo">shopping_bag</span>
+                        <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
+                            <span class="material-symbols-outlined text-[12px] transition-colors duration-500 group-hover:text-indigo">shopping_bag</span>
                         </div>
                     </span>
                 </button>
 
                 <!-- Dynamic Information Hint -->
-                <div v-if="!isFormValid && !isSaving" class="flex items-center justify-center gap-2 animate-fade-in">
-                    <span class="material-symbols-outlined text-[14px] text-usuzumi/40">info</span>
-                    <p class="text-[9px] text-usuzumi/40 font-bold uppercase tracking-widest">
+                <div v-if="!isFormValid && !isSaving" class="flex items-center justify-center gap-1.5 animate-fade-in">
+                    <span class="material-symbols-outlined text-[12px] text-usuzumi/40">info</span>
+                    <p class="text-[8px] text-usuzumi/40 font-bold uppercase tracking-widest">
                         Lengkapi: <span class="text-indigo underline">{{ missingFieldsLabel }}</span>
                     </p>
                 </div>
