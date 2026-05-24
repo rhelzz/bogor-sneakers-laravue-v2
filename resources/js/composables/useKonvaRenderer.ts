@@ -41,9 +41,28 @@ export function useKonvaRenderer() {
     let viewFrame = 0;
     let pendingView: { scale: number; x: number; y: number } | null = null;
     let activeViewTween: Konva.Tween | null = null;
+    let resizeObserver: ResizeObserver | null = null;
 
     const layerSourceImages = ref<Record<number, HTMLImageElement>>({});
     const isSyncing = ref(false);
+
+    const handleContainerResize = () => {
+        if (!stage || !containerRef.value) return;
+        const w = containerRef.value.clientWidth;
+        const h = containerRef.value.clientHeight;
+        if (w === stage.width() && h === stage.height()) return;
+
+        stage.width(w);
+        stage.height(h);
+
+        const padding = Math.min(w, h) * 0.1;
+        const fitScale = Math.min((w - padding) / CANVAS_SIZE, (h - padding) / CANVAS_SIZE);
+        const targetScale = Math.min(1, Math.max(MIN_STAGE_SCALE, fitScale));
+        applyStageView(targetScale, {
+            x: (w / 2) * (1 - targetScale),
+            y: (h / 2) * (1 - targetScale),
+        });
+    };
 
     const initStage = (container: HTMLDivElement) => {
         containerRef.value = container;
@@ -86,6 +105,10 @@ export function useKonvaRenderer() {
             }
         });
         mainLayer.add(transformer);
+
+        resizeObserver?.disconnect();
+        resizeObserver = new ResizeObserver(handleContainerResize);
+        resizeObserver.observe(container);
 
         setupEvents();
     };
@@ -883,6 +906,9 @@ export function useKonvaRenderer() {
     };
 
     const destroyStage = () => {
+        resizeObserver?.disconnect();
+        resizeObserver = null;
+
         if (viewFrame) {
             window.cancelAnimationFrame(viewFrame);
             viewFrame = 0;
