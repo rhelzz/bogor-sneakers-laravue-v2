@@ -27,20 +27,14 @@ const emit = defineEmits<{
 }>();
 
 const DEFAULT_PREVIEW_ZONE = { x: 0, y: 0, width: 1024, height: 1024 };
-const DEFAULT_PATTERN_ZONES = [
-    { id: 'utama',  x: 64,   y: 128, width: 896, height: 896, flip_x: false, rotation: 0 },
-    { id: 'cermin', x: 1088, y: 128, width: 896, height: 896, flip_x: true,  rotation: 0 },
-];
 
-const buildDefaultConfig = (): StudioConfig => ({
-    preview_zone: props.variant.studio_config?.preview_zone
+const buildPreviewZone = () =>
+    props.variant.studio_config?.preview_zone
         ? { ...props.variant.studio_config.preview_zone }
-        : { ...DEFAULT_PREVIEW_ZONE },
-    pattern_zones: DEFAULT_PATTERN_ZONES.map(z => ({ ...z })),
-});
+        : { ...DEFAULT_PREVIEW_ZONE };
 
-const config = reactive<StudioConfig>(buildDefaultConfig());
-const form = useForm({ studio_config: config });
+const config = reactive({ preview_zone: buildPreviewZone() });
+const form = useForm({ studio_config: { preview_zone: config.preview_zone } });
 watch(config, (val) => { form.studio_config = val; }, { deep: true });
 
 const save = () => {

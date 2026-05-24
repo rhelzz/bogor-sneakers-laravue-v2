@@ -151,21 +151,16 @@ class ShoeVariantController extends Controller
     public function updateStudioConfig(Request $request, ShoeVariant $shoeVariant): RedirectResponse
     {
         $validated = $request->validate([
-            'studio_config.preview_zone.x'           => 'required|numeric',
-            'studio_config.preview_zone.y'           => 'required|numeric',
-            'studio_config.preview_zone.width'       => 'required|numeric|min:1',
-            'studio_config.preview_zone.height'      => 'required|numeric|min:1',
-            'studio_config.pattern_zones'            => 'required|array|min:1',
-            'studio_config.pattern_zones.*.id'       => 'required|string|max:64',
-            'studio_config.pattern_zones.*.x'        => 'required|numeric',
-            'studio_config.pattern_zones.*.y'        => 'required|numeric',
-            'studio_config.pattern_zones.*.width'    => 'required|numeric|min:1',
-            'studio_config.pattern_zones.*.height'   => 'required|numeric|min:1',
-            'studio_config.pattern_zones.*.flip_x'   => 'boolean',
-            'studio_config.pattern_zones.*.rotation' => 'numeric',
+            'studio_config.preview_zone.x'      => 'required|numeric',
+            'studio_config.preview_zone.y'      => 'required|numeric',
+            'studio_config.preview_zone.width'  => 'required|numeric|min:1',
+            'studio_config.preview_zone.height' => 'required|numeric|min:1',
         ]);
 
-        $shoeVariant->update(['studio_config' => $validated['studio_config']]);
+        $existingConfig = $shoeVariant->studio_config ?? [];
+        $merged = array_merge($existingConfig, ['preview_zone' => $validated['studio_config']['preview_zone']]);
+
+        $shoeVariant->update(['studio_config' => $merged]);
 
         Cache::forget('studio-custom:asset-catalog:v2');
 

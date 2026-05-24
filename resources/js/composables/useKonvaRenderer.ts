@@ -757,7 +757,7 @@ export function useKonvaRenderer() {
                 }
             };
 
-            if (config) {
+            if (config && config.pattern_zones?.length) {
                 const pz: PreviewZone = config.preview_zone;
                 for (const zone of config.pattern_zones) {
                     const relX = (centerPt.x - pz.x) / pz.width;
