@@ -196,25 +196,77 @@
                     </div>
                 </div>
 
-                <div v-if="!currentModelMeta?.studio_config" class="space-y-2 bg-indigo/[0.02] p-3 rounded-xl border border-indigo/5">
-                    <label class="text-[10px] font-black uppercase text-usuzumi tracking-widest ml-1 opacity-40 flex items-center gap-1 text-red-500">
-                        <span class="material-symbols-outlined text-[12px]">build</span>
-                        Koreksi Cetak Sisi Sebelahnya
-                    </label>
-                    <p class="text-[8px] text-gray-400 font-bold mb-2 ml-1">Koreksi geser cetakan elemen untuk sisi sepatu sebelahnya.</p>
-                    
+                <div v-if="!currentModelMeta?.studio_config" class="space-y-3 bg-amber-50/60 p-3 rounded-xl border border-amber-100">
+                    <!-- Header -->
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-[13px] text-amber-600">tune</span>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-sumi leading-none">Koreksi Cetak</p>
+                            <p class="text-[8px] text-amber-600/70 font-semibold mt-0.5 leading-tight">Geser cetakan sisi sepatu sebelahnya</p>
+                        </div>
+                        <button
+                            @click="resetPrintCorrection"
+                            class="flex-shrink-0 flex items-center gap-0.5 text-[8px] font-black uppercase tracking-wider text-gray-400 hover:text-red-400 transition-colors active:scale-95 px-2 py-1 rounded-lg hover:bg-red-50"
+                            title="Reset ke 0"
+                        >
+                            <span class="material-symbols-outlined text-[11px]">restart_alt</span>
+                            Reset
+                        </button>
+                    </div>
+
+                    <!-- Stepper controls -->
                     <div class="grid grid-cols-3 gap-2">
-                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
-                            <label class="block text-[8px] font-black text-gray-400 mb-1">X (px)</label>
-                            <input type="number" v-model.number="activeElement.mx" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+                        <!-- X -->
+                        <div class="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-2 py-1 bg-gray-50/80 border-b border-gray-100">
+                                <span class="material-symbols-outlined text-[11px] text-blue-400">arrow_forward</span>
+                                <span class="text-[8px] font-black text-gray-400 uppercase tracking-wider">X px</span>
+                            </div>
+                            <div class="flex items-center h-9">
+                                <button @click="adjustValue('mx', -1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">remove</span>
+                                </button>
+                                <input type="number" v-model.number="activeElement.mx" class="flex-1 text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent min-w-0">
+                                <button @click="adjustValue('mx', 1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">add</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
-                            <label class="block text-[8px] font-black text-gray-400 mb-1">Y (px)</label>
-                            <input type="number" v-model.number="activeElement.my" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+
+                        <!-- Y -->
+                        <div class="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-2 py-1 bg-gray-50/80 border-b border-gray-100">
+                                <span class="material-symbols-outlined text-[11px] text-green-400">arrow_downward</span>
+                                <span class="text-[8px] font-black text-gray-400 uppercase tracking-wider">Y px</span>
+                            </div>
+                            <div class="flex items-center h-9">
+                                <button @click="adjustValue('my', -1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">remove</span>
+                                </button>
+                                <input type="number" v-model.number="activeElement.my" class="flex-1 text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent min-w-0">
+                                <button @click="adjustValue('my', 1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">add</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm focus-within:border-primary transition-colors text-center">
-                            <label class="block text-[8px] font-black text-gray-400 mb-1">Sudut (°)</label>
-                            <input type="number" v-model.number="activeElement.mrot" class="w-full text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent">
+
+                        <!-- Rotation -->
+                        <div class="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden">
+                            <div class="flex items-center justify-between px-2 py-1 bg-gray-50/80 border-b border-gray-100">
+                                <span class="material-symbols-outlined text-[11px] text-purple-400">rotate_right</span>
+                                <span class="text-[8px] font-black text-gray-400 uppercase tracking-wider">Sudut</span>
+                            </div>
+                            <div class="flex items-center h-9">
+                                <button @click="adjustValue('mrot', -1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">remove</span>
+                                </button>
+                                <input type="number" v-model.number="activeElement.mrot" class="flex-1 text-[11px] font-bold text-center border-none p-0 focus:ring-0 bg-transparent min-w-0">
+                                <button @click="adjustValue('mrot', 1)" class="w-8 h-full flex items-center justify-center text-gray-300 hover:text-indigo hover:bg-indigo/5 transition-colors active:scale-90 flex-shrink-0">
+                                    <span class="material-symbols-outlined text-base">add</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -260,6 +312,18 @@ const selectMask = (id: number | null) => {
         activeElement.value.maskId = id;
     }
     isMaskDropdownOpen.value = false;
+};
+
+const adjustValue = (field: 'mx' | 'my' | 'mrot', delta: number) => {
+    if (!activeElement.value) return;
+    activeElement.value[field] = (activeElement.value[field] ?? 0) + delta;
+};
+
+const resetPrintCorrection = () => {
+    if (!activeElement.value) return;
+    activeElement.value.mx = 0;
+    activeElement.value.my = 0;
+    activeElement.value.mrot = 0;
 };
 
 const handleClickOutside = (event: MouseEvent) => {
