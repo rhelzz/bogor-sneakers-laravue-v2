@@ -8,7 +8,9 @@
       "Bash(Get-ChildItem -Path \"e:\\\\laragon\\\\www\\\\bogor-sneakers-laravue\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(npx vue-tsc *)",
-      "Bash(grep -E \"\\\\.php$\")"
+      "Bash(grep -E \"\\\\.php$\")",
+      "Bash(Get-ChildItem -Path \"e:\\\\laragon\\\\www\\\\bogor-sneakers-laravue\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }
