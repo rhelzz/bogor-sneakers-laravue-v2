@@ -57,22 +57,28 @@
                         >
                     </div>
 
-                    <!-- Delete Button (Top Right) -->
+                    <!-- Delete Button (Top Right) — always visible on mobile, hover-only on desktop -->
                     <button
                         @click.stop="removeUploadedMedia(media.id)"
-                        class="absolute right-2 top-2 z-30 flex h-6 w-6 items-center justify-center rounded-full bg-white/40 text-sumi backdrop-blur-md opacity-0 transition-all duration-300 hover:bg-red-500 hover:text-white group-hover:opacity-100"
+                        class="absolute right-2 top-2 z-30 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-sumi backdrop-blur-md transition-all duration-300 hover:bg-red-500 hover:text-white md:opacity-0 md:group-hover:opacity-100 shadow-sm"
                     >
                         <span class="material-symbols-outlined text-[14px]">close</span>
                     </button>
 
-                    <!-- Hover Overlay (Add Action) -->
-                    <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-sumi/80 opacity-0 backdrop-blur-sm transition-all duration-500 group-hover:opacity-100">
+                    <!-- Hover Overlay (Add Action) — desktop only -->
+                    <div class="hidden md:flex absolute inset-0 z-20 flex-col items-center justify-center bg-sumi/80 opacity-0 backdrop-blur-sm transition-all duration-500 group-hover:opacity-100">
                         <div class="flex flex-col items-center gap-2 translate-y-2 transition-transform duration-500 group-hover:translate-y-0">
                             <div class="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sumi shadow-xl">
                                 <span class="material-symbols-outlined text-lg">add</span>
                             </div>
                             <span class="text-[8px] font-bold uppercase tracking-widest text-white/90">Add to Canvas</span>
                         </div>
+                    </div>
+
+                    <!-- Mobile tap indicator -->
+                    <div class="md:hidden absolute bottom-1.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-sumi/70 backdrop-blur-sm rounded-full px-2 py-0.5">
+                        <span class="material-symbols-outlined text-[10px] text-white">add</span>
+                        <span class="text-[7px] font-black uppercase tracking-wider text-white/90">Tambah</span>
                     </div>
                 </div>
             </transition-group>
