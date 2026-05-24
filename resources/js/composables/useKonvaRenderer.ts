@@ -894,6 +894,7 @@ export function useKonvaRenderer() {
         saveToHistory,
         zoomBy,
         resetView,
+        deselect,
         createPreviewURL,
         createPatternURL,
         downloadURL,
