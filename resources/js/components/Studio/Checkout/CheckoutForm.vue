@@ -11,12 +11,12 @@
                 </button>
                 <div>
                     <h3 class="text-base font-black text-sumi tracking-tight uppercase">Checkout</h3>
-                    <p class="text-[9px] text-usuzumi/50 font-bold tracking-[0.1em] uppercase mt-0.5">Shipping Details</p>
+                    <p class="text-[9px] text-usuzumi/50 font-bold tracking-widest uppercase mt-0.5">Shipping Details</p>
                 </div>
             </div>
         </div>
 
-        <div class="p-4 md:p-5 flex-grow overflow-y-auto custom-scrollbar space-y-6">
+        <div class="p-4 md:p-5 grow overflow-y-auto custom-scrollbar space-y-6">
              <!-- Form Section -->
              <div class="grid gap-5">
                 <!-- Name -->
@@ -157,7 +157,7 @@
                         </label>
                         
                         <!-- Suggestions Dropdown -->
-                        <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-[100] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                        <div v-if="showSuggestions && suggestions.length > 0" class="absolute z-100 left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
                             <button
                                 v-for="item in suggestions"
                                 :key="item.id"
@@ -219,7 +219,7 @@
 
                             <!-- Custom Dropdown Menu -->
                             <transition name="dropdown-slide">
-                                <div v-if="isCourierDropdownOpen" class="absolute z-[110] left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden py-1.5">
+                                <div v-if="isCourierDropdownOpen" class="absolute z-110 left-0 right-0 mt-2 bg-white border border-indigo/10 rounded-xl shadow-2xl overflow-hidden py-1.5">
                                     <div class="max-h-60 overflow-y-auto custom-scrollbar">
                                         <button
                                             v-for="c in checkoutForm.availableCouriers"
@@ -240,7 +240,7 @@
 
             <!-- Addons Section (Compact) -->
             <div class="space-y-3">
-                <div class="p-4 rounded-[1.5rem] bg-shironeri/30 border border-indigo/5 space-y-4">
+                <div class="p-4 rounded-3xl bg-shironeri/30 border border-indigo/5 space-y-4">
                     <!-- Fast Track -->
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
@@ -335,11 +335,11 @@
                         </div>
                     </div>
                     
-                    <div class="flex items-center gap-2 bg-indigo/[0.03] px-2.5 py-1.5 rounded-lg border border-indigo/5">
+                    <div class="flex items-center gap-2 bg-indigo/3 px-2.5 py-1.5 rounded-lg border border-indigo/5">
                         <div class="w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center">
                             <span class="material-symbols-outlined text-indigo text-[10px]">verified</span>
                         </div>
-                        <span class="text-[7px] font-black text-indigo/60 uppercase tracking-[0.1em] leading-none">Premium<br>Quality</span>
+                        <span class="text-[7px] font-black text-indigo/60 uppercase tracking-widest leading-none">Premium<br>Quality</span>
                     </div>
                 </div>
             </div>
@@ -372,17 +372,17 @@
                 <button
                     @click="$emit('checkout')"
                     :disabled="isSaving || !isFormValid"
-                    class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 rounded-[1.5rem] flex items-center justify-center gap-3 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
+                    class="group relative overflow-hidden w-full h-14 bg-sumi text-washi font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 rounded-3xl flex items-center justify-center gap-3 shadow-2xl shadow-sumi/10 hover:bg-indigo hover:-translate-y-1 active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:translate-y-0"
                 >
                     <div class="absolute inset-0 bg-indigo opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
                     <!-- Animated Shine -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine"></div>
+                    <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shine"></div>
 
-                    <span v-if="isSaving" class="relative z-10 w-4 h-4 border-[2px] border-white/20 border-t-white rounded-full animate-spin"></span>
+                    <span v-if="isSaving" class="relative z-10 w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
                     <span class="relative z-10 flex items-center gap-3">
                         {{ isSaving ? 'Processing...' : 'Finalize & Checkout' }}
-                        <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-[360deg]">
+                        <div class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:rotate-360">
                             <span class="material-symbols-outlined text-[12px] transition-colors duration-500 group-hover:text-indigo">shopping_bag</span>
                         </div>
                     </span>
@@ -421,13 +421,34 @@ const isFormValid = computed(() => {
 });
 
 const missingFieldsLabel = computed(() => {
-    if (!checkoutForm.name) return 'Nama Lengkap';
-    if (checkoutForm.phone.replace(/\D/g, '').length < 10) return 'Nomor WhatsApp';
-    if (!checkoutForm.shoeSize) return 'Ukuran Sepatu';
-    if (!checkoutForm.destinationId) return 'Pilih Kecamatan/Kota';
-    if (!checkoutForm.addressDetail) return 'Alamat Lengkap';
-    if (!checkoutForm.courier) return 'Pilih Kurir';
-    if (!checkoutForm.agreedToTerms) return 'Setujui Syarat & Ketentuan';
+    if (!checkoutForm.name) {
+        return 'Nama Lengkap';
+    }
+
+    if (checkoutForm.phone.replace(/\D/g, '').length < 10) {
+        return 'Nomor WhatsApp';
+    }
+
+    if (!checkoutForm.shoeSize) {
+        return 'Ukuran Sepatu';
+    }
+
+    if (!checkoutForm.destinationId) {
+        return 'Pilih Kecamatan/Kota';
+    }
+
+    if (!checkoutForm.addressDetail) {
+        return 'Alamat Lengkap';
+    }
+
+    if (!checkoutForm.courier) {
+        return 'Pilih Kurir';
+    }
+
+    if (!checkoutForm.agreedToTerms) {
+        return 'Setujui Syarat & Ketentuan';
+    }
+
     return '';
 });
 
@@ -442,14 +463,22 @@ const validateAddressSelection = () => {
 const validatePhoneInput = (e: Event) => {
     const input = e.target as HTMLInputElement;
     let value = input.value.replace(/\D/g, '');
-    if (value.length > 13) value = value.substring(0, 13);
+
+    if (value.length > 13) {
+        value = value.substring(0, 13);
+    }
+
     checkoutForm.phone = value;
 };
 
 const formatPhoneOnBlur = () => {
     let value = checkoutForm.phone.replace(/\D/g, '');
-    if (value.startsWith('0')) value = value.substring(1);
-    else if (value.startsWith('62')) value = value.substring(2);
+
+    if (value.startsWith('0')) {
+        value = value.substring(1);
+    } else if (value.startsWith('62')) {
+        value = value.substring(2);
+    }
 
     if (value.length === 12) {
         const part1 = value.substring(0, 3);
@@ -472,7 +501,8 @@ let abortController: AbortController | null = null;
 const shoeSizes = Array.from({ length: 11 }, (_, i) => 35 + i);
 
 const selectedCourierName = computed(() => {
-    const courier = checkoutForm.availableCouriers.find(c => c.code === checkoutForm.courier);
+    const courier = checkoutForm.availableCouriers.find((c: any) => c.code === checkoutForm.courier);
+
     return courier ? courier.name : '';
 });
 
@@ -483,9 +513,12 @@ const selectCourier = (courier: any) => {
 };
 
 const calculateShippingCost = async () => {
-    if (!checkoutForm.destinationId || !checkoutForm.courier) return;
+    if (!checkoutForm.destinationId || !checkoutForm.courier) {
+        return;
+    }
 
     checkoutForm.isCalculatingShipping = true;
+
     try {
         const response = await fetch('/shipping/calculate', {
             method: 'POST',
@@ -503,9 +536,10 @@ const calculateShippingCost = async () => {
         });
 
         const result = await response.json();
+
         if (result.meta.code === 200 && Array.isArray(result.data)) {
-            // Find REG service
             const regService = result.data.find((s: any) => s.service === 'REG');
+
             if (regService) {
                 checkoutForm.shippingCost = regService.cost;
             } else {
@@ -521,11 +555,14 @@ const calculateShippingCost = async () => {
 };
 
 const handleAddressInput = () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
+    }
+
     if (addressSearch.value.length < 3) {
         suggestions.value = [];
         showSuggestions.value = false;
+
         return;
     }
 
@@ -535,8 +572,10 @@ const handleAddressInput = () => {
 };
 
 const fetchDestinations = async () => {
-    // Cancel previous request if still pending
-    if (abortController) abortController.abort();
+    if (abortController) {
+        abortController.abort();
+    }
+
     abortController = new AbortController();
 
     isSearching.value = true;
@@ -547,7 +586,7 @@ const fetchDestinations = async () => {
             signal: abortController.signal
         });
         const result = await response.json();
-        
+
         if (result.meta.code === 200) {
             suggestions.value = result.data;
         }
@@ -579,6 +618,7 @@ const fetchCouriers = async () => {
     try {
         const response = await fetch('/shipping/couriers');
         const result = await response.json();
+
         if (result.meta.code === 200) {
             checkoutForm.availableCouriers = result.data;
         }
@@ -596,9 +636,17 @@ onMounted(() => {
 
 const totalLabel = computed(() => {
     let total = 899000;
-    if (checkoutForm.fastTrackEnabled) total += 125000;
-    if (checkoutForm.customBoxEnabled) total += 65000;
+
+    if (checkoutForm.fastTrackEnabled) {
+        total += 125000;
+    }
+
+    if (checkoutForm.customBoxEnabled) {
+        total += 65000;
+    }
+
     total += checkoutForm.shippingCost;
+
     return formatCurrency(total);
 });
 
