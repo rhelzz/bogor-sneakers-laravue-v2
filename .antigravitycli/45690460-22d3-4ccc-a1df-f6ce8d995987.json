@@ -1,1 +1,14 @@
-C:/Users/muham/.gemini/config/projects/45690460-22d3-4ccc-a1df-f6ce8d995987.json
+{
+  "id": "45690460-22d3-4ccc-a1df-f6ce8d995987",
+  "name": "C:\\laragon\\www\\bogor-sneakers-laravue",
+  "projectResources": {
+    "resources": [
+      {
+        "gitFolder": {
+          "folderUri": "file://C:/laragon/www/bogor-sneakers-laravue",
+          "allowWrite": true
+        }
+      }
+    ]
+  }
+}

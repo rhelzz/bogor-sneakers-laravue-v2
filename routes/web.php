@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\CarouselSlideController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryKaryaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PreOrderHomeController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\ShoeModelController;
 use App\Http\Controllers\ShoeTypeController;
 use App\Http\Controllers\ShoeVariantController;
@@ -15,9 +16,6 @@ use App\Http\Controllers\StudioAssetController;
 use App\Http\Controllers\TikTokFeedController;
 use App\Http\Controllers\WhatsAppAdminController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-
-use App\Http\Controllers\ShippingController;
 
 // ... other imports
 
@@ -34,7 +32,9 @@ Route::get('/katalog/{catalog}', [KatalogController::class, 'show'])
     ->where('catalog', '^[a-z0-9-]+-[0-9a-hjkmnp-tv-z]{26}$')
     ->name('katalog.show');
 Route::inertia('/studio-custom', 'StudioCustom')->name('studio-custom');
+Route::inertia('/studio-custom-v2', 'StudioCustomV2')->name('studio-custom.v2');
 Route::get('/api/studio-custom/catalog', [StudioAssetController::class, 'catalog'])->name('studio-custom.catalog');
+Route::get('/api/studio-custom-v2/catalog', [StudioAssetController::class, 'catalogV2'])->name('studio-custom-v2.catalog');
 Route::inertia('/tracking', 'Tracking')->name('tracking');
 Route::inertia('/checkout', 'Checkout')->name('checkout');
 
@@ -95,7 +95,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/model-sepatu/{shoeModel}/variants', [ShoeVariantController::class, 'index'])->name('admin.model-sepatu.variants');
     Route::post('/model-sepatu/{shoeModel}/variants', [ShoeVariantController::class, 'store'])->name('admin.model-sepatu.variants.store');
     Route::post('/model-sepatu/{shoeModel}/variants/move-all', [ShoeVariantController::class, 'moveAllToType'])->name('admin.model-sepatu.variants.move-all');
-    
+
     // Shoe Type (Jenis) Routes
     Route::post('/model-sepatu/{shoeModel}/types', [ShoeTypeController::class, 'store'])->name('admin.model-sepatu.types.store');
     Route::put('/shoe-types/{shoeType}', [ShoeTypeController::class, 'update'])->name('admin.shoe-types.update');

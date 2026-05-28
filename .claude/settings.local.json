@@ -10,7 +10,14 @@
       "Bash(npx vue-tsc *)",
       "Bash(grep -E \"\\\\.php$\")",
       "Bash(Get-ChildItem -Path \"e:\\\\laragon\\\\www\\\\bogor-sneakers-laravue\" -Recurse -Directory)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(sed 's/.*custom-high //')",
+      "Bash(sed 's/_aksen.*//')",
+      "Bash(sed 's/_pola aksen.*//')"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "laravel-boost"
+  ]
 }
