@@ -184,13 +184,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { Head } from '@inertiajs/vue3';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
-import StudioCanvas from '../components/Studio/StudioCanvas.vue';
+import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
+
 import CheckoutForm from '../components/Studio/Checkout/CheckoutForm.vue';
 import AddonModals from '../components/Studio/Modals/AddonModals.vue';
-import CheckoutConfirmModal from '@/components/ui/CheckoutConfirmModal.vue';
+import StudioCanvas from '../components/Studio/StudioCanvas.vue';
 import AccentCarouselPanel from '../components/StudioV2/AccentCarouselPanel.vue';
 
 import { useKonvaRendererV2 } from '../composables/useKonvaRendererV2';
@@ -228,8 +229,8 @@ const selectedCatalog = ref<ShoeTypeCatalog | null>(null);
 // When catalog loads, initialize with first catalog
 watch(catalogs, (list) => {
     if (list.length && !selectedCatalog.value) {
-        selectedCatalog.value = list[0];
-        resetAccentState(list[0]);
+        selectedCatalog.value = list[0] as ShoeTypeCatalog;
+        resetAccentState(list[0] as ShoeTypeCatalog);
     }
 }, { immediate: true });
 
@@ -265,6 +266,7 @@ const resetAccentState = (catalog: ShoeTypeCatalog) => {
 const handleInitStage = (container: HTMLDivElement) => {
     initStage(container);
     stageInitialized = true;
+
     if (selectedCatalog.value) {
         loadAllLayers(selectedCatalog.value, accentModels.value, accentColors.value, accentEnabled.value);
     }
@@ -278,7 +280,10 @@ watch(selectedCatalog, (catalog) => {
 });
 
 const confirmReset = () => {
-    if (!selectedCatalog.value) return;
+    if (!selectedCatalog.value) {
+        return;
+    }
+
     if (confirm('Reset semua pilihan aksen ke default?')) {
         resetAccentState(selectedCatalog.value);
         loadAllLayers(selectedCatalog.value, accentModels.value, accentColors.value, accentEnabled.value);
@@ -288,15 +293,22 @@ const confirmReset = () => {
 // ─── Shoe Type Change ─────────────────────────────────────────────────────────
 const onShoeTypeChange = (typeId: string) => {
     const catalog = catalogs.value.find(t => t.id === typeId);
-    if (!catalog || catalog.id === selectedCatalog.value?.id) return;
-    selectedCatalog.value = catalog;
-    resetAccentState(catalog);
+
+    if (!catalog || catalog.id === selectedCatalog.value?.id) {
+        return;
+    }
+
+    selectedCatalog.value = catalog as ShoeTypeCatalog;
+    resetAccentState(catalog as ShoeTypeCatalog);
     // watch(selectedCatalog) will trigger loadAllLayers
 };
 
 // ─── Accent Event Handlers ────────────────────────────────────────────────────
 const onAccentModelChange = async (slot: number, model: number) => {
-    if (!selectedCatalog.value) return;
+    if (!selectedCatalog.value) {
+        return;
+    }
+
     accentModels.value[slot] = model;
     loadingSlot.value = slot;
     await updateSlotModel(selectedCatalog.value, slot, model, accentColors.value[slot]);
@@ -310,9 +322,14 @@ const onAccentColorChange = (slot: number, color: string) => {
 };
 
 const onAccentEnabledChange = async (slot: number, enabled: boolean) => {
-    if (!selectedCatalog.value) return;
+    if (!selectedCatalog.value) {
+        return;
+    }
+
     accentEnabled.value[slot] = enabled;
+
     const needsLoad = setSlotEnabled(slot, enabled);
+
     if (needsLoad) {
         loadingSlot.value = slot;
         await updateSlotModel(selectedCatalog.value, slot, accentModels.value[slot], accentColors.value[slot]);
@@ -352,7 +369,10 @@ const cancelCheckout = () => {
 };
 
 const handleFinalCheckout = () => {
-    if (isSaving.value) return;
+    if (isSaving.value) {
+        return;
+    }
+
     checkoutForm.address = `${checkoutForm.addressDetail}, ${checkoutForm.address}`;
     showConfirmModal.value = true;
 };
@@ -364,19 +384,23 @@ const formattedTotal = computed(() => {
         + (checkoutForm.fastTrackEnabled ? 125000 : 0)
         + (checkoutForm.customBoxEnabled ? 65000 : 0)
         + checkoutForm.shippingCost;
+
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(total);
 });
 
 const WHATSAPP_INTRO = 'Halo Admin Bogor Sneakers, saya ingin memesan sepatu Custom Studio V2:';
 
 const submitCheckout = async () => {
-    if (isSaving.value || !selectedCatalog.value) return;
+    if (isSaving.value || !selectedCatalog.value) {
+        return;
+    }
+
     isSaving.value = true;
     showConfirmModal.value = false;
 
     try {
         const previewUrl = createPreviewURL();
-        const patternUrl = await createPatternURL(selectedCatalog.value, accentModels.value, accentColors.value, accentEnabled.value);
+        const patternUrl = await createPatternURL(selectedCatalog.value, accentModels.value, accentColors.value, accentEnabled.value, layerOrder.value);
 
         const timestamp = Date.now();
         const safeName = checkoutForm.name.replace(/\s+/g, '_') || 'GUEST';
@@ -420,9 +444,17 @@ const submitCheckout = async () => {
 
 // ─── Keyboard shortcuts ────────────────────────────────────────────────────────
 const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === '+' || e.key === '=') zoomBy(1.25);
-    if (e.key === '-') zoomBy(1 / 1.25);
-    if (e.key === '0') resetView();
+    if (e.key === '+' || e.key === '=') {
+        zoomBy(1.25);
+    }
+
+    if (e.key === '-') {
+        zoomBy(1 / 1.25);
+    }
+
+    if (e.key === '0') {
+        resetView();
+    }
 };
 
 onMounted(() => {
